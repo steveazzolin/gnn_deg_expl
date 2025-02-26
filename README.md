@@ -1,16 +1,7 @@
-# WORK IN PROGRESS
+# [WIP] Explanation Shortcuts
 
 
-## Table of contents
-
-* [Overview](#overview)
-* [Installation](#installation)
-* [Run LECI](#run-leci)
-* [Citing LECI](#citing-leci)
-* [License](#license)
-* [Contact](#contact)
-
-## Relevant Commands
+## Relevant Commands (OLD)
 
 ```shell
 # TopoFeature (ERM)
