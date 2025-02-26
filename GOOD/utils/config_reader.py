@@ -228,8 +228,7 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
             model_dirname += f'{args.mitigation_expl_scores_topk}'
     if config.global_side_channel:
         model_dirname += f"gchannel{config.global_side_channel}"
-    if config.use_norm != "bn":
-        model_dirname += f"norm{config.use_norm}"
+    model_dirname += f"norm{config.use_norm}"
 
     model_dirname = model_dirname + f'avgedgeattn{args.average_edge_attn}'
     print("model_dirname=", model_dirname)

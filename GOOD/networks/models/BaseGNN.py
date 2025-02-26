@@ -137,7 +137,7 @@ class BasicEncoder(torch.nn.Module):
                 for _ in range(num_layer)
             ]
         )
-        if kwargs.get('no_bn') or config.use_norm == "none":
+        if kwargs.get('no_bn') or config.use_norm == "none" or config.use_norm is None:
             print("Using no_bn in BasicEncoder")
             self.batch_norms = [
                 Identity()

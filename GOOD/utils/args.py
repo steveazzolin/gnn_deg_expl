@@ -141,7 +141,7 @@ class CommonArgs(Tap):
     splits: str = "" # Added by Steve
     ratios: str = "" # Added by Steve
     wandb: bool = False # Added by Steve
-    use_norm: str = "bn" # Added by Steve
+    use_norm: str = None # Added by Steve
 
     global_side_channel: str = None # Added by Steve
     
