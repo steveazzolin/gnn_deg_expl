@@ -61,6 +61,8 @@ class GlobalAddPool(GNNPool):
 
     def __init__(self, **kwargs):
         super().__init__()
+        self.mitigation_readout = kwargs["mitigation_readout"] if "mitigation_readout" in kwargs.keys() else None
+        print("mitigation_readout = ", self.mitigation_readout)
 
     def forward(self, x, batch, batch_size=None, edge_index=None, edge_mask=None):
         r"""Returns batch-wise graph-level-outputs by adding node features
@@ -83,7 +85,7 @@ class GlobalAddPool(GNNPool):
         """
         if batch_size is None:
             batch_size = batch[-1].item() + 1
-        if not edge_mask is None and not edge_index is None:
+        if self.mitigation_readout == "weighted":
             node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0])
             x = x * node_mask.unsqueeze(1)
         return gnn.global_add_pool(x, batch, batch_size)
