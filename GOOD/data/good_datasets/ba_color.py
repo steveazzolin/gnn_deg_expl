@@ -56,6 +56,11 @@ class BAColor(InMemoryDataset):
             ]) # some of these colors might not be adversarial since they do not change the relative number of RED and BLUE
         else:
             raise NotImplementedError(f"{shift} shift not implemented")
+        
+        self.color_map = {
+            (1., 0.): "R",
+            (0., 1.): "B",
+        }
 
         super(BAColor, self).__init__(root, transform, pre_transform)
 
@@ -187,26 +192,16 @@ class BAColor(InMemoryDataset):
             dataset = BAColor(dataset_root, domain=domain)
             ood1_dataset = BAColor(dataset_root, domain=domain, shift="size")
             ood2_dataset = BAColor(dataset_root, domain=domain, shift="ER")
-        elif domain == "color":
-            dataset = BAColor(dataset_root, domain=domain)
-            ood1_dataset = BAColor(dataset_root, domain=domain, shift="size")
-            ood2_dataset = BAColor(dataset_root, domain=domain, shift="color")
-        elif domain == "constant":
-            dataset = BAColor(dataset_root, domain=domain)
-            ood1_dataset = dataset #BAColor(dataset_root, domain=domain, shift="size")
-            ood2_dataset = dataset #BAColor(dataset_root, domain=domain, shift="color")
 
         index_train, index_val_test = train_test_split(
             torch.arange(len(dataset)), 
             train_size=0.8,
             stratify=dataset.y,
-            random_state=42
         )
         index_val, index_test = train_test_split(
             torch.arange(len(dataset[index_val_test])), 
             train_size=0.5,
             stratify=dataset[index_val_test].y,
-            random_state=42
         )
 
         train_dataset = dataset[index_train]
