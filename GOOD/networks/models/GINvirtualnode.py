@@ -9,7 +9,7 @@ from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
 from .BaseGNN import GNNBasic
 from .Classifiers import Classifier
-from .GINs import GINEncoder, GINMolEncoder, GINFeatExtractor
+from .GINs import Encoder, MolEncoder, FeatExtractor
 from .Pooling import GlobalAddPool
 
 
@@ -47,7 +47,7 @@ class vGIN(GNNBasic):
         return out
 
 
-class vGINFeatExtractor(GINFeatExtractor):
+class vFeatExtractor(FeatExtractor):
     r"""
         vGIN feature extractor using the :class:`~vGINEncoder` or :class:`~vGINMolEncoder`.
 
@@ -56,14 +56,14 @@ class vGINFeatExtractor(GINFeatExtractor):
             **kwargs: `without_readout` will output node features instead of graph features.
     """
     def __init__(self, config: Union[CommonArgs, Munch], **kwargs):
-        super(vGINFeatExtractor, self).__init__(config)
+        super(vFeatExtractor, self).__init__(config)
         print("#D#Init vGINFeatExtractor")
         num_layer = config.model.model_layer
         if config.dataset.dataset_type == 'mol':
-            self.encoder = vGINMolEncoder(config, **kwargs)
+            self.encoder = vMolEncoder(config, **kwargs)
             self.edge_feat = True
         else:
-            self.encoder = vGINEncoder(config, **kwargs)
+            self.encoder = vEncoder(config, **kwargs)
             self.edge_feat = False
 
 
@@ -87,7 +87,7 @@ class VirtualNodeEncoder(torch.nn.Module):
         self.virtual_pool = GlobalAddPool()
 
 
-class vGINEncoder(GINEncoder, VirtualNodeEncoder):
+class vEncoder(Encoder, VirtualNodeEncoder):
     r"""
     The vGIN encoder for non-molecule data, using the :class:`~vGINConv` operator for message passing.
 
@@ -96,7 +96,7 @@ class vGINEncoder(GINEncoder, VirtualNodeEncoder):
     """
 
     def __init__(self, config: Union[CommonArgs, Munch], **kwargs):
-        super(vGINEncoder, self).__init__(config, **kwargs)
+        super(vEncoder, self).__init__(config, **kwargs)
         self.config = config
         self.without_readout = kwargs.get('without_readout')
         self.mitigation_virtual = kwargs.get('mitigation_virtual')
@@ -119,7 +119,7 @@ class vGINEncoder(GINEncoder, VirtualNodeEncoder):
 
         if self.without_readout or kwargs.get('without_readout'):
             return node_repr
-        out_readout = self.readout(node_repr, batch, batch_size, edge_index=edge_index, edge_mask=self.convs[0].__edge_mask__)
+        out_readout = self.readout(node_repr, batch, batch_size, edge_index=edge_index, edge_mask=self.convs[0]._edge_mask)
         return out_readout
 
     def get_node_repr(self, x, edge_index, batch, batch_size, **kwargs):
@@ -154,7 +154,7 @@ class vGINEncoder(GINEncoder, VirtualNodeEncoder):
             # --- update global info ---
             if 0 < i < len(self.convs) - 1:
                 if self.mitigation_virtual == "weighted":
-                    pool = self.virtual_pool(layer_feat[-1], batch, None, edge_index=edge_index, edge_mask=self.convs[0].__edge_mask__)
+                    pool = self.virtual_pool(layer_feat[-1], batch, None, edge_index=edge_index, edge_mask=self.convs[0]._edge_mask)
                 else:
                     pool = self.virtual_pool(layer_feat[-1], batch, None)
                 
@@ -163,7 +163,7 @@ class vGINEncoder(GINEncoder, VirtualNodeEncoder):
 
 
 
-class vGINMolEncoder(GINMolEncoder, VirtualNodeEncoder):
+class vMolEncoder(MolEncoder, VirtualNodeEncoder):
     r"""The vGIN encoder for molecule data, using the :class:`~vGINEConv` operator for message passing.
 
         Args:
@@ -171,7 +171,7 @@ class vGINMolEncoder(GINMolEncoder, VirtualNodeEncoder):
     """
 
     def __init__(self, config: Union[CommonArgs, Munch], **kwargs):
-        super(vGINMolEncoder, self).__init__(config, **kwargs)
+        super(vMolEncoder, self).__init__(config, **kwargs)
         self.config: Union[CommonArgs, Munch] = config
         self.without_readout = kwargs.get('without_readout')
         self.mitigation_virtual = kwargs.get('mitigation_virtual')
@@ -195,8 +195,8 @@ class vGINMolEncoder(GINMolEncoder, VirtualNodeEncoder):
 
         if self.without_readout or kwargs.get('without_readout'):
             return node_repr
-        if hasattr(self.convs[0], "__edge_mask__"):
-            out_readout = self.readout(node_repr, batch, batch_size, edge_index=edge_index, edge_mask=self.convs[0].__edge_mask__)
+        if hasattr(self.convs[0], "_edge_mask"):
+            out_readout = self.readout(node_repr, batch, batch_size, edge_index=edge_index, edge_mask=self.convs[0]._edge_mask)
         else:
             out_readout = self.readout(node_repr, batch, batch_size)
         return out_readout
@@ -232,7 +232,7 @@ class vGINMolEncoder(GINMolEncoder, VirtualNodeEncoder):
             # --- update global info ---
             if i < len(self.convs) - 1:
                 if self.mitigation_virtual == "weighted": #hasattr(self.virtual_pool, "mitigation_virtual")
-                    pool = self.virtual_pool(layer_feat[-1], batch, None, edge_index=edge_index, edge_mask=self.convs[0].__edge_mask__)
+                    pool = self.virtual_pool(layer_feat[-1], batch, None, edge_index=edge_index, edge_mask=self.convs[0]._edge_mask)
                 else:
                     pool = self.virtual_pool(layer_feat[-1], batch, None)
 

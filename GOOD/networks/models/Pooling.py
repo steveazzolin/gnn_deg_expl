@@ -25,7 +25,7 @@ class GlobalMeanPool(GNNPool):
         self.mitigation_readout = kwargs["mitigation_readout"] if "mitigation_readout" in kwargs.keys() else None
         print("mitigation_readout = ", self.mitigation_readout)
 
-    def forward(self, x, batch, batch_size=None, edge_index=None, edge_mask=None):
+    def forward(self, x, batch, batch_size=None, edge_index=None, edge_mask=None, node_mask=None):
         r"""Returns batch-wise graph-level-outputs by averaging node features
             across the node dimension, so that for a single graph
             :math:`\mathcal{G}_i` its output is computed by
@@ -48,9 +48,10 @@ class GlobalMeanPool(GNNPool):
         """
         if batch_size is None:
             batch_size = batch[-1].item() + 1
-        if self.mitigation_readout == "weighted":
-            node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0])
-            x = x * node_mask.unsqueeze(1)
+        if self.mitigation_readout == "weighted" and (node_mask is not None or edge_mask is not None):
+            if node_mask is None:
+                node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0]).unsqueeze(1)
+            x = x * node_mask
         return gnn.global_mean_pool(x, batch, batch_size)
 
 
@@ -64,7 +65,7 @@ class GlobalAddPool(GNNPool):
         self.mitigation_readout = kwargs["mitigation_readout"] if "mitigation_readout" in kwargs.keys() else None
         print("mitigation_readout = ", self.mitigation_readout)
 
-    def forward(self, x, batch, batch_size=None, edge_index=None, edge_mask=None):
+    def forward(self, x, batch, batch_size=None, edge_index=None, edge_mask=None, node_mask=None):
         r"""Returns batch-wise graph-level-outputs by adding node features
             across the node dimension, so that for a single graph
             :math:`\mathcal{G}_i` its output is computed by
@@ -85,9 +86,10 @@ class GlobalAddPool(GNNPool):
         """
         if batch_size is None:
             batch_size = batch[-1].item() + 1
-        if self.mitigation_readout == "weighted":
-            node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0])
-            x = x * node_mask.unsqueeze(1)
+        if self.mitigation_readout == "weighted" and (node_mask is not None or edge_mask is not None):
+            if node_mask is None:
+                node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0]).unsqueeze(1)
+            x = x * node_mask
         return gnn.global_add_pool(x, batch, batch_size)
 
 

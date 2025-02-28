@@ -1,7 +1,3 @@
-r"""
-The Graph Neural Network from the `"How Powerful are Graph Neural Networks?"
-<https://arxiv.org/abs/1810.00826>`_ paper.
-"""
 from typing import Callable, Optional
 import copy
 
@@ -18,13 +14,12 @@ import torch.nn.functional as F
 
 from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
-from .BaseGNN import GNNBasic, BasicEncoder
+from .BaseGNN import GNNBasic, BasicEncoder, GINEConv
 from .Classifiers import Classifier
 from .MolEncoders import AtomEncoder, BondEncoder
 from .Pooling import GlobalAddPool
 from torch.nn import Identity
 
-from sklearn.tree import DecisionTreeClassifier
 from sklearn.metrics import accuracy_score
 
 @register.model_register
@@ -40,9 +35,11 @@ class GIN(GNNBasic):
     def __init__(self, config: Union[CommonArgs, Munch]):
 
         super().__init__(config)
-        self.feat_encoder = GINFeatExtractor(config)
+        self.feat_encoder = FeatExtractor(config)
         self.classifier = Classifier(config)
         self.graph_repr = None
+
+        exit("here")
 
     def forward(self, *args, **kwargs) -> torch.Tensor:
         r"""
@@ -62,7 +59,7 @@ class GIN(GNNBasic):
         return out
 
 
-class GINFeatExtractor(GNNBasic):
+class FeatExtractor(GNNBasic):
     r"""
         GIN feature extractor using the :class:`~GINEncoder` or :class:`~GINMolEncoder`.
 
@@ -70,14 +67,14 @@ class GINFeatExtractor(GNNBasic):
             config (Union[CommonArgs, Munch]): munchified dictionary of args (:obj:`config.model.dim_hidden`, :obj:`config.model.model_layer`, :obj:`config.dataset.dim_node`, :obj:`config.dataset.dataset_type`)
     """
     def __init__(self, config: Union[CommonArgs, Munch], **kwargs):
-        super(GINFeatExtractor, self).__init__(config)
-        print("#D#Init GINFeatExtractor")
+        super(FeatExtractor, self).__init__(config)
+        print("#D#Init FeatExtractor")
         num_layer = config.model.model_layer
         if config.dataset.dataset_type == 'mol':
-            self.encoder = GINMolEncoder(config, **kwargs)
+            self.encoder = MolEncoder(config, **kwargs)
             self.edge_feat = True
         else:
-            self.encoder = GINEncoder(config, **kwargs)
+            self.encoder = Encoder(config, **kwargs)
             self.edge_feat = False
 
     def forward(self, *args, **kwargs):
@@ -114,7 +111,7 @@ class GINFeatExtractor(GNNBasic):
         return node_repr
 
 
-class GINEncoder(BasicEncoder):
+class Encoder(BasicEncoder):
     r"""
     The GIN encoder for non-molecule data, using the :class:`~GINConv` operator for message passing.
 
@@ -124,41 +121,18 @@ class GINEncoder(BasicEncoder):
 
     def __init__(self, config: Union[CommonArgs, Munch], *args, **kwargs):
 
-        super(GINEncoder, self).__init__(config, *args, **kwargs)
+        super(Encoder, self).__init__(config, *args, **kwargs)
         num_layer = config.model.model_layer
         self.without_readout = kwargs.get('without_readout')
 
-        # self.atom_encoder = AtomEncoder(config.model.dim_hidden)
         self.convs = nn.ModuleList()
-        if kwargs.get('without_embed'):
-            self.convs.append(GINConvAttn(nn.Sequential(nn.Linear(config.model.dim_hidden, 2 * config.model.dim_hidden),
-                                               self.get_norm_layer(config), 
-                                               nn.ReLU(),
-                                               nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)),
-                                               emb_dim=config.model.dim_hidden,
-                                               mitigation_backbone=config.mitigation_backbone))
-        else:
-            # if config.mitigation_backbone is None:
-            #     self.convs.append(gnn.GINConv(nn.Sequential(nn.Linear(config.dataset.dim_node, 2 * config.model.dim_hidden),
-            #                                     nn.BatchNorm1d(2 * config.model.dim_hidden, track_running_stats=True), nn.ReLU(),
-            #                                     nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden))))
-            # else:
-            self.convs.append(GINConvAttn(nn.Sequential(nn.Linear(config.dataset.dim_node, 2 * config.model.dim_hidden),
-                                            self.get_norm_layer(config), 
-                                            nn.ReLU(),
-                                            nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)),
-                                            emb_dim=config.dataset.dim_node,
-                                            mitigation_backbone=config.mitigation_backbone))
-
+        self.convs.append(
+                self.get_conv_layer(config, kwargs.get('without_embed'))
+        )
         self.convs = self.convs.extend(
             [
-                GINConvAttn(nn.Sequential(nn.Linear(config.model.dim_hidden, 2 * config.model.dim_hidden),
-                                    self.get_norm_layer(config), 
-                                    nn.ReLU(),
-                                    nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)),
-                                    emb_dim=config.model.dim_hidden,
-                                    mitigation_backbone=config.mitigation_backbone)
-                for _ in range(num_layer - 1)
+                self.get_conv_layer(config, without_embed=True)
+                    for _ in range(num_layer - 1)
             ]
         )
 
@@ -190,10 +164,15 @@ class GINEncoder(BasicEncoder):
 
         if self.without_readout or kwargs.get('without_readout'):
             return node_repr
-        if hasattr(self.convs[0], "__edge_mask__"):
-            out_readout = self.readout(node_repr, batch, batch_size, edge_index=edge_index, edge_mask=self.convs[0].__edge_mask__)
-        else:
-            out_readout = self.readout(node_repr, batch, batch_size)
+
+        out_readout = self.readout(
+            node_repr,
+            batch,
+            batch_size,
+            edge_index=edge_index,
+            edge_mask=getattr(self.convs[0], "_edge_mask", None),
+            node_mask=getattr(self.convs[0], "_node_mask", None)
+        )
         return out_readout
 
     def get_node_repr(self, x, edge_index, batch, batch_size, **kwargs):
@@ -213,76 +192,13 @@ class GINEncoder(BasicEncoder):
         layer_feat = [x]
         for i, (conv, batch_norm, relu, dropout) in enumerate(
                 zip(self.convs, self.batch_norms, self.relus, self.dropouts)):
-            post_conv = batch_norm(conv(layer_feat[-1], edge_index, return_attn_distrib=kwargs.get('return_attn', False)))
+            post_conv = batch_norm(conv(layer_feat[-1], edge_index, batch=batch))
             if i != len(self.convs) - 1:
                 post_conv = relu(post_conv)
             layer_feat.append(dropout(post_conv))
         return layer_feat[-1]
-    
 
-class GINConvAttn(gnn.MessagePassing):
-    def __init__(self, mlp, emb_dim, mitigation_backbone=None):
-        super(GINConvAttn, self).__init__(aggr="add")
-        
-        if torch_geometric.__version__ == "2.4.0":
-            print("#D#Using the fixed _explain_ functionality")
-            self._fixed_explain = False
-
-        self.mlp = mlp
-        self.eps = torch.nn.Parameter(torch.Tensor([0]))
-        self.attn_distrib = []
-
-        self.mitigation_backbone = mitigation_backbone
-        if mitigation_backbone == "soft" or mitigation_backbone == "hard":
-            print(f"#D#Using mitigation {mitigation_backbone}")
-            self.mitigation_attn = torch.nn.Sequential(
-                torch.nn.Linear(2 * emb_dim, 1),
-            )
-        elif mitigation_backbone == "soft2" or mitigation_backbone == "hard2":
-            print(f"#D#Using mitigation {mitigation_backbone}")
-            self.mitigation_attn = torch.nn.Sequential(
-                torch.nn.Linear(2 * emb_dim, emb_dim),
-                torch.nn.BatchNorm1d(emb_dim),
-                torch.nn.ReLU(),
-                torch.nn.Linear(emb_dim, 1)
-            )
-        else:
-            print(f"#D#Using no mitigation ({mitigation_backbone})")
-
-    def forward(self, x, edge_index, return_attn_distrib=False):
-        out = self.mlp((1 + self.eps) * x + self.propagate(edge_index, x=x, return_attn_distrib=return_attn_distrib))
-        return out
-
-    def message(self, x_i, x_j, return_attn_distrib):
-        if self.mitigation_backbone:
-            attn = self.mitigation_attn(torch.cat([x_i, x_j], dim=-1))
-            attn = torch.sigmoid(attn)
-
-            if self.mitigation_backbone in ["hard", "hard2"]:
-                attn_hard = (attn > 0.5).float()
-                attn = attn_hard - attn.detach() + attn
-
-            if return_attn_distrib:
-                self.attn_distrib.extend(attn.detach().cpu().squeeze().numpy().tolist())
-
-            x_j = x_j * attn
-
-        # return F.relu(x_j)
-            
-        if torch_geometric.__version__ == "2.4.0" and self._fixed_explain:
-            edge_mask = self.__edge_mask__
-            if self._apply_sigmoid:
-                edge_mask = edge_mask.sigmoid()
-            x_j = x_j * edge_mask.view([-1] + [1] * (x_j.dim() - 1))
-        return x_j
-
-    def update(self, aggr_out):
-        return aggr_out
-
-
-
-
-class GINMolEncoder(BasicEncoder):
+class MolEncoder(BasicEncoder):
     r"""The GIN encoder for molecule data, using the :class:`~GINEConv` operator for message passing.
 
         Args:
@@ -290,11 +206,15 @@ class GINMolEncoder(BasicEncoder):
     """
 
     def __init__(self, config: Union[CommonArgs, Munch], **kwargs):
-        super(GINMolEncoder, self).__init__(config, **kwargs)
+        super(MolEncoder, self).__init__(config, **kwargs)
+
+        exit("MolEncoder not in use")
+
         self.without_readout = kwargs.get('without_readout')
         self.config = config
         num_layer = config.model.model_layer
         print(f"Initing GINMolEncoder for {num_layer} layers")
+
         if kwargs.get('without_embed'):
             self.atom_encoder = Identity()
         else:
@@ -302,16 +222,26 @@ class GINMolEncoder(BasicEncoder):
 
         self.convs = nn.ModuleList(
             [
-                GINEConv(nn.Sequential(nn.Linear(config.model.dim_hidden, 2 * config.model.dim_hidden),
-                                       self.get_norm_layer(config), 
-                                       nn.LeakyReLU(),
-                                       nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)), config)
+                GINEConv(
+                    nn.Sequential(nn.Linear(config.model.dim_hidden, 2 * config.model.dim_hidden),
+                                    self.get_norm_layer(config), 
+                                    nn.LeakyReLU(),
+                                    nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)
+                    ),
+                    config,
+                    BondEncoder(self.nn[0].in_features if hasattr(self.nn[0], 'in_features') else self.nn[0].in_channels, config)
+                )
             ] +
             [
-                GINEConv(nn.Sequential(nn.Linear(config.model.dim_hidden, 2 * config.model.dim_hidden),
-                                       self.get_norm_layer(config), 
-                                       nn.LeakyReLU(),
-                                       nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)), config)
+                GINEConv(
+                    nn.Sequential(nn.Linear(config.model.dim_hidden, 2 * config.model.dim_hidden),
+                                    self.get_norm_layer(config), 
+                                    nn.LeakyReLU(),
+                                    nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)
+                    ),
+                    config,
+                    BondEncoder(self.nn[0].in_features if hasattr(self.nn[0], 'in_features') else self.nn[0].in_channels, config)
+                )
                 for _ in range(num_layer - 1)
             ]
         )
@@ -334,8 +264,8 @@ class GINMolEncoder(BasicEncoder):
 
         if self.without_readout or kwargs.get('without_readout'):
             return node_repr
-        if hasattr(self.convs[0], "__edge_mask__"):
-            out_readout = self.readout(node_repr, batch, batch_size, edge_index=edge_index, edge_mask=self.convs[0].__edge_mask__)
+        if hasattr(self.convs[0], "_edge_mask"):
+            out_readout = self.readout(node_repr, batch, batch_size, edge_index=edge_index, edge_mask=self.convs[0]._edge_mask)
         else:
             out_readout = self.readout(node_repr, batch, batch_size)
         return out_readout
@@ -367,468 +297,3 @@ class GINMolEncoder(BasicEncoder):
         return layer_feat[-1]
 
 
-class GINEConv(gnn.MessagePassing):
-    r"""The modified :class:`GINConv` operator from the `"Strategies for
-    Pre-training Graph Neural Networks" <https://arxiv.org/abs/1905.12265>`_
-    paper
-
-    .. math::
-        \mathbf{x}^{\prime}_i = h_{\mathbf{\Theta}} \left( (1 + \epsilon) \cdot
-        \mathbf{x}_i + \sum_{j \in \mathcal{N}(i)} \mathrm{ReLU}
-        ( \mathbf{x}_j + \mathbf{e}_{j,i} ) \right)
-
-    that is able to incorporate edge features :math:`\mathbf{e}_{j,i}` into
-    the aggregation procedure.
-
-    Args:
-        nn (torch.nn.Module): A neural network :math:`h_{\mathbf{\Theta}}` that
-            maps node features :obj:`x` of shape :obj:`[-1, in_channels]` to
-            shape :obj:`[-1, out_channels]`, *e.g.*, defined by
-            :class:`torch.nn.Sequential`.
-        eps (float, optional): (Initial) :math:`\epsilon`-value.
-            (default: :obj:`0.`)
-        train_eps (bool, optional): If set to :obj:`True`, :math:`\epsilon`
-            will be a trainable parameter. (default: :obj:`False`)
-        edge_dim (int, optional): Edge feature dimensionality. If set to
-            :obj:`None`, node and edge feature dimensionality is expected to
-            match. Other-wise, edge features are linearly transformed to match
-            node feature dimensionality. (default: :obj:`None`)
-        **kwargs (optional): Additional arguments of
-            :class:`torch_geometric.nn.conv.MessagePassing`.
-
-    Shapes:
-        - **input:**
-          node features :math:`(|\mathcal{V}|, F_{in})` or
-          :math:`((|\mathcal{V_s}|, F_{s}), (|\mathcal{V_t}|, F_{t}))`
-          if bipartite,
-          edge indices :math:`(2, |\mathcal{E}|)`,
-          edge features :math:`(|\mathcal{E}|, D)` *(optional)*
-        - **output:** node features :math:`(|\mathcal{V}|, F_{out})` or
-          :math:`(|\mathcal{V}_t|, F_{out})` if bipartite
-    """
-
-    def __init__(self, nn: Callable, config, eps: float = 0., train_eps: bool = False, edge_dim: Optional[int] = None,
-                 **kwargs):
-        kwargs.setdefault('aggr', 'add')
-        super().__init__(**kwargs)
-        self.nn = nn
-        self.initial_eps = eps
-        if train_eps:
-            self.eps = torch.nn.Parameter(torch.Tensor([eps]))
-        else:
-            self.register_buffer('eps', torch.Tensor([eps]))
-
-        if hasattr(self.nn[0], 'in_features'):
-            in_channels = self.nn[0].in_features
-        else:
-            in_channels = self.nn[0].in_channels
-        self.bone_encoder = BondEncoder(in_channels, config)
-        # if edge_dim is not None:
-        #     self.lin = Linear(edge_dim, in_channels)
-        #     # self.lin = Linear(edge_dim, config.model.dim_hidden)
-        # else:
-        #     self.lin = None
-
-        self.mitigation_backbone = config.mitigation_backbone
-        if self.mitigation_backbone == "soft" or self.mitigation_backbone == "hard":
-            print(f"#D#Using mitigation {self.mitigation_backbone}")
-            self.mitigation_attn = torch.nn.Sequential(
-                torch.nn.Linear(2 * in_channels, 1),
-            )
-        elif self.mitigation_backbone == "soft2" or self.mitigation_backbone == "hard2":
-            print(f"#D#Using mitigation {self.mitigation_backbone}")
-            self.mitigation_attn = torch.nn.Sequential(
-                torch.nn.Linear(2 * in_channels, in_channels),
-                torch.nn.BatchNorm1d(in_channels),
-                torch.nn.ReLU(),
-                torch.nn.Linear(in_channels, 1)
-            )
-        else:
-            print(f"#D#Using no mitigation {self.mitigation_backbone}")
-
-        if torch_geometric.__version__ == "2.4.0":
-            print("#D#Using the fixed _explain_ functionality")
-            self._fixed_explain = False
-
-        self.lin = None
-        self.reset_parameters()
-
-    def reset_parameters(self):
-        reset(self.nn)
-        self.eps.data.fill_(self.initial_eps)
-        if self.lin is not None:
-            self.lin.reset_parameters()
-
-    def forward(self, x: Union[Tensor, OptPairTensor], edge_index: Adj,
-                edge_attr: OptTensor = None, size: Size = None, return_attn_distrib:bool = False) -> Tensor:
-
-        if self.bone_encoder and edge_attr is not None:
-            edge_attr = self.bone_encoder(edge_attr)
-        if isinstance(x, Tensor):
-            x: OptPairTensor = (x, x)
-        # propagate_type: (x: OptPairTensor, edge_attr: OptTensor)
-        out = self.propagate(edge_index, x=x, edge_attr=edge_attr, size=size, return_attn_distrib=return_attn_distrib)
-
-        x_r = x[1]
-        if x_r is not None:
-            out += (1 + self.eps) * x_r
-        return self.nn(out)
-
-    def message(self, x_i: Tensor, x_j: Tensor, edge_attr: Tensor, return_attn_distrib: bool = False) -> Tensor:
-        if edge_attr is not None:
-            if self.lin is None and x_j.size(-1) != edge_attr.size(-1):
-                raise ValueError("Node and edge feature dimensionalities do not "
-                                 "match. Consider setting the 'edge_dim' "
-                                 "attribute of 'GINEConv'")
-
-            if self.lin is not None:
-                edge_attr = self.lin(edge_attr)
-
-            m = x_j + edge_attr
-        else:
-            m = x_j
-
-        if self.mitigation_backbone:
-            attn = self.mitigation_attn(torch.cat([x_i, m], dim=-1))
-            attn = torch.sigmoid(attn)
-            
-            if return_attn_distrib:
-                self.attn.extend(attn.detach().cpu().squeeze().numpy().tolist())
-            if self.mitigation_backbone in ["hard", "hard2"]:
-                attn_hard = (attn > 0.5).float()
-                attn = attn_hard - attn.detach() + attn
-
-            m = m * attn
-
-        if torch_geometric.__version__ == "2.4.0" and self._fixed_explain:
-            edge_mask = self.__edge_mask__
-            if self._apply_sigmoid:
-                edge_mask = edge_mask.sigmoid()
-            m = m * edge_mask.view([-1] + [1] * (m.dim() - 1))
-
-        return m.relu()
-
-    def __repr__(self) -> str:
-        return f'{self.__class__.__name__}(nn={self.nn})'
-
-
-@register.model_register
-class SimpleGlobalChannel(torch.nn.Module):
-    r"""
-    A simple implementation of a global side channel.
-    It performs a GlobalAddPool of node features, and classify them.
-
-    Args:
-        config (Union[CommonArgs, Munch]): munchified dictionary of args (:obj:`config.model.dim_hidden`, :obj:`config.model.model_layer`, :obj:`config.dataset.dim_node`, :obj:`config.dataset.num_classes`, :obj:`config.dataset.dataset_type`)
-    """
-
-    def __init__(self, config: Union[CommonArgs, Munch]):
-
-        super().__init__()
-        self.config = config
-        self.feat_encoder = GlobalAddPool()
-        
-        clf_config = copy.deepcopy(config)
-        clf_config.model.dim_hidden = clf_config.dataset.dim_node
-
-        self.classifier = Classifier(clf_config)
-
-        if config.global_side_channel == "simple_filternode":
-            self.node_filter = nn.Sequential(*[
-                nn.Linear(clf_config.dataset.dim_node, clf_config.dataset.dim_node*10),
-                nn.LeakyReLU(),
-                nn.Linear(clf_config.dataset.dim_node*10, 1),
-                nn.Sigmoid()
-            ])
-
-        # self.classifier.classifier[0].weight = torch.nn.Parameter(
-        #     torch.tensor([[1.0, 0., 0.]], device=config.device)
-        # )
-        # self.classifier.classifier[0].bias = torch.nn.Parameter(
-        #     torch.tensor([[-1.9]], device=config.device)
-        # )
-
-    def forward(self, **kwargs) -> torch.Tensor:
-        r"""
-        Args:
-            *args (list): argument list for the use of arguments_read. Refer to :func:`arguments_read <GOOD.networks.models.BaseGNN.GNNBasic.arguments_read>`
-            **kwargs (dict): key word arguments for the use of arguments_read. Refer to :func:`arguments_read <GOOD.networks.models.BaseGNN.GNNBasic.arguments_read>`
-
-        Returns (Tensor):
-            label predictions
-
-        """
-        out_readout, attn = self.encode(**kwargs)
-
-        if out_readout.dtype == torch.long:
-            out_readout = out_readout.float()
-
-        out = self.classifier(out_readout)
-
-        # out = torch.where(out_readout[:, 0] >= 5, 10, -10).reshape(out.shape)
-        
-        # Apply Straight-Trought to discretize
-        # out_hard = (out > 0.0).to(torch.float)
-        # out = out_hard + out - out.detach()
-        return out, attn
-    
-    def encode(self, **kwargs) -> torch.Tensor:
-        r"""
-        Args:
-            *args (list): argument list for the use of arguments_read. Refer to :func:`arguments_read <GOOD.networks.models.BaseGNN.GNNBasic.arguments_read>`
-            **kwargs (dict): key word arguments for the use of arguments_read. Refer to :func:`arguments_read <GOOD.networks.models.BaseGNN.GNNBasic.arguments_read>`
-
-        Returns (Tensor):
-            label predictions
-
-        """
-        attn = None
-        x = kwargs["data"].x
-        if self.config.global_side_channel == "simple_filternode": # apply node filtering attention
-            attn = self.node_filter(x) #.squeeze(1) # squeeze when using softmax
-            # attn = scatter_softmax(attn, kwargs["data"].batch).unsqueeze(1)
-            x = x * attn
-        out_readout = self.feat_encoder(x=x, batch=kwargs["data"].batch)
-        return out_readout, attn
-    
-@register.model_register
-class DecisionTreeGlobalChannel(torch.nn.Module):
-    r"""
-    Decisionn Tree implementation of a global side channel.
-
-    Args:
-        config (Union[CommonArgs, Munch]): munchified dictionary of args (:obj:`config.model.dim_hidden`, :obj:`config.model.model_layer`, :obj:`config.dataset.dim_node`, :obj:`config.dataset.num_classes`, :obj:`config.dataset.dataset_type`)
-    """
-
-    def __init__(self, config: Union[CommonArgs, Munch]):
-
-        super().__init__()
-        self.config = config
-        self.feat_encoder = GlobalAddPool()
-        
-        clf_config = copy.deepcopy(config)
-        clf_config.model.dim_hidden = clf_config.dataset.dim_node
-
-        self.classifier = DecisionTreeClassifier(
-            max_depth=1,            # Limit the maximum depth of the tree
-            min_samples_split=10,   # Minimum number of samples required to split an internal node
-            min_samples_leaf=5      # Minimum number of samples required to be at a leaf node
-        )
-
-        if config.global_side_channel == "simple_filternode":
-            self.node_filter = nn.Sequential(*[
-                nn.Linear(clf_config.dataset.dim_node, clf_config.dataset.dim_node),
-                nn.ReLU(),
-                nn.Linear(clf_config.dataset.dim_node, 1),
-                nn.Sigmoid()
-            ])
-
-    def forward(self, **kwargs) -> torch.Tensor:
-        r"""
-        Args:
-            *args (list): argument list for the use of arguments_read. Refer to :func:`arguments_read <GOOD.networks.models.BaseGNN.GNNBasic.arguments_read>`
-            **kwargs (dict): key word arguments for the use of arguments_read. Refer to :func:`arguments_read <GOOD.networks.models.BaseGNN.GNNBasic.arguments_read>`
-
-        Returns (Tensor):
-            label predictions
-
-        """
-        out_readout, attn = self.encode(**kwargs)
-        out = self.classifier.predict_proba(out_readout.cpu().numpy())
-        if out.shape[1] == 2:
-            # Take activations for positive class (binary clf)
-            out = torch.tensor(out[:,1], device=self.config.device).reshape(-1, 1)
-            out = torch.log(out / (1 - out)) # Reverse Sigmoid activation to simulate the logit pre-sigmoid
-        else:
-            out = torch.tensor(out, device=self.config.device)
-        return out, attn
-    
-    def encode(self, **kwargs) -> torch.Tensor:
-        attn = None
-        x = kwargs["data"].x
-        if self.config.global_side_channel == "dt_filternode": # apply node filtering attention
-            assert False
-            attn = self.node_filter(x)
-            x = x * attn
-        out_readout = self.feat_encoder(x=x, batch=kwargs["data"].batch)
-        return out_readout, attn
-    
-    def fit(self, data):
-        X_train = data.x.cpu().numpy()
-        y_train = data.y.cpu().numpy()
-
-        X_train, _ = self.encode(**{"data": data})
-
-        self.classifier.fit(X_train, y_train)
-    
-    def score(self, data):
-        X_train = data.x.cpu().numpy()
-        y_train = data.y.cpu().numpy()
-        X_train, _ = self.encode(**{"data": data})
-
-        y_pred = self.classifier.predict(X_train)
-        accuracy = accuracy_score(y_train, y_pred)
-        return accuracy
-
-# class GINConv(gnn.GINConv):
-#     r"""The graph isomorphism operator from the `"How Powerful are
-#     Graph Neural Networks?" <https://arxiv.org/abs/1810.00826>`_ paper
-#
-#     .. math::
-#         \mathbf{x}^{\prime}_i = h_{\mathbf{\Theta}} \left( (1 + \epsilon) \cdot
-#         \mathbf{x}_i + \sum_{j \in \mathcal{N}(i)} \mathbf{x}_j \right)
-#
-#     or
-#
-#     .. math::
-#         \mathbf{X}^{\prime} = h_{\mathbf{\Theta}} \left( \left( \mathbf{A} +
-#         (1 + \epsilon) \cdot \mathbf{I} \right) \cdot \mathbf{X} \right),
-#
-#     here :math:`h_{\mathbf{\Theta}}` denotes a neural network, *.i.e.* an MLP.
-#
-#     Args:
-#         nn (torch.nn.Module): A neural network :math:`h_{\mathbf{\Theta}}` that
-#             maps node features :obj:`x` of shape :obj:`[-1, in_channels]` to
-#             shape :obj:`[-1, out_channels]`, *e.g.*, defined by
-#             :class:`torch.nn.Sequential`.
-#         eps (float, optional): (Initial) :math:`\epsilon`-value.
-#             (default: :obj:`0.`)
-#         train_eps (bool, optional): If set to :obj:`True`, :math:`\epsilon`
-#             will be a trainable parameter. (default: :obj:`False`)
-#         **kwargs (optional): Additional arguments of
-#             :class:`torch_geometric.nn.conv.MessagePassing`.
-#
-#     Shapes:
-#         - **input:**
-#           node features :math:`(|\mathcal{V}|, F_{in})` or
-#           :math:`((|\mathcal{V_s}|, F_{s}), (|\mathcal{V_t}|, F_{t}))`
-#           if bipartite,
-#           edge indices :math:`(2, |\mathcal{E}|)`
-#         - **output:** node features :math:`(|\mathcal{V}|, F_{out})` or
-#           :math:`(|\mathcal{V}_t|, F_{out})` if bipartite
-#     """
-#
-#     def __init__(self, nn: Callable, eps: float = 0., train_eps: bool = False,
-#                  **kwargs):
-#         super().__init__(nn, eps, train_eps, **kwargs)
-#         self.edge_weight = None
-#         self.fc_steps = None
-#         self.reweight = None
-#         self.__explain_flow__ = None
-#         self.__explain__ = False
-#         self.__edge_mask__ = None
-#
-#     def forward(self, x: Union[Tensor, OptPairTensor], edge_index: Adj,
-#                 edge_weight: OptTensor = None, **kwargs) -> Tensor:
-#         """"""
-#         self.num_nodes = x.shape[0]
-#         if isinstance(x, Tensor):
-#             x: OptPairTensor = (x, x)
-#
-#         # propagate_type: (x: OptPairTensor)
-#         if edge_weight is not None:
-#             self.edge_weight = edge_weight
-#             assert edge_weight.shape[0] == edge_index.shape[1]
-#             self.reweight = False
-#         else:
-#             edge_index, _ = remove_self_loops(edge_index)
-#             self_loop_edge_index, _ = add_self_loops(edge_index, num_nodes=self.num_nodes)
-#             if self_loop_edge_index.shape[1] != edge_index.shape[1]:
-#                 edge_index = self_loop_edge_index
-#             self.reweight = True
-#         out = self.propagate(edge_index, x=x[0], size=None)
-#
-#         nn_out = self.nn(out)
-#
-#         return nn_out
-#
-#     def propagate(self, edge_index: Adj, size: Size = None, **kwargs):
-#         r"""The initial call to start propagating messages.
-#
-#         Args:
-#             edge_index (Tensor or SparseTensor): A :obj:`torch.LongTensor` or a
-#                 :obj:`torch_sparse.SparseTensor` that defines the underlying
-#                 graph connectivity/message passing flow.
-#                 :obj:`edge_index` holds the indices of a general (sparse)
-#                 assignment matrix of shape :obj:`[N, M]`.
-#                 If :obj:`edge_index` is of type :obj:`torch.LongTensor`, its
-#                 shape must be defined as :obj:`[2, num_messages]`, where
-#                 messages from nodes in :obj:`edge_index[0]` are sent to
-#                 nodes in :obj:`edge_index[1]`
-#                 (in case :obj:`flow="source_to_target"`).
-#                 If :obj:`edge_index` is of type
-#                 :obj:`torch_sparse.SparseTensor`, its sparse indices
-#                 :obj:`(row, col)` should relate to :obj:`row = edge_index[1]`
-#                 and :obj:`col = edge_index[0]`.
-#                 The major difference between both formats is that we need to
-#                 input the *transposed* sparse adjacency matrix into
-#                 :func:`propagate`.
-#             size (tuple, optional): The size :obj:`(N, M)` of the assignment
-#                 matrix in case :obj:`edge_index` is a :obj:`LongTensor`.
-#                 If set to :obj:`None`, the size will be automatically inferred
-#                 and assumed to be quadratic.
-#                 This argument is ignored in case :obj:`edge_index` is a
-#                 :obj:`torch_sparse.SparseTensor`. (default: :obj:`None`)
-#             **kwargs: Any additional data which is needed to construct and
-#                 aggregate messages, and to update node embeddings.
-#         """
-#         size = self.__check_input__(edge_index, size)
-#
-#         # Run "fused" message and aggregation (if applicable).
-#         if (isinstance(edge_index, SparseTensor) and self.fuse
-#                 and not self.__explain__):
-#             coll_dict = self.__collect__(self.__fused_user_args__, edge_index,
-#                                          size, kwargs)
-#
-#             msg_aggr_kwargs = self.inspector.distribute(
-#                 'message_and_aggregate', coll_dict)
-#             out = self.message_and_aggregate(edge_index, **msg_aggr_kwargs)
-#
-#             update_kwargs = self.inspector.distribute('update', coll_dict)
-#             return self.update(out, **update_kwargs)
-#
-#         # Otherwise, run both functions in separation.
-#         elif isinstance(edge_index, Tensor) or not self.fuse:
-#             coll_dict = self.__collect__(self.__user_args__, edge_index, size,
-#                                          kwargs)
-#
-#             msg_kwargs = self.inspector.distribute('message', coll_dict)
-#             out = self.message(**msg_kwargs)
-#
-#             # For `GNNExplainer`, we require a separate message and aggregate
-#             # procedure since this allows us to inject the `edge_mask` into the
-#             # message passing computation scheme.
-#             if self.__explain__:
-#                 edge_mask = self.__edge_mask__.sigmoid()
-#                 # Some ops add self-loops to `edge_index`. We need to do the
-#                 # same for `edge_mask` (but do not train those).
-#                 if out.size(self.node_dim) != edge_mask.size(0):
-#                     loop = edge_mask.new_ones(size[0])
-#                     edge_mask = torch.cat([edge_mask, loop], dim=0)
-#                 assert out.size(self.node_dim) == edge_mask.size(0)
-#                 out = out * edge_mask.view([-1] + [1] * (out.dim() - 1))
-#             elif self.__explain_flow__:
-#
-#                 edge_mask = self.layer_edge_mask.sigmoid()
-#                 # Some ops add self-loops to `edge_index`. We need to do the
-#                 # same for `edge_mask` (but do not train those).
-#                 if out.size(self.node_dim) != edge_mask.size(0):
-#                     loop = edge_mask.new_ones(size[0])
-#                     edge_mask = torch.cat([edge_mask, loop], dim=0)
-#                 assert out.size(self.node_dim) == edge_mask.size(0)
-#                 out = out * edge_mask.view([-1] + [1] * (out.dim() - 1))
-#
-#             aggr_kwargs = self.inspector.distribute('aggregate', coll_dict)
-#             out = self.aggregate(out, **aggr_kwargs)
-#
-#             update_kwargs = self.inspector.distribute('update', coll_dict)
-#             return self.update(out, **update_kwargs)
-#
-#     def message(self, x_j: Tensor) -> Tensor:
-#         if self.reweight:
-#             edge_weight = torch.ones(x_j.shape[0], device=x_j.device)
-#             edge_weight.data[-self.num_nodes:] += self.eps
-#             edge_weight = edge_weight.detach().clone()
-#             edge_weight.requires_grad_(True)
-#             self.edge_weight = edge_weight
-#         return x_j * self.edge_weight.view(-1, 1)
