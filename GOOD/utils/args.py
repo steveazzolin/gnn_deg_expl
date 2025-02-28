@@ -71,6 +71,7 @@ class ModelArgs(Tap):
     model_layer: int = None  #: Number of the GNN layer.
     model_level: Literal['node', 'link', 'graph'] = 'graph'  #: What is the model use for? Node, link, or graph predictions.
 
+    backbone: str = None
     dim_hidden: int = None  #: Node hidden feature's dimension.
     dim_ffn: int = None  #: Final linear layer dimension.
     global_pool: str = None  #: Readout pooling layer type. Currently allowed: 'max', 'mean'.
@@ -110,13 +111,13 @@ class CommonArgs(Tap):
     """
     config_path: str = None  #: (Required) The path for the config file.
 
-    task: Literal['train', 'test', 'plot_panel', 'eval_metric', 'test_motif', 'permute_attention', 'plot_sampling', 'stability_detector', 'plot_global', 'plot_explanations', 'print_faith'] = None  #: Running mode. Allowed: 'train' and 'test'.
+    task: Literal['train', 'test', 'plot_panel', 'eval_metric', 'test_motif', 'permute_attention', 'plot_sampling', 'stability_detector', 'plot_global', 'plot_explanations', 'print_faith', 'print_r_ge_b_hist'] = None
     random_seed: int = None  #: Fixed random seed for reproducibility.
     exp_round: int = None  #: Current experiment round.
 
     seeds: str = None # Added by Steve
     mitigation_backbone: str = None # Added by Steve
-    mitigation_sampling: str = "feat" # Added by Steve
+    mitigation_sampling: str = None # Added by Steve
     mitigation_readout: str = None # Added by Steve
     mitigation_virtual: str = None # Added by Steve
     mitigation_expl_scores: str = "default" # Added by Steve
@@ -126,7 +127,7 @@ class CommonArgs(Tap):
     fidelity_alpha_2: float = None # Added by Steve
     nec_alpha_1: float = None # Added by Steve
     feat_int_alpha: float = None # Added by Steve
-    average_edge_attn: str = "default" # Added by Steve
+    average_edge_attn: str = None # Added by Steve
     save_metrics: bool = False # Added by Steve
     intervention_distrib:str = "model_dependent" # Added by Steve
     acc_givenR: bool = False # Added by Steve

@@ -1,8 +1,9 @@
 includes:
   - ../base.yaml
 model:
+  backbone: GIN
   model_layer: 3
-  global_pool: mean
+  global_pool: sum
   dim_hidden: 100
   dim_ffn: 100
   dropout_rate: 0.0
@@ -13,8 +14,11 @@ train:
   val_bs: 512
   test_bs: 512
   weight_decay: 0.
-  lr_filternode: 0.001
+  lr_filternode: 0.
 dataset:
   dataset_name: BAColor
   domain: basis
   generate: false
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted
