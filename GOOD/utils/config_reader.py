@@ -201,21 +201,15 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
         dataset_dirname += '_' + config.dataset.shift_type
 
     tmp = ""
-    if config.dataset.dataset_name == "MNIST":
-        tmp = "200epochs"
-    if config.dataset.dataset_name == "GOODSST2" and config.model.model_name == "GSATGIN" and not config.global_side_channel:
-        tmp = "1lraw_"
-
-    model_dirname = f'repr_{tmp}{config.model.model_name}_' \
+    model_dirname = f'{tmp}{config.model.model_name}_' \
+                    f'{config.model.backbone}_' \
                     f'{config.model.model_layer}l_' \
                     f'{config.model.global_pool}pool_' \
                     f'{config.model.dropout_rate}dp_' \
                     f'mitig_backbone{args.mitigation_backbone}_' \
-                    f'mitig_sampling{args.mitigation_sampling}'
-    
-    # TODO: remove
-    if "Twitter" in config.dataset.dataset_name:
-        model_dirname = "tuning_" + model_dirname
+                    f'mitig_sampling{args.mitigation_sampling}' \
+                    f'norm{config.use_norm}' \
+                    f'avgedgeattn{args.average_edge_attn}'
     
     if not config.mitigation_readout is None:
         model_dirname = model_dirname + f'mitig_readout{args.mitigation_readout}'
@@ -228,9 +222,7 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
             model_dirname += f'{args.mitigation_expl_scores_topk}'
     if config.global_side_channel:
         model_dirname += f"gchannel{config.global_side_channel}"
-    model_dirname += f"norm{config.use_norm}"
 
-    model_dirname = model_dirname + f'avgedgeattn{args.average_edge_attn}'
     print("model_dirname=", model_dirname)
     
     train_dirname = f'{config.train.lr}lr_{config.train.weight_decay}wd'
