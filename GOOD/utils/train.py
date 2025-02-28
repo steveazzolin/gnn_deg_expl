@@ -82,3 +82,9 @@ def at_stage(i, config):
         return config.train.epoch <= config.train.stage_stones[i - 1]
     else:
         return config.train.stage_stones[i - 2] < config.train.epoch <= config.train.stage_stones[i - 1]
+
+def lift_node_att_to_edge_att(node_att, edge_index):
+    src_lifted_att = node_att[edge_index[0]]
+    dst_lifted_att = node_att[edge_index[1]]
+    edge_att = src_lifted_att * dst_lifted_att
+    return edge_att.squeeze(1)

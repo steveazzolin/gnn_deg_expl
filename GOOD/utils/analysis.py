@@ -1,0 +1,839 @@
+import os
+import json
+from datetime import datetime
+from collections import defaultdict
+from itertools import chain
+
+from GOOD import config_summoner
+from GOOD.kernel.pipeline_manager import load_pipeline
+from GOOD.ood_algorithms.ood_manager import load_ood_alg
+from GOOD.utils.logger import load_logger
+from GOOD.utils.metric import assign_dict
+from GOOD.utils.loader import initialize_model_dataset
+
+import numpy as np
+import torch
+
+import matplotlib.pyplot as plt
+
+def gmean(a,b):
+    return (a*b).sqrt()
+
+def aritm(a,b):
+    return (a+b) / 2
+
+def armonic(a,b):
+    return 2 * (a*b) / (a+b)
+
+def gstd(a):
+    return a.log().std().exp()
+
+def print_metric(name, data, results_aggregated=None, key=None):
+    avg = np.nanmean(data, axis=0)
+    std = np.nanstd(data, axis=0)
+    print(name, " = ", ", ".join([f"{avg[i]:.3f} +- {std[i]:.3f}" for i in range(len(avg))]))
+    if not results_aggregated is None:
+        assign_dict(
+            results_aggregated,
+            key,
+            avg.tolist()
+        )
+        key[-1] += "_std" # add _std to the metric name
+        assign_dict(
+            results_aggregated,
+            key,
+            std.tolist()
+        )
+
+def get_tensorized_metric(scores, c):
+    return torch.tensor([
+        scores[i][c] for i in range(len(scores))
+    ])
+
+def stability_detector_rebuttal(args):
+    assert len(args.metrics.split("/")) == 1, args.metrics.split("/")
+    
+    load_splits = ["id"]
+    if args.splits != "":
+        splits = args.splits.split("/")
+    else:
+        splits = ["id_val"]
+    if args.ratios != "":
+        ratios = [float(r) for r in args.ratios.split("/")]
+    else:
+        ratios = [.3, .6, .9, 1.]
+    # ratios = [0.3]
+    print("Using ratios = ", ratios)
+
+    results = {l: {k: defaultdict(list) for k in splits} for l in load_splits}
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"COMPUTING STABILITY DETECTOR FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["mitigation_backbone"] = args.mitigation_backbone
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+
+            # if "CIGA" in config.model.model_name:
+            #     ratios = [pipeline.model.att_net.ratio]
+            
+            (edge_scores, graphs, graphs_nx, labels, avg_graph_size, \
+            causal_subgraphs_r, spu_subgraphs_r, expl_accs_r, causal_masks_r)  = pipeline.compute_scores_and_graphs(
+                ratios,
+                splits,
+                convert_to_nx=("suff" in args.metrics) and (not "suff_simple" in args.metrics)
+            )
+            intervention_bank = None
+
+            for split in splits:
+                score, acc_int, _ = pipeline.compute_stability_detector_rebuttal(
+                    seed,
+                    ratios,
+                    split,
+                    metric=args.metrics,
+                    intervention_distrib=config.intervention_distrib,
+                    intervention_bank=intervention_bank,
+                    edge_scores=edge_scores[split],
+                    graphs=graphs[split],
+                    graphs_nx=graphs_nx[split],
+                    labels=labels[split],
+                    avg_graph_size=avg_graph_size[split],
+                    causal_subgraphs_r=causal_subgraphs_r[split],
+                    spu_subgraphs_r=spu_subgraphs_r[split],
+                    expl_accs_r=expl_accs_r[split],
+                    causal_masks_r=causal_masks_r[split]
+                )
+                results[load_split][split][args.metrics].append(score["all_L1"])
+                for m in ["wiou_original", "wiou_perturbed"]:
+                    for s in [""]:
+                        results[load_split][split][m + s].append(score[m + s])
+    
+    print(f"\n\nDONE {config.dataset.dataset_name} - {config.model.model_name}")
+    for load_split in results.keys():
+        for split in results[load_split]:
+            for metric in ["wiou_original", "wiou_perturbed"]:
+                matrix = np.array(results[load_split][split][metric])
+                mean_over_seeds = np.mean(matrix, axis=0)
+                mean_over_ratios = np.mean(mean_over_seeds)
+                std = np.std(matrix, axis=0)
+                print(f"({load_split}) {split} {metric.upper()}: \t{mean_over_seeds} +- {std} (mean across ratios: {mean_over_ratios})")
+
+def stability_detector_extended(args):
+    startOverallTime = datetime.now()
+    assert len(args.metrics.split("/")) == 1, args.metrics.split("/")
+    
+    load_splits = ["id"]
+    if args.splits != "":
+        splits = args.splits.split("/")
+    else:
+        splits = ["id_val"]
+
+    if args.ratios != "":
+        ratios = [float(r) for r in args.ratios.split("/")]
+    else:
+        ratios = [.3, .6, .9, 1.]
+    print("Using ratios = ", ratios)
+
+    results = {l: {k: defaultdict(list) for k in splits} for l in load_splits}
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"COMPUTING STABILITY DETECTOR FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["mitigation_backbone"] = args.mitigation_backbone
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+            
+            (edge_scores, graphs, graphs_nx, labels, avg_graph_size, \
+            causal_subgraphs_r, spu_subgraphs_r, expl_accs_r, causal_masks_r)  = pipeline.compute_scores_and_graphs(
+                ratios,
+                splits,
+                convert_to_nx=("suff" in args.metrics) and (not "suff_simple" in args.metrics)
+            )
+            intervention_bank = None
+
+            for split in splits:
+                score, acc_int, _ = pipeline.compute_stability_detector_extended(
+                    seed,
+                    ratios,
+                    split,
+                    metric=args.metrics,
+                    intervention_distrib=config.intervention_distrib,
+                    intervention_bank=intervention_bank,
+                    edge_scores=edge_scores[split],
+                    graphs=graphs[split],
+                    graphs_nx=graphs_nx[split],
+                    labels=labels[split],
+                    avg_graph_size=avg_graph_size[split],
+                    causal_subgraphs_r=causal_subgraphs_r[split],
+                    spu_subgraphs_r=spu_subgraphs_r[split],
+                    expl_accs_r=expl_accs_r[split],
+                    causal_masks_r=causal_masks_r[split]
+                )
+                results[load_split][split][args.metrics].append(score["all_L1"])
+                for m in ["plausibility_wiou", "stability_wiou", "stability_f1", "stability_mcc"]:
+                    for s in ["_original", "_perturbed"]:
+                        results[load_split][split][m + s].append(score[m + s])
+    
+    print(f"\n\FINISHED {config.dataset.dataset_name} - {config.model.model_name}")
+    for load_split in results.keys():
+        for split in results[load_split]:
+            for m in ["plausibility_wiou", "stability_wiou", "stability_f1", "stability_mcc"]:
+                for s in ["_original", "_perturbed"]:
+                    metric = m + s
+                    matrix = np.array(results[load_split][split][metric])
+                    mean_over_seeds = np.mean(matrix, axis=0)
+                    mean_over_ratios = np.mean(mean_over_seeds)
+                    std_over_seeds = np.std(matrix, axis=0)
+                    std_over_ratios = np.sqrt(1/(mean_over_seeds.shape[0]**2) * np.sum(std_over_seeds**2)) # Var((a+b)/2) = 1/4[Var(a) + Var(b) - Cov(a,b)] (assuming a indip. b Cov(a,b)=0)
+                    print(f"({load_split}) ({split}) {metric.upper()}: \t{mean_over_seeds} +- {std_over_seeds} (mean across ratios: {mean_over_ratios:.2f} +- {std_over_ratios:.2f})")
+                print()
+    print("Overall time of execution: ", datetime.now() - startOverallTime)
+
+def plot_explanation_examples(args):
+    assert len(args.metrics.split("/")) == 1, args.metrics.split("/")
+    
+    load_splits = ["id"]
+    if args.splits != "":
+        splits = args.splits.split("/")
+    else:
+        splits = ["id_val"]
+    if args.ratios != "":
+        ratios = [float(r) for r in args.ratios.split("/")]
+    else:
+        ratios = [.3, .6, .9, 1.]
+    # ratios = [0.3]
+    print("Using ratios = ", ratios)
+
+    results = {l: {k: defaultdict(list) for k in splits} for l in load_splits}
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"PLOTTING EXAMPLES OF EXPLANATIONS FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["mitigation_backbone"] = args.mitigation_backbone
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+            
+            (edge_scores, graphs, graphs_nx, labels, avg_graph_size, \
+            causal_subgraphs_r, spu_subgraphs_r, expl_accs_r, causal_masks_r)  = pipeline.compute_scores_and_graphs(
+                ratios,
+                splits,
+                convert_to_nx=("suff" in args.metrics) and (not "suff_simple" in args.metrics)
+            )
+            intervention_bank = None
+
+            for split in splits:
+                pipeline.generate_explanation_examples(
+                    seed,
+                    ratios,
+                    split,
+                    metric=args.metrics,
+                    intervention_distrib=config.intervention_distrib,
+                    intervention_bank=intervention_bank,
+                    edge_scores=edge_scores[split],
+                    graphs=graphs[split],
+                    graphs_nx=graphs_nx[split],
+                    labels=labels[split],
+                    avg_graph_size=avg_graph_size[split],
+                    causal_subgraphs_r=causal_subgraphs_r[split],
+                    spu_subgraphs_r=spu_subgraphs_r[split],
+                    expl_accs_r=expl_accs_r[split],
+                    causal_masks_r=causal_masks_r[split]
+                )
+
+def permute_attention_scores(args):
+    load_splits = ["id"]
+    splits = ["id_val", "val", "test"]
+    results = {l: {k: defaultdict(list) for k in splits} for l in load_splits}
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"GENERATING ATTN. PERMUTATION FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["mitigation_backbone"] = args.mitigation_backbone
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+
+            for s in splits:
+                acc_ori, acc = pipeline.permute_attention_scores(s)
+                results[load_split][s]["ori"].append(acc_ori)
+                results[load_split][s]["perm"].append(acc)
+    
+    print(f"{config.dataset.dataset_name} - {config.model.model_name}")
+    for load_split in results.keys():
+        for split in results[load_split]:
+            print(f"({load_split}) {split} {loader[split].dataset.metric} orig.: \t{np.mean(results[load_split][split]['ori']):.3f} +- {np.std(results[load_split][split]['ori']):.3f}")
+            print(f"({load_split}) {split} {loader[split].dataset.metric} perm.: \t{np.mean(results[load_split][split]['perm']):.3f} +- {np.std(results[load_split][split]['perm']):.3f}")
+
+
+def generate_panel(args):
+    load_splits = ["id"]
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        edge_scores_seed = []
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"GENERATING PLOT FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["mitigation_backbone"] = args.mitigation_backbone
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+
+            edge_scores = pipeline.generate_panel()
+            edge_scores_seed.append(edge_scores)
+        pipeline.generate_panel_all_seeds(edge_scores_seed)
+
+
+def generate_plot_sampling(args):
+    load_splits = ["id"]
+    splits = ["test"]
+    seeds = args.seeds.split("/")
+    ratios = [0.3, 0.6, 0.8, 0.9, 1.0] #[0.3, 0.45, 0.6, 0.75, 0.9]   0.3, 0.6, 0.75, 0.8, 0.85, 0.9, 0.95
+    sampling_alphas = [0.03, 0.05]
+    all_metrics, all_accs = {}, {}
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        for i, seed in enumerate(seeds):
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["mitigation_backbone"] = args.mitigation_backbone
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split)
+
+            (edge_scores, graphs, graphs_nx, labels, avg_graph_size, \
+            causal_subgraphs_r, spu_subgraphs_r, expl_accs_r, causal_masks_r)  = pipeline.compute_scores_and_graphs(
+                ratios,
+                splits,
+                convert_to_nx="suff" in args.metrics
+            )
+            
+            metrics, accs = pipeline.generate_plot_sampling_type(splits, ratios, sampling_alphas, graphs, graphs_nx, causal_subgraphs_r, causal_masks_r, avg_graph_size)
+            all_metrics[str(seed)] = metrics
+            all_accs[str(seed)] = accs
+
+            # print(all_metrics.keys())
+            # print(all_metrics["1"].keys())
+            # print(all_metrics["1"]["test"].keys())
+            # print(all_metrics["1"]["test"][0.3].keys())
+            # print(all_metrics["1"]["test"][0.3]["RFID_0.03"])
+        
+        for SPLIT in splits:
+            num_cols = len(sampling_alphas)
+            fig, axs = plt.subplots(1, num_cols, figsize=(2.9*num_cols, 3.9), sharey=True)
+            colors = {
+                "NEC KL": "blue", "NEC L1":"lightblue", "FID L1 div": "green", "Model FID": "orange", "Phen. FID": "red", "Change pred": "violet"
+            }
+            sampling_name = {"RFID_": "RFID+ ($)", "FIXED_": "Fixed Deconfounded ($)", "DECONF_": "NEC ($)", "DECONF_R_": "NEC ($)"}
+            for j, sampling_type_ori in enumerate(["RFID_", "DECONF_", "DECONF_R_"]): #"FIXED_", 
+                for alpha_i, alpha in enumerate(sampling_alphas):
+                    param = str(alpha_i+1 if sampling_type_ori == "FIXED_" else alpha)
+                    sampling_type = sampling_type_ori + param
+                    anneal, anneal_std = [], []
+                    for r in ratios:
+                        for i, metric_name in enumerate(["NEC L1"]):
+                            anneal.append(np.mean([all_metrics[s][SPLIT][r][sampling_type][metric_name] for s in seeds]))
+                            anneal_std.append(np.std([all_metrics[s][SPLIT][r][sampling_type][metric_name] for s in seeds]))
+                            # axs[j%num_cols,alpha_i%num_cols].scatter(r, np.mean([all_metrics[s][SPLIT][r][sampling_type][metric_name] for s in seeds]), label=f"{metric_name}" if r == 0.3 else None, c=colors[metric_name])
+                            # axs[j%num_cols,alpha_i%num_cols].scatter(r, np.mean([all_metrics[s][SPLIT][r][sampling_type][metric_name] for s in seeds]) - np.std([all_metrics[s][SPLIT][r][sampling_type][metric_name] for s in seeds]), c=colors[metric_name], alpha=.5, marker="^")
+                            # axs[j%num_cols,alpha_i%num_cols].scatter(r, np.mean([all_metrics[s][SPLIT][r][sampling_type][metric_name] for s in seeds]) + np.std([all_metrics[s][SPLIT][r][sampling_type][metric_name] for s in seeds]), c=colors[metric_name], alpha=.5, marker="v")
+                        # axs[j%num_cols,alpha_i%num_cols].scatter(r, np.mean([all_accs[s][SPLIT][r] for s in seeds]), label=f"Model acc" if r == 0.3 else None, c="orange", alpha=0.5)
+                        # axs[j%num_cols,alpha_i%num_cols].scatter(r, np.mean([all_accs[s][SPLIT][r] for s in seeds]) - np.std([all_accs[s][SPLIT][r] for s in seeds]), c="orange", alpha=.5, marker="^")
+                        # axs[j%num_cols,alpha_i%num_cols].scatter(r, np.mean([all_accs[s][SPLIT][r] for s in seeds]) + np.std([all_accs[s][SPLIT][r] for s in seeds]), c="orange", alpha=.5, marker="v")
+                    
+                    if "RFID" in sampling_type:
+                        l = f"$\kappa=${param}"
+                    elif "DECONF_R_" in sampling_type:
+                        l = f"$b=${param}||R||"
+                    elif "DECONF_" in sampling_type:
+                        l = f"$b=${param}" + "$\\bar{m}$"
+
+                    axs[alpha_i%num_cols].errorbar(
+                        ratios,
+                        anneal,
+                        yerr=anneal_std,
+                        fmt='-o',
+                        capsize=5,
+                        label=sampling_name[sampling_type_ori].replace('$', l))
+                    # axs[j%num_cols,alpha_i%num_cols].plot(ratios, anneal)
+                    # axs[alpha_i%num_cols].plot(ratios, [np.mean([all_accs[s][SPLIT][r] for s in seeds]) for r in ratios], c="orange", alpha=0.5)
+                    axs[alpha_i%num_cols].grid(visible=True, alpha=0.5)
+                    # axs[alpha_i%num_cols].set_title(f"{sampling_name[sampling_type_ori].replace('$', str(param))}")
+                    # axs[alpha_i%num_cols].set_xlabel("ratio")
+                    # axs[alpha_i%num_cols].set_ylabel("metric value")
+                    axs[alpha_i%num_cols].set_ylim((0., 1.1))
+                    axs[alpha_i%num_cols].legend(loc='best', fontsize=11)
+            # plt.suptitle(f"{config.dataset.dataset_name}/{config.dataset.domain}")
+            fig.supxlabel('size ratio', fontsize=13)
+            fig.supylabel('value', fontsize=13)
+            
+            # plt.xticks(fontsize=12)
+            plt.legend()
+            # fig.subplots_adjust(bottom=0.3, top=0.95, left=0.1, right=0.9)
+            plt.tight_layout()
+            plt.savefig(f"./GOOD/kernel/pipelines/plots/metrics/R_dev_nec_sampling_{config.ood.ood_alg}_{config.dataset.dataset_name}_{config.dataset.domain}_({SPLIT}).png")
+            # plt.savefig(f"./GOOD/kernel/pipelines/plots/metrics/pdfs/small_v2_dev_nec_sampling_{config.ood.ood_alg}_{config.dataset.dataset_name}_{config.dataset.domain}_({SPLIT}).pdf")
+            plt.show(); 
+
+
+def evaluate_metric(args):
+    load_splits = ["id"]
+
+    if args.splits != "":
+        splits = args.splits.split("/")
+    else:
+        splits = ["id_val", "val", "test"] #"id_val", "val", "test"
+    print("Using splits = ", splits)
+        
+    if args.ratios != "":
+        ratios = [float(r) for r in args.ratios.split("/")]
+    else:
+        ratios = [.3, .6, .9, 1.]
+    print("Using ratios = ", ratios)
+    startTime = datetime.now()
+
+    metrics_score = {}
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+        print(f"USING LOAD SPLIT = {load_split}\n\n")
+        # with open(f"storage/metric_results/{load_split}_results.json", "r") as jsonFile:
+        #     results_big = json.load(jsonFile)
+
+        metrics_score[load_split] = {s: defaultdict(list) for s in splits + ["test", "test_R"]}
+        for i, seed in enumerate(args.seeds.split("/")):
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["mitigation_backbone"] = args.mitigation_backbone
+            config["task"] = "test"
+            config["load_split"] = load_split
+            expname = f"{load_split}_{config.util_model_dirname}_{config.dataset.dataset_name}{config.dataset.domain}" \
+                f"_budgetsamples{config.numsamples_budget}_expbudget{config.expval_budget}" \
+                f"_samplingtype{config.samplingtype}_necnumbersamples{config.nec_number_samples}"\
+                f"_nec_alpha_1{config.nec_alpha_1}_fidelity_alpha_2{config.fidelity_alpha_2}"
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split)
+            if "CIGA" in config.model.model_name:
+                ratios = [pipeline.model.att_net.ratio, 1.0]
+
+            if not (len(args.metrics.split("/")) == 1 and args.metrics.split("/")[0] == "acc"):
+                (edge_scores, graphs, graphs_nx, labels, avg_graph_size, \
+                causal_subgraphs_r, spu_subgraphs_r, expl_accs_r, causal_masks_r)  = pipeline.compute_scores_and_graphs(
+                    ratios,
+                    splits,
+                    convert_to_nx=("suff" in args.metrics) and (not "suff_simple" in args.metrics),
+                    is_weight="weight" in config.log_id
+                )
+                intervention_bank = None
+                # if "suff" in args.metrics:
+                #     intervention_bank = pipeline.compute_intervention_bank(ratios, splits=["id_val", "val", "test"], graphs_nx=graphs_nx, causal_subgraphs_r=causal_subgraphs_r)
+
+            for metric in args.metrics.split("/"):
+                print(f"\n\nEvaluating {metric.upper()} for seed {seed} with load_split {load_split}\n")
+
+                if metric == "acc":
+                    assert not (config.acc_givenR and config.mask)
+                    if not config.acc_givenR:
+                        for split in splits + (["test"] if not "test" in splits else []):
+                            pipeline.compute_accuracy_binarizing(split, givenR=False, metric_collector=metrics_score[load_split][split])
+                    print("\n\nComputing now with givenR...\n")
+                    pipeline.compute_accuracy_binarizing("test", givenR=True, metric_collector=metrics_score[load_split]["test_R"])
+                    continue
+                elif metric == "plaus":
+                    for split in splits:
+                        metrics_score[load_split][split]["wiou"].append([np.mean([e[0] for e in expl_accs_r[split][r]]) for r in ratios])
+                        metrics_score[load_split][split]["wiou_std"].append([np.std([e[0] for e in expl_accs_r[split][r]]) for r in ratios])
+                        metrics_score[load_split][split]["F1"].append([np.mean([e[1] for e in expl_accs_r[split][r]]) for r in ratios])
+                        metrics_score[load_split][split]["F1_std"].append([np.std([e[1] for e in expl_accs_r[split][r]]) for r in ratios])
+                    continue
+
+                for split in splits:
+                    score, acc_int, results = pipeline.compute_metric_ratio(
+                        ratios,
+                        split,
+                        metric=metric,
+                        intervention_distrib=config.intervention_distrib,
+                        intervention_bank=intervention_bank,
+                        edge_scores=edge_scores[split],
+                        graphs=graphs[split],
+                        graphs_nx=graphs_nx[split],
+                        labels=labels[split],
+                        avg_graph_size=avg_graph_size[split],
+                        causal_subgraphs_r=causal_subgraphs_r[split],
+                        spu_subgraphs_r=spu_subgraphs_r[split],
+                        expl_accs_r=expl_accs_r[split],
+                        causal_masks_r=causal_masks_r[split]
+                    )
+                    # assign_dict(
+                    #     results_big,
+                    #     [expname, split, metric, f"seed_{seed}"],
+                    #     score
+                    # )
+                    metrics_score[load_split][split][metric].append(score)
+                    metrics_score[load_split][split][metric + "_acc_int"].append(acc_int)
+        
+        # if not "suff" in args.metrics and not "acc" in args.metrics:
+        #     print("\n\n")
+        #     for split in splits:
+        #         avg_score = {}
+        #         for metric_key in results_big[expname][split][metric][f"seed_{args.seeds[0]}"].keys():
+        #             sa = []
+        #             for seed in results_big[expname][split][metric].keys():
+        #                 sa.append(results_big[expname][split][metric][seed][metric_key])
+        #             avg_score[metric_key] = np.mean(sa, axis=0)
+        #         print(f"Manually averaged results ({split}): ", avg_score)
+        #         print("\n\n")
+        #         assign_dict(
+        #             results_big,
+        #             [expname, split, metric, "seed_avg"],
+        #             avg_score
+        #         )
+        #         print(results_big[expname][split]["nec"])
+        #         print("\n\n")
+
+        # if metric.lower() in ("suff", "suff++" "nec", "nec++", "fidp", "fidm") and config.save_metrics:
+        #     with open(f"storage/metric_results/{load_split}_results.json", "w") as f:
+        #         json.dump(results_big, f)        
+
+    if config.save_metrics:
+        save_path = f"storage/metric_results/aggregated_{load_split}_results_necalpha{config.nec_alpha_1}" \
+                    f"_numsamples{config.numsamples_budget}_randomexpl{config.random_expl}_ratios{args.ratios.replace('/','-')}" \
+                    f"_metrics{args.metrics.replace('/','-')}" \
+                    f"_{config.log_id}.json"
+        if not os.path.exists(save_path):
+            with open(save_path, 'w') as file:
+                file.write("{}")
+        with open(save_path, "r") as jsonFile:
+            results_aggregated = json.load(jsonFile)
+    else:
+        results_aggregated = None
+
+    for load_split in load_splits:
+        print("\n\n", "-"*50, f"\nPrinting evaluation results for load_split {load_split}\n\n")
+        for split in splits:
+            print(f"\nEval split {split}")
+            for metric in args.metrics.split("/"):
+                print(f"{metric} = {metrics_score[load_split][split][metric]}")
+        if "acc" in args.metrics.split("/"):
+            for split in splits + ["test", "test_R"]:
+                print(f"\nEval split {split}")
+                for metric in ["acc"]: #, "plaus", "wiou"
+                    print(f"{metric} = {metrics_score[load_split][split][metric]}")
+
+        if "plaus" in args.metrics:
+            print("\n\n", "-"*50, "\nComputing Plausibility")
+            for split in splits:
+                print(f"\nEval split {split}")
+                for div in ["wiou", "F1"]:
+                    s = metrics_score[load_split][split][div]
+                    print_metric(div, s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, div])
+            continue
+
+        print("\n\n", "-"*50, "\nPrinting evaluation averaged per seed")
+        for split in splits:
+            print(f"\nEval split {split}")
+            for metric in args.metrics.split("/"):
+                if "acc" == metric:
+                    continue
+                # for c in metrics_score[load_split][split][metric][0].keys():
+                #     s = [
+                #         metrics_score[load_split][split][metric][i][c] for i in range(len(metrics_score[load_split][split][metric]))
+                #     ]
+                #     print_metric(metric + f" class {c}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.model.model_name, split, metric])
+                for div in ["L1", "KL"]:
+                    s = [
+                        metrics_score[load_split][split][metric][i][f"all_{div}"] for i in range(len(metrics_score[load_split][split][metric]))
+                    ]
+                    print_metric(metric + f" class all_{div}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_{div}"])
+                print(metrics_score[load_split][split][metric + "_acc_int"])
+                print(s)
+                print_metric(metric + "_acc_int", metrics_score[load_split][split][metric + "_acc_int"], results_aggregated, key=[config.dataset.dataset_name+" "+config.dataset.domain, config.complete_dirname, split, metric+"_acc_int"])
+                
+        if "acc" in args.metrics.split("/"):
+            for split in splits + ["test", "test_R"]:
+                print(f"\nEval split {split}")
+                print_metric("acc", metrics_score[load_split][split]["acc"])
+                for a in ["plaus", "wiou"]:
+                    for c in metrics_score[load_split][split][a][0].keys():
+                        s = [
+                            metrics_score[load_split][split][a][i][c] for i in range(len(metrics_score[load_split][split][a]))
+                        ]
+                        print_metric(a + f" class {c}", s)
+
+        print("\n\n", "-"*50, "\nComputing faithfulness")
+        for split in splits:
+            print(f"\nEval split {split}")            
+            for div in ["L1", "KL"]:
+                if "suff" in args.metrics.split("/") and "nec" in args.metrics.split("/"):                
+                    suff = get_tensorized_metric(metrics_score[load_split][split]["suff"], f"all_{div}")
+                    nec = get_tensorized_metric(metrics_score[load_split][split]["nec"], f"all_{div}")[:, :suff.shape[1]]             
+                    faith_aritm = aritm(suff, nec)
+                    faith_armonic = armonic(suff, nec)
+                    faith_gmean = gmean(suff, nec)
+                    print_metric(f"Faith. Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_aritm_{div}"])
+                    print_metric(f"Faith. Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_armon_{div}"])
+                    print_metric(f"Faith. GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_gmean_{div}"])
+
+                if "suff++" in args.metrics.split("/") and "nec" in args.metrics.split("/"):
+                    suff = get_tensorized_metric(metrics_score[load_split][split]["suff++"], f"all_{div}")
+                    nec = get_tensorized_metric(metrics_score[load_split][split]["nec"], f"all_{div}")[:, :suff.shape[1]]             
+                    faith_aritm = aritm(suff, nec)
+                    faith_armonic = armonic(suff, nec)
+                    faith_gmean = gmean(suff, nec)
+                    print_metric(f"Faith. Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_aritm_{div}"])
+                    print_metric(f"Faith. Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_armon_{div}"])
+                    print_metric(f"Faith. GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_gmean_{div}"])
+                
+                if "suff_simple" in args.metrics.split("/") and "nec" in args.metrics.split("/"):
+                    suff = get_tensorized_metric(metrics_score[load_split][split]["suff_simple"], f"all_{div}")
+                    nec = get_tensorized_metric(metrics_score[load_split][split]["nec"], f"all_{div}")[:, :suff.shape[1]]             
+                    faith_aritm = aritm(suff, nec)
+                    faith_armonic = armonic(suff, nec)
+                    faith_gmean = gmean(suff, nec)
+                    print_metric(f"Faith. Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_aritm_{div}"])
+                    print_metric(f"Faith. Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_armon_{div}"])
+                    print_metric(f"Faith. GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_gmean_{div}"])
+
+                if "suff" in args.metrics.split("/") and "nec++" in args.metrics.split("/"):
+                    suff = get_tensorized_metric(metrics_score[load_split][split]["suff"], f"all_{div}")
+                    necpp = get_tensorized_metric(metrics_score[load_split][split]["nec++"], f"all_{div}")[:, :suff.shape[1]]
+                    faith_aritm = aritm(suff, necpp)
+                    faith_armonic = armonic(suff, necpp)
+                    faith_gmean = gmean(suff, necpp)
+                    print_metric(f"Faith.++ Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith++_aritm_{div}"])
+                    print_metric(f"Faith.++ Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith++_gmean_{div}"])
+                    print_metric(f"Faith.++ GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith++_gmean_{div}"])
+
+        print(f"Computed for split load_split = {load_split}\n\n\n")
+    
+    if config.save_metrics:
+        with open(save_path, "w") as f:
+            json.dump(results_aggregated, f)     
+    
+    print("Completed in ", datetime.now() - startTime, f" for {config.complete_dirname} {config.dataset.dataset_name}/{config.dataset.domain}")
+    print("\n\n")
+    sys.stdout.flush()
+
+def print_faith(args):
+    load_split = "id"
+    config = config_summoner(args)
+
+    split_metrics = ["id_val", "val", "test"]
+    metrics = ["suff_simple_L1", "nec_L1", "faith_armon_L1"]
+    model = config.complete_dirname
+    dataset = config.dataset.dataset_name + " " + config.dataset.domain
+
+    print("\nMODEL = \t", model)
+    print("DATASET = \t", dataset)
+    print("\n\n")
+
+    results = {
+        True: {split: {} for split in split_metrics},
+        False: {split: {} for split in split_metrics},
+    }
+    big_rows = {s: "" for s in split_metrics}
+    for split_metric in split_metrics:
+        print(f"{split_metric}")
+        for j, metric in enumerate(metrics):
+            for i, random_expl in enumerate([False, True]):
+                save_path = f"storage/metric_results/aggregated_{load_split}_results_necalpha{config.nec_alpha_1}" \
+                            f"_numsamples{config.numsamples_budget}_randomexpl{random_expl}_ratios{args.ratios.replace('/','-')}" \
+                            f"_metrics{args.metrics.replace('/','-')}" \
+                            f"_{config.log_id}.json"
+                if split_metric == split_metrics[0] and i == 0 and j == 0:
+                    print("METRIC FILE = \t", save_path)
+
+                with open(save_path, "r") as jsonFile:
+                    data = json.load(jsonFile)
+                if not model in data[dataset].keys() or not split_metric in data[dataset][model].keys():
+                    continue
+                
+                results[random_expl][split_metric][f"values_{metric}"]     = [f"{d:.2f}" for d in data[dataset][model][split_metric][metric]]
+                results[random_expl][split_metric][f"stds_{metric}"]       = [f"{d:.2f}" for d in data[dataset][model][split_metric][metric + "_std"]]
+
+                if config.log_id == "isweight" and len(results[random_expl][split_metric][f"values_{metric}"]) == 4:
+                    # append an empty entry for easy formatting on Sheet
+                    results[random_expl][split_metric][f"values_{metric}"].append("-")
+                    results[random_expl][split_metric][f"stds_{metric}"].append("-")
+
+                row = "; ".join([f"{v} +- {s}" for v,s in zip(results[random_expl][split_metric][f"values_{metric}"], results[random_expl][split_metric][f"stds_{metric}"])])
+                
+                print(f"\t{metric + (' Rnd' if random_expl else ''):<25}:\t{row}")
+                big_rows[split_metric] = big_rows[split_metric] + ";" + row
+
+                if "faith" in metric and random_expl == True:
+                    ratio_values = [ f"{float(results[True][split_metric][f'values_{metric}'][k]) / float(results[False][split_metric][f'values_{metric}'][k]):.2f}" for k in range(len(data[dataset][model][split_metric][metric]))]
+                    
+                    # ratio_stds = [ f"0.00" for _ in range(len(data[dataset][model][split_metric][metric]))]
+                    # Z = Y/X = Rnd/Orig
+                    # Computed using the Delta method (assuming R.V. asymptotically Gaussian and X and Y independent)
+                    # https://stats.stackexchange.com/questions/291594/estimation-of-population-ratio-using-delta-method
+                    # http://www.senns.uk/Stats_Notes/Variance_of_a_ratio.pdf
+                    ratio_vars = [
+                            float(results[True][split_metric][f'stds_{metric}'][k])**2 / float(results[False][split_metric][f'values_{metric}'][k])**2 + \
+                                (float(results[True][split_metric][f'values_{metric}'][k])**2 * float(results[False][split_metric][f'stds_{metric}'][k])**2 / float(results[False][split_metric][f'values_{metric}'][k])**4)
+                        for k in range(len(data[dataset][model][split_metric][metric]))
+                    ]
+                    ratio_stds = [ f"{d**0.5:.2f}" for d in ratio_vars]
+
+
+                    row = "; ".join([f"{v} +- {s}" for v,s in zip(ratio_values, ratio_stds)])
+                    
+                    print(f"\t{metric + ' ratio':<25}:\t{row}")
+                    big_rows[split_metric] = big_rows[split_metric] + ";" + row
+
+    print("\n\nPrinting big rows:\n")
+    for split_metric in split_metrics:
+        print(f"{split_metric}: {big_rows[split_metric]}\n\n")
+
+def print_r_ge_b_hist(args):
+    load_splits = ["id"]
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        edge_scores_seed = []
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"GENERATING PLOT FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+
+            # GET EXPLANATIONS
+            ret = pipeline.get_node_explanations()
+
+            # PLOT HISTOGRAM
+            list_of_colors = {}
+            list_of_scores = {}
+            list_of_labels = np.array([ret["id_val"]["samples"][i].y.item() for i in range(len(ret["id_val"]["samples"]))])
+
+            for i, label in enumerate(np.unique(list_of_labels)):
+                for j in range(len(ret["id_val"]["samples"])):
+                    if ret["id_val"]["samples"][j].y.item() == label:
+                        list_of_colors[label].extend()
+                
+                
+                all_graphs = torch.cat([ret["id_val"]["samples"][i].x for i in range(len(ret["id_val"]["samples"])) if ret["id_val"]["samples"][i].y.item() == label], dim=0)            
+                list_of_tuples = [tuple(row.tolist()) for row in all_graphs]
+
+                list_of_colors[label] = np.array(list(map(loader["id_val"].dataset.color_map.get, list_of_tuples)))
+                list_of_scores[label] = np.array(list(chain(*ret["id_val"]["scores"])))
+            
+
+
+            print(len(list_of_colors), len(list_of_scores), len(list_of_labels))
+            
+            n_row = 2
+            fig, axs = plt.subplots(n_row, 1, figsize=(9,4))
+
+            for i, label in enumerate(np.unique(list_of_labels)):
+                print(min(np.concatenate(list_of_scores[list_of_labels == label])), max(np.concatenate(list_of_scores[list_of_labels == label])), np.mean(np.concatenate(list_of_scores[list_of_labels == label])), np.std(np.concatenate(list_of_scores[list_of_labels == label])))
+                
+                for color in np.unique(list_of_colors):
+                    axs[i].hist(np.concatenate(list_of_scores[list_of_labels == label & list_of_colors == color]), density=True, log=False, bins=100, label=color)
+                    axs[i].set_xlim(-0.1, 1.1)
+                    axs[i].set_ylim(0.0, 100)
+
+
+            fig.supxlabel('explanation relevance scores', fontsize=13)
+            fig.supylabel('density', fontsize=13)
+            plt.legend()
+
+            
+            path = f'GOOD/kernel/pipelines/plots/panels/{config.ood_dirname}/'
+            if not os.path.exists(path):
+                os.makedirs(path)
+
+            path += f"{config.load_split}_{config.dataset.dataset_name}_{config.dataset.domain}_{config.util_model_dirname}_{config.random_seed}"
+            plt.savefig(path + ".png")
+            plt.close()
+            
+

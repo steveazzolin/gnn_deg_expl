@@ -1,13 +1,11 @@
 r"""Initial process for fixing all possible random seed.
 """
-
 import random
 
 import numpy as np
 import torch
 
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
-
 
 def reset_random_seed(config: Union[CommonArgs, Munch], fixed_seed=None):
     r"""
