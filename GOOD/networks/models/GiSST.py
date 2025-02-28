@@ -446,7 +446,6 @@ def set_masks(mask: Tensor, model: nn.Module):
                 module.__explain__ = True
                 module._explain = True
             module._apply_sigmoid = False    
-            module.__edge_mask__ = mask
             module._edge_mask = mask
 
 
@@ -461,5 +460,4 @@ def clear_masks(model: nn.Module):
             else:
                 module.__explain__ = False
                 module._explain = False
-            module.__edge_mask__ = None
             module._edge_mask = None

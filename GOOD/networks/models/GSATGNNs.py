@@ -10,16 +10,17 @@ from torch_geometric.nn import InstanceNorm
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import is_undirected, to_undirected, degree, coalesce
 from torch_sparse import transpose
-from torch_geometric import __version__ as pyg_v
+from torch_geometric import __version__ as __pyg_version__
 
 from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
 from .BaseGNN import GNNBasic
-from .Classifiers import Classifier, ConceptClassifier
-from .GINs import GINFeatExtractor, SimpleGlobalChannel, DecisionTreeGlobalChannel
-from .GINvirtualnode import vGINFeatExtractor
+from .Classifiers import Classifier
+from .GINs import FeatExtractor
+from .GINvirtualnode import vFeatExtractor
 import copy
 from GOOD.utils.splitting import split_graph, relabel
+from GOOD.utils.train import lift_node_att_to_edge_att
 
 @register.model_register
 class GSATGIN(GNNBasic):
@@ -30,13 +31,12 @@ class GSATGIN(GNNBasic):
         config = copy.deepcopy(config)
         fe_kwargs = {'mitigation_readout': config.mitigation_readout}
 
-        self.gnn = GINFeatExtractor(config, **fe_kwargs)
+        self.gnn = FeatExtractor(config, **fe_kwargs)
         self.extractor = ExtractorMLP(config)
 
         if config.mitigation_sampling == "raw":
-            config.mitigation_backbone = None
             config.model.model_layer = 1
-            self.gnn_clf = GINFeatExtractor(config)
+            self.gnn_clf = FeatExtractor(config, **fe_kwargs)
         else:
             self.gnn_clf = None
 
@@ -46,11 +46,6 @@ class GSATGIN(GNNBasic):
 
         self.edge_mask = None
         print("Using mitigation_expl_scores:", config.mitigation_expl_scores)
-
-        if config.global_side_channel in ("simple_concept2discrete", "simple_concept2temperature"):
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.tensor(torch.nan)
-            self.combinator = ConceptClassifier(config, method=2)
         
 
     def forward(self, *args, **kwargs):
@@ -82,15 +77,11 @@ class GSATGIN(GNNBasic):
 
                     if not data.edge_attr is None:
                         edge_index_sorted, edge_attr_sorted = coalesce(data.ori_edge_index, data.edge_attr, is_sorted=False)                    
-                        # assert torch.all(
-                        #     torch.tensor([edge_index_sorted.T[i][0] == data.edge_index.T[i][0] and edge_index_sorted.T[i][1] == data.edge_index.T[i][1] 
-                        #                 for i in range(len(data.edge_index.T))])
-                        # )
                         data.edge_attr = edge_attr_sorted    
             else:
                 edge_att = att
         else:
-            edge_att = self.lift_node_att_to_edge_att(att, data.edge_index)
+            edge_att = lift_node_att_to_edge_att(att, data.edge_index)
 
         if kwargs.get('weight', None):
             if kwargs.get('is_ratio'):
@@ -108,18 +99,7 @@ class GSATGIN(GNNBasic):
                     data.edge_attr = data.edge_attr[edge_att >= kwargs.get('weight')]
                 edge_att = edge_att[edge_att >= kwargs.get('weight')]
 
-        if self.config.mitigation_expl_scores == "topK" or self.config.mitigation_expl_scores == "topk":
-            (causal_edge_index, causal_edge_attr, edge_att), \
-                _ = split_graph(data, edge_att, self.config.mitigation_expl_scores_topk)
-           
-            causal_x, causal_edge_index, causal_batch, _ = relabel(data.x, causal_edge_index, data.batch)
-
-            data_topk = Data(x=causal_x, edge_index=causal_edge_index, edge_attr=causal_edge_attr, batch=causal_batch)
-            kwargs['data'] = data_topk
-            kwargs["batch_size"] =  data.batch[-1].item() + 1
-
-        set_masks(edge_att, self)
-        # logits = self.classifier(self.gnn(*args, **kwargs))
+        set_masks(edge_att, self, att)
         if self.gnn_clf:
             logits = self.classifier(self.gnn_clf(*args, **kwargs))
         else:
@@ -127,32 +107,7 @@ class GSATGIN(GNNBasic):
         clear_masks(self)
         self.edge_mask = edge_att
 
-        if self.config.global_side_channel and not kwargs.get('exclude_global', False):
-            logits_side_channel, filter_attn = self.global_side_channel(**kwargs)
-            logits_gnn = logits
-            
-            if "simple_concept" in self.config.global_side_channel:
-                # mask_channel = torch.zeros_like(logits_side_channel)
-                
-                if self.config.global_side_channel == "simple_concept2temperature":
-                    def get_temp(start_temp, end_temp, max_num_epoch, curr_epoch):
-                        if max_num_epoch is None:
-                            return end_temp
-                        if curr_epoch <= 20:
-                            return start_temp
-                        return start_temp - (start_temp - end_temp) / max_num_epoch * curr_epoch
-
-                    temp = get_temp(start_temp=1, end_temp=self.config.train.end_temp, max_num_epoch=kwargs.get('max_num_epoch'), curr_epoch=kwargs.get('curr_epoch'))
-                    channel_gnn = torch.sigmoid(logits_gnn / temp)
-                    channel_global = torch.sigmoid(logits_side_channel / temp)
-                else:
-                    assert False
-                        
-                logits = self.combinator(torch.cat((channel_gnn, channel_global), dim=1))
-                return logits, att, edge_att, filter_attn, (logits_gnn, logits_side_channel)
-        else:
-            # return logits, att, att_log_logits.sigmoid() # WARNING: I replaced edge_attn with att_log_logits.sigmoid()
-            return logits, att, edge_att
+        return logits, att, edge_att
 
     def sampling(self, att_log_logits, training, mitigation_expl_scores):
         if mitigation_expl_scores == "anneal":
@@ -165,13 +120,6 @@ class GSATGIN(GNNBasic):
         return att
 
     @staticmethod
-    def lift_node_att_to_edge_att(node_att, edge_index):
-        src_lifted_att = node_att[edge_index[0]]
-        dst_lifted_att = node_att[edge_index[1]]
-        edge_att = src_lifted_att * dst_lifted_att
-        return edge_att
-
-    @staticmethod
     def concrete_sample(att_log_logit, temp, training):
         if training:
             random_noise = torch.empty_like(att_log_logit).uniform_(1e-10, 1 - 1e-10)
@@ -182,9 +130,8 @@ class GSATGIN(GNNBasic):
         return att_bern
     
     @torch.no_grad()
-    def probs(self, *args, **kwargs):
-        # nodes x classes
-        out = self(*args, **kwargs)
+    def probs(self, *args, **kwargs):        
+        out = self(*args, **kwargs) # nodes x classes
 
         if len(out) == 5:
             logits, att, edge_att, _, _ = out
@@ -198,8 +145,7 @@ class GSATGIN(GNNBasic):
     
     @torch.no_grad()
     def log_probs(self, eval_kl=False, *args, **kwargs):
-        # nodes x classes
-        out = self(*args, **kwargs)
+        out = self(*args, **kwargs) # nodes x classes
         
         if len(out) == 5:
             logits, att, edge_att, _, _ = out
@@ -275,7 +221,7 @@ class GSATGIN(GNNBasic):
             else:
                 edge_att = att
         else:
-            edge_att = self.lift_node_att_to_edge_att(att, data.edge_index)
+            edge_att = lift_node_att_to_edge_att(att, data.edge_index)
 
         if kwargs.get('return_attn', False):
             self.attn_distrib = self.gnn.encoder.get_attn_distrib()
@@ -283,7 +229,7 @@ class GSATGIN(GNNBasic):
 
         edge_att = edge_att.view(-1)
         if ratio is None:
-            return edge_att        
+            return edge_att, att
         assert False
         
 
@@ -296,12 +242,12 @@ class GSATvGIN(GSATGIN):
 
     def __init__(self, config: Union[CommonArgs, Munch]):
         super(GSATvGIN, self).__init__(config)
+        exit("virtual nodes not in use")
         fe_kwargs = {'mitigation_readout': config.mitigation_readout}
-        self.gnn = vGINFeatExtractor(config, **fe_kwargs)
+        self.gnn = vFeatExtractor(config, **fe_kwargs)
 
         if config.mitigation_sampling == "raw":
-            config.mitigation_backbone = None
-            self.gnn_clf = vGINFeatExtractor(config)
+            self.gnn_clf = vFeatExtractor(config)
         else:
             self.gnn_clf = None
 
@@ -348,27 +294,29 @@ class MLP(BatchSequential):
 
             if i < len(channels) - 1:
                 m.append(InstanceNorm(channels[i]))
-                # m.append(nn.BatchNorm1d(channels[i]))
                 m.append(nn.ReLU()) # WARNING: Original GSAT and first working GL-GSAT for best global channel was using ReLU
                 m.append(nn.Dropout(dropout))
 
         super(MLP, self).__init__(*m)
 
 
-def set_masks(mask: Tensor, model: nn.Module):
+def set_masks(mask: Tensor, model: nn.Module, node_mask:Tensor=None):
     r"""
     Modified from https://github.com/wuyxin/dir-gnn.
     """
     for module in model.modules():
         if isinstance(module, MessagePassing):
-            if pyg_v == "2.4.0":
+            if __pyg_version__ == "2.4.0":
                 module._fixed_explain = True
             else:
                 module.__explain__ = True
                 module._explain = True
+
             module._apply_sigmoid = False    
-            module.__edge_mask__ = mask
             module._edge_mask = mask
+
+            if model.extractor.learn_edge_att == False:
+                module._node_mask = node_mask
 
 
 def clear_masks(model: nn.Module):
@@ -377,10 +325,11 @@ def clear_masks(model: nn.Module):
     """
     for module in model.modules():
         if isinstance(module, MessagePassing):
-            if pyg_v == "2.4.0":
+            if __pyg_version__ == "2.4.0":
                 module._fixed_explain = False
             else:
                 module.__explain__ = False
                 module._explain = False
-            module.__edge_mask__ = None
+            
             module._edge_mask = None
+            module._node_mask = None
