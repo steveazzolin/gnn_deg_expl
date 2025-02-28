@@ -311,17 +311,11 @@ class Pipeline:
                 else:
                     pbar.set_description(f'Loss: {mean_loss:.4f}')
 
-                if self.config.global_side_channel:
-                    pred_gnn, _ = eval_data_preprocess(data.y, self.ood_algorithm.logit_gnn.detach(), ~torch.isnan(data.y), self.config)
-                    pred_global, targets = eval_data_preprocess(data.y, self.ood_algorithm.logit_global.detach(), ~torch.isnan(data.y), self.config)
-
-                    raw_global_only.append(pred_global)
-                    raw_gnn_only.append(pred_gnn)
-                    raw_targets.append(targets)
-
             # Epoch val
             print('Evaluating...')
             print("Clf loss: ", np.mean(clf_batch_loss))
+            print("Spec loss: ", self.ood_algorithm.spec_loss.item())
+            print("Total loss: ", self.ood_algorithm.total_loss.item())
             if self.ood_algorithm.spec_loss is not None:
                 if isinstance(self.ood_algorithm.spec_loss, dict):
                     desc = f'ML: {mean_loss:.4f}|'
@@ -384,7 +378,8 @@ class Pipeline:
                 test_stat = id_test_stat
 
             if self.config.model.model_name != "GIN":
-                print("edge_weight: ", torch.cat(edge_scores, dim=0).min(), torch.cat(edge_scores, dim=0).max(), torch.cat(edge_scores, dim=0).mean())
+                tmp = torch.cat(edge_scores, dim=0)
+                print("edge_weight: ", tmp.min(), tmp.max(), tmp.mean())
 
             if self.config.wandb:
                 edge_scores = torch.cat(edge_scores, dim=0)
@@ -394,6 +389,7 @@ class Pipeline:
                     "clf_global_batch_loss": np.mean(clf_global_batch_loss),
                     "mean_loss": self.ood_algorithm.mean_loss,
                     "spec_loss": self.ood_algorithm.spec_loss,
+                    "total_loss": self.ood_algorithm.total_loss,
                     "entropy_filternode_loss": getattr(self.ood_algorithm, "entropy_filternode_loss", np.nan),
                     "side_channel_loss": getattr(self.ood_algorithm, "side_channel_loss", np.nan),
                     "all_train_loss": epoch_train_stat["loss"],
@@ -1861,6 +1857,47 @@ class Pipeline:
             print('#IM#Saved a new best checkpoint.')
         if config.clean_save:
             os.unlink(saved_file)
+
+    def get_node_explanations(self):
+        self.model.eval()
+        
+        # self.model.gnn.encoder.batch_norms.train()
+        # for conv in self.model.gnn.encoder.convs:
+        #     conv.mlp.train() # Make BN of ConvLayer in train mode
+
+        splits = ["id_val"]
+        ret = {
+            split: {
+                "scores": [],
+                "samples": []
+            } for split in splits
+        }
+                
+        for i, split in enumerate(splits):
+            dataset = self.get_local_dataset(split)
+
+            loader = DataLoader(dataset, batch_size=512, shuffle=False, num_workers=2)
+            for data in loader:
+                data: Batch = data.to(self.config.device)   
+                edge_scores, node_scores = self.model.get_subgraph(
+                    data=data,
+                    edge_weight=None,
+                    ood_algorithm=self.ood_algorithm,
+                    do_relabel=False,
+                    return_attn=False,
+                    ratio=None
+                )
+
+                for j, g in enumerate(data.to_data_list()):
+                    node_expl = node_scores[data.batch == j].detach().cpu().numpy().squeeze(1)
+
+                    # if "CIGA" in self.config.model.model_name:
+                    #     edge_scores = [np.abs(np.array(e)) for e in edge_scores]
+                    #     edge_scores = [(e - e.min()) / (e.max() - e.min() + 1e-7) for e in edge_scores if len(e) > 0]
+
+                    ret[split]["scores"].append(node_expl.tolist())
+                    ret[split]["samples"].append(g)            
+        return ret
 
     def generate_panel(self):
         self.model.eval()
