@@ -93,27 +93,32 @@ class SMGNN(BaseOODAlg):
         # L1 sparsification
         self.l_norm_loss = self.config.train.l_norm_coeff * att.squeeze(1).abs().mean(-1) # L1
         # self.l_norm_loss = att.squeeze(1).pow(2).mean(-1) # L2        
+
         # Entropy regularization
         attn = att.squeeze(1)
         self.entr_loss = self.config.train.entr_coeff * torch.mean(-attn * torch.log(attn + 1e-6) - (1 - attn) * torch.log(1 - attn + 1e-6))
         info_loss = self.l_norm_loss + self.entr_loss
 
-        if epoch < 10: # pre-train phase; 10 just for Motif
-            self.spec_loss = torch.tensor(0., device=att.device)
-        else:
-            self.spec_loss = config.ood.ood_param * info_loss
+        # WARMUP WITHOUT PENALIZING SCORES
+        # if epoch < 10: # pre-train phase; 10 just for Motif
+        #     self.spec_loss = torch.tensor(0., device=att.device)
+        # else:
+        #     self.spec_loss = config.ood.ood_param * info_loss
+        self.spec_loss = config.ood.ood_param * info_loss
 
-        if self.att.mean() < -20:
-            eps = 1e-6
-            r = 0.1
-            # correction_loss = (self.att * torch.log(self.att / r + eps) + (1 - self.att) * torch.log((1 - self.att) / (1 - r + eps) + eps)).mean()
-            correction_loss = -self.att.mean() # Push them towards zero
-            self.spec_loss += 0.1 * correction_loss
-            print(f"*****************Collapse detected (correction_loss = {correction_loss:.3f}) {self.att.max()} {self.att.mean()}**********************")
+        # COLLAPSE DETECTOR
+        # if self.att.mean() < -20:
+        #     eps = 1e-6
+        #     r = 0.1
+        #     # correction_loss = (self.att * torch.log(self.att / r + eps) + (1 - self.att) * torch.log((1 - self.att) / (1 - r + eps) + eps)).mean()
+        #     correction_loss = -self.att.mean() # Push them towards zero
+        #     self.spec_loss += 0.1 * correction_loss
+        #     print(f"*****************Collapse detected (correction_loss = {correction_loss:.3f}) {self.att.max()} {self.att.mean()}**********************")
 
         self.mean_loss = loss.mean()
-        loss = self.mean_loss + self.spec_loss
-        return loss
+        self.total_loss = self.mean_loss + self.spec_loss
+
+        return self.total_loss
     
     def loss_global_side_channel(self, targets: Tensor, mask: Tensor, config: Union[CommonArgs, Munch]) -> Tensor:
         loss = config.metric.loss_func(self.logit_global, targets, reduction='none') * mask
