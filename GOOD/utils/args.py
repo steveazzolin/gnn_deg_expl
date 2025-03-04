@@ -68,7 +68,8 @@ class ModelArgs(Tap):
     Correspond to ``model`` configs in config files.
     """
     model_name: str = None  #: Name of the chosen GNN.
-    model_layer: int = None  #: Number of the GNN layer.
+    model_layer: int = None  #: Number of GNN layer in the graph backbone.
+    gnn_clf_layer: int = None #: Number of GNN layers in the graph classifier.
     model_level: Literal['node', 'link', 'graph'] = 'graph'  #: What is the model use for? Node, link, or graph predictions.
 
     backbone: str = None
