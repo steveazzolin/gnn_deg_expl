@@ -2,94 +2,48 @@ import torch
 import torch.nn as nn
 from torch import Tensor
 from torch_geometric.data import Data
-from torch_geometric.nn import InstanceNorm
+from torch_geometric.nn import InstanceNorm, BatchNorm
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import is_undirected, to_undirected, degree, coalesce
 from torch_sparse import transpose
-from torch_geometric import __version__ as pyg_v
+from torch_geometric import __version__ as __pyg_version__
 
 from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
 from .BaseGNN import GNNBasic
-from .Classifiers import Classifier, ConceptClassifier, EntropyLinear
-from .GINs import GINFeatExtractor, SimpleGlobalChannel, DecisionTreeGlobalChannel
-from .GINvirtualnode import vGINFeatExtractor
+from .Classifiers import Classifier
+from .GINs import FeatExtractor
+from .GINvirtualnode import vFeatExtractor
 import copy
 from GOOD.utils.splitting import split_graph, relabel
+from GOOD.utils.train import lift_node_att_to_edge_att
 
 @register.model_register
-class SMGNNGIN(GNNBasic):
+class SMGNN(GNNBasic):
 
     def __init__(self, config: Union[CommonArgs, Munch]):
-        super(SMGNNGIN, self).__init__(config)
+        super(SMGNN, self).__init__(config)
         
         config = copy.deepcopy(config)
         fe_kwargs = {'mitigation_readout': config.mitigation_readout}
 
-        self.gnn = GINFeatExtractor(config, **fe_kwargs)
+        self.gnn = FeatExtractor(config, **fe_kwargs)
         self.extractor = ExtractorMLP(config)
 
         if config.mitigation_sampling == "raw":
-            config.mitigation_backbone = None
-            config.model.model_layer = 1
-            self.gnn_clf = GINFeatExtractor(config)
+            print("Init CLASSIFIER")
+            fe_kwargs["gnn_clf_layer"] = config.model.gnn_clf_layer
+            self.gnn_clf = FeatExtractor(config, **fe_kwargs)
+            print(f"Using mitigation_sampling==raw with {config.model.gnn_clf_layer} layers")
         else:
             self.gnn_clf = None
 
         self.classifier = Classifier(config)
+
         self.learn_edge_att = config.ood.extra_param[0]
         self.config = config
-
         self.edge_mask = None
         print("Using mitigation_expl_scores:", config.mitigation_expl_scores)
-
-        if config.global_side_channel in ("simple", "simple_filternode", "simple_product", "simple_productscaled", "simple_godel", "simple_linear"):
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.nn.Parameter(data=torch.tensor(0.0), requires_grad=True)
-            self.combinator = nn.Linear(config.dataset.num_classes*2, config.dataset.num_classes, bias=True) # not in use
-        elif config.global_side_channel == "simple_concept":
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.tensor(torch.nan)
-            self.combinator = ConceptClassifier(config)
-        elif config.global_side_channel == "simple_concept2":
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.tensor(torch.nan)
-            self.combinator = ConceptClassifier(config, method=2)
-        elif config.global_side_channel in ("simple_concept2discrete", "simple_concept2temperature"):
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.tensor(torch.nan)
-            self.combinator = ConceptClassifier(config, method=2)
-        elif config.global_side_channel == "simple_mlp":
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.nn.Parameter(data=torch.tensor(0.0), requires_grad=True)
-            self.combinator = nn.Sequential(*(
-                [
-                    nn.Linear(config.dataset.num_classes * 2, 64, bias=False),
-                    torch.nn.LeakyReLU(),
-                    nn.Linear(64, 64),
-                    torch.nn.LeakyReLU(),
-                    nn.Linear(64, config.dataset.num_classes)
-                ]
-            ))
-        elif config.global_side_channel == "dt":
-            self.global_side_channel = DecisionTreeGlobalChannel(config)
-            self.beta = torch.nn.Parameter(data=torch.tensor(0.0), requires_grad=True)
-
-        if self.config.dataset.dataset_name == "MNIST":
-            self.global_norm = InstanceNorm(config.dataset.num_classes * 2) #nn.functional.normalize #nn.BatchNorm1d(config.dataset.num_classes)
-
-            # hidden_dim = 64
-            # self.test = nn.Sequential(*(
-            #     [
-            #         # nn.Linear(config.dataset.num_classes * 2, hidden_dim, bias=False),
-            #         EntropyLinear(config.dataset.num_classes * 2, hidden_dim, config.dataset.num_classes, bias=False, method=2, temperature=1.8),
-            #         torch.nn.LeakyReLU(),
-            #         nn.Linear(hidden_dim, hidden_dim),
-            #         torch.nn.LeakyReLU(),
-            #         # nn.Linear(hidden_dim, 1)
-            #         nn.Linear(hidden_dim, config.dataset.num_classes) # WARNING: experimenting for Motif
-            #     ]
-            # ))
         
 
     def forward(self, *args, **kwargs):
@@ -106,9 +60,8 @@ class SMGNNGIN(GNNBasic):
         """
         data = kwargs.get('data')
         
-        emb = self.gnn(*args, without_readout=True, **kwargs)        
+        emb = self.gnn(*args, without_readout=True, **kwargs)
         att_log_logits = self.extractor(emb, data.edge_index, data.batch)
-        # att = self.sampling(att_log_logits, self.training, self.config.mitigation_expl_scores)
         att = self.sampling(att_log_logits, False, self.config.mitigation_expl_scores)
 
         if self.learn_edge_att:
@@ -126,7 +79,9 @@ class SMGNNGIN(GNNBasic):
             else:
                 edge_att = att
         else:
-            edge_att = self.lift_node_att_to_edge_att(att, data.edge_index)
+            # att = torch.ones_like(att)
+            edge_att = lift_node_att_to_edge_att(att, data.edge_index)
+            
 
         if kwargs.get('weight', None):
             if kwargs.get('is_ratio'):
@@ -144,18 +99,8 @@ class SMGNNGIN(GNNBasic):
                     data.edge_attr = data.edge_attr[edge_att >= kwargs.get('weight')]
                 edge_att = edge_att[edge_att >= kwargs.get('weight')]
 
-        if self.config.mitigation_expl_scores == "topK" or self.config.mitigation_expl_scores == "topk":
-            (causal_edge_index, causal_edge_attr, edge_att), \
-                _ = split_graph(data, edge_att, self.config.mitigation_expl_scores_topk)
-           
-            causal_x, causal_edge_index, causal_batch, _ = relabel(data.x, causal_edge_index, data.batch)
-
-            data_topk = Data(x=causal_x, edge_index=causal_edge_index, edge_attr=causal_edge_attr, batch=causal_batch)
-            kwargs['data'] = data_topk
-            kwargs["batch_size"] =  data.batch[-1].item() + 1
-
-        set_masks(edge_att, self)
-
+        set_masks(edge_att, self, att)
+        
         if self.gnn_clf:
             logits = self.classifier(self.gnn_clf(*args, **kwargs))
         else:
@@ -164,93 +109,7 @@ class SMGNNGIN(GNNBasic):
         clear_masks(self)
         self.edge_mask = edge_att
 
-        if self.config.global_side_channel and not kwargs.get('exclude_global', False):
-            logits_side_channel, filter_attn = self.global_side_channel(**kwargs)
-            logits_gnn = logits
-            
-            if "simple_concept" in self.config.global_side_channel:
-                # mask_channel = torch.zeros_like(logits_side_channel)
-
-                if self.config.global_side_channel == "simple_concept2discrete":
-                    # discrete reparametrization trick
-                    if logits_gnn.shape[1] > 1:
-                        index = logits_gnn.max(-1, keepdim=True)[1]
-                        logits_gnn_hard = torch.zeros_like(logits_gnn).scatter_(-1, index, 1.0)    
-                        index = logits_side_channel.max(-1, keepdim=True)[1]
-                        logits_side_channel_hard = torch.zeros_like(logits_side_channel).scatter_(-1, index, 1.0)    
-                    else:
-                        logits_gnn_hard = (logits_gnn >= 0.).to(torch.float)
-                        logits_side_channel_hard = (logits_side_channel >= 0.).to(torch.float)
-                    
-                    channel_gnn = logits_gnn_hard - logits_gnn.detach() + logits_gnn
-                    channel_global = logits_side_channel_hard - logits_side_channel.detach() + logits_side_channel
-                elif self.config.global_side_channel == "simple_concept2temperature":
-                    def get_temp(start_temp, end_temp, max_num_epoch, curr_epoch):
-                        if max_num_epoch is None:
-                            return end_temp
-                        if curr_epoch <= 20:
-                            return start_temp
-                        return start_temp - (start_temp - end_temp) / max_num_epoch * curr_epoch
-
-                    temp = get_temp(start_temp=1, end_temp=self.config.train.end_temp, max_num_epoch=kwargs.get('max_num_epoch'), curr_epoch=kwargs.get('curr_epoch')) #if self.config.dataset.dataset_name != "MNIST" else 1
-                    channel_gnn = torch.sigmoid(logits_gnn / temp)
-                    channel_global = torch.sigmoid(logits_side_channel / temp)
-                else:
-                    channel_gnn = logits_gnn
-                    channel_global = logits_side_channel
-                        
-                input = torch.cat((channel_gnn, channel_global), dim=1)
-                if self.config.dataset.dataset_name == "MNIST":
-                    input = self.global_norm(input)
-                
-                logits = self.combinator(input)                
-            elif self.config.global_side_channel == "simple_product":
-                # logits = logits_gnn.sigmoid() * logits_side_channel.sigmoid()
-                # logits = torch.log(logits / (1 - logits + 1e-6)) # Revert Sigmoid
-                logits_gnn = torch.clip(logits_gnn, min=-50, max=50)
-                logits_side_channel = torch.clip(logits_side_channel, min=-50, max=50)
-                # logits_gnn = torch.full_like(logits_side_channel, 50) # masking one of the two channels setting to TRUE
-                logits = -torch.log(torch.exp(-logits_gnn) + torch.exp(-logits_side_channel) + torch.exp(-logits_gnn-logits_side_channel) + 1e-6) # Invert product of sigmoids in log space
-            elif self.config.global_side_channel == "simple_productscaled":
-                logits_gnn = torch.clip(logits_gnn, min=-20, max=20)
-                logits_side_channel = torch.clip(logits_side_channel, min=-20, max=20)
-                # logits_gnn = torch.full_like(logits_side_channel, 20) # masking one of the two channels setting to TRUE
-                logits = -torch.log(torch.exp(-logits_gnn/0.5) + torch.exp(-logits_side_channel/0.5) + torch.exp(-logits_gnn/0.5-logits_side_channel/0.5) + 1e-6) # Invert product of sigmoids in log space
-            elif self.config.global_side_channel == "simple_godel":
-                logits_gnn = torch.clip(logits_gnn, min=-50, max=50)
-                logits_side_channel = torch.clip(logits_side_channel, min=-50, max=50)
-                # logits_gnn = logits_side_channel # masking one channel
-                # logits = torch.min(torch.cat((logits_gnn.sigmoid(), logits_side_channel.sigmoid()), dim=1), dim=1, keepdim=True).values
-                logits = torch.min(logits_gnn.sigmoid(), logits_side_channel.sigmoid())
-                logits = torch.log(logits / (1 - logits + 1e-6)) # Revert Sigmoid to logit space
-            elif self.config.global_side_channel == "simple_linear" or self.config.global_side_channel == "simple_mlp":
-                logits = self.combinator(torch.cat((logits_gnn.sigmoid(), logits_side_channel.sigmoid()), dim=1))
-            else:
-                # logits = self.beta.sigmoid() * logits_gnn + (1-self.beta.sigmoid()) * logits_side_channel
-                # logits = self.beta.sigmoid() * logits_gnn.sigmoid() +  (1 - self.beta.sigmoid().detach()) * logits_side_channel.sigmoid().detach() # Combine them in probability space, and revert to logit for compliance with other code
-                # logits = torch.log(logits / (1 - logits + 1e-10)) # Revert Sigmoid
-                # Min(A,B)
-                # logits = torch.min(torch.cat((logits_gnn, logits_side_channel), dim=1), dim=1, keepdim=True).values
-                # Linear commbination
-                # logits = self.combinator(torch.cat((logits_gnn.sigmoid(), logits_side_channel.sigmoid()), dim=1))
-                exit("Not implemented")
-            
-            if torch.any(torch.isinf(logits)):
-                print("Inf detected")
-                # print(torch.exp(-logits_gnn)[:5].flatten(), torch.exp(-logits_side_channel)[:5].flatten(), torch.exp(-logits_gnn-logits_side_channel)[:5].flatten())
-                idx = torch.isinf(logits)
-                print(logits_gnn[idx].flatten(), logits_side_channel[idx].flatten())
-                print(torch.exp(-logits_gnn)[idx].flatten(), torch.exp(-logits_side_channel)[idx].flatten(), torch.exp(-logits_gnn-logits_side_channel)[idx].flatten())
-                exit("AIA")
-            if torch.any(torch.isnan(logits)):
-                print("NaN detected")
-                print(logits_gnn[:5])
-                print(edge_att[:5])
-                exit("AIA")
-
-            return logits, att_log_logits, att_log_logits.sigmoid(), filter_attn, (logits_gnn, logits_side_channel) # WARNING: I replaced edge_attn with att_log_logits.sigmoid()
-        else:
-            return logits, att_log_logits, att_log_logits.sigmoid() # WARNING: I replaced attn with att_log_logits
+        return logits, att_log_logits, att
 
     def sampling(self, att_log_logits, training, mitigation_expl_scores):
         if mitigation_expl_scores == "anneal":
@@ -263,20 +122,17 @@ class SMGNNGIN(GNNBasic):
         return att
 
     @staticmethod
-    def lift_node_att_to_edge_att(node_att, edge_index):
-        src_lifted_att = node_att[edge_index[0]]
-        dst_lifted_att = node_att[edge_index[1]]
-        edge_att = src_lifted_att * dst_lifted_att
-        return edge_att
-
-    @staticmethod
     def concrete_sample(att_log_logit, temp, training):
         if training:
             random_noise = torch.empty_like(att_log_logit).uniform_(1e-10, 1 - 1e-10)
             random_noise = torch.log(random_noise) - torch.log(1.0 - random_noise)
             att_bern = ((att_log_logit + random_noise) / temp).sigmoid()
         else:
-            att_bern = (att_log_logit).sigmoid()
+            att_bern =  torch.clamp(
+                torch.sigmoid(att_log_logit), 
+                min=0.001,
+                max=0.999
+            )
         return att_bern
     
     @torch.no_grad()
@@ -318,32 +174,13 @@ class SMGNNGIN(GNNBasic):
                 return logits.sigmoid().log()
         
     @torch.no_grad()
-    def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None,  *args, **kwargs):
-        set_masks(edge_att, self)
+    def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False,  *args, **kwargs):
+        set_masks(edge_att, self, node_att)
         if self.gnn_clf:
-            logits = self.classifier(self.gnn_clf(*args, **kwargs))
+            lc_logits = self.classifier(self.gnn_clf(*args, **kwargs))
         else:
-            logits = self.classifier(self.gnn(*args, **kwargs))
+            lc_logits = self.classifier(self.gnn(*args, **kwargs))
         clear_masks(self)
-
-        if self.config.global_side_channel == "simple_concept2temperature":
-            logits_side_channel, filter_attn = self.global_side_channel(**kwargs)
-            logits_gnn = logits           
-                
-            def get_temp(start_temp, end_temp, max_num_epoch, curr_epoch):
-                if max_num_epoch is None:
-                    return end_temp
-                if curr_epoch <= 20:
-                    return start_temp
-                return start_temp - (start_temp - end_temp) / max_num_epoch * curr_epoch
-
-            temp = get_temp(start_temp=1, end_temp=self.config.train.end_temp, max_num_epoch=kwargs.get('max_num_epoch'), curr_epoch=kwargs.get('curr_epoch'))
-            channel_gnn = torch.sigmoid(logits_gnn / temp)
-            channel_global = torch.sigmoid(logits_side_channel / temp)
-                
-            lc_logits = self.combinator(torch.cat((channel_gnn, channel_global), dim=1))
-        else:
-            raise NotImplementedError("FIX ME")
 
         if log is None:
             if lc_logits.shape[-1] > 1:
@@ -393,7 +230,7 @@ class SMGNNGIN(GNNBasic):
             else:
                 edge_att = att
         else:
-            edge_att = self.lift_node_att_to_edge_att(att, data.edge_index)
+            edge_att = lift_node_att_to_edge_att(att, data.edge_index)
 
         if kwargs.get('return_attn', False):
             self.attn_distrib = self.gnn.encoder.get_attn_distrib()
@@ -401,26 +238,25 @@ class SMGNNGIN(GNNBasic):
 
         edge_att = edge_att.view(-1)
         if ratio is None:
-            return edge_att        
+            return edge_att, att
         assert False
-        
-
 
 @register.model_register
-class SMGNNvGIN(SMGNNGIN):
+class SMGNNv(SMGNN):
     r"""
     The GIN virtual node version of SMGNN.
     """
 
     def __init__(self, config: Union[CommonArgs, Munch]):
-        super(SMGNNvGIN, self).__init__(config)
+        super(SMGNNv, self).__init__(config)
+        exit("virtual nodes not in use")
         fe_kwargs = {'mitigation_readout': config.mitigation_readout}
-        self.gnn = vGINFeatExtractor(config, **fe_kwargs)
+        self.gnn = vFeatExtractor(config, **fe_kwargs)
 
         if config.mitigation_sampling == "raw":
             config.mitigation_backbone = None
             config.model.model_layer = 1
-            self.gnn_clf = vGINFeatExtractor(config)
+            self.gnn_clf = vFeatExtractor(config)
         else:
             self.gnn_clf = None
 
@@ -432,6 +268,11 @@ class ExtractorMLP(nn.Module):
         hidden_size = config.model.dim_hidden
         self.learn_edge_att = config.ood.extra_param[0]  # learn_edge_att
         dropout_p = config.model.dropout_rate
+
+        if self.learn_edge_att:
+            print("#D#Adopting edge level scores")
+        else:
+            print("#D#Adopting node level scores")
 
         if self.learn_edge_att:
             self.feature_extractor = MLP([hidden_size * 2, hidden_size * 4, hidden_size, 1], dropout=dropout_p)
@@ -448,7 +289,6 @@ class ExtractorMLP(nn.Module):
             att_log_logits = self.feature_extractor(emb, batch)
         return att_log_logits
 
-
 class BatchSequential(nn.Sequential):
     def forward(self, inputs, batch):
         for module in self._modules.values():
@@ -458,7 +298,6 @@ class BatchSequential(nn.Sequential):
                 inputs = module(inputs)
         return inputs
 
-
 class MLP(BatchSequential):
     def __init__(self, channels, dropout, bias=True):
         m = []
@@ -466,30 +305,29 @@ class MLP(BatchSequential):
             m.append(nn.Linear(channels[i - 1], channels[i], bias))
 
             if i < len(channels) - 1:
-                # m.append(InstanceNorm(channels[i])) # WARNING: Original GSAT was using this
-                # m.append(nn.BatchNorm1d(channels[i]))
-                m.append(nn.ReLU()) # WARNING: Original GSAT and first working GL-GSAT for best global channel was using ReLU
+                m.append(BatchNorm(channels[i]))
+                m.append(nn.ReLU())
                 m.append(nn.Dropout(dropout))
 
         super(MLP, self).__init__(*m)
 
-#  goodtg --config_path final_configs/GOODMotif/basis/covariate/SMGNN.yaml --seeds "99" --task train --average_edge_attn mean --global_pool sum --gpu_idx 0 --global_side_channel "" --extra_param True 10 0.1 --ood_param 0.001 --lr_filternode 0.001 --lr 0.1 --train_bs 256
-
-def set_masks(mask: Tensor, model: nn.Module):
+def set_masks(mask: Tensor, model: nn.Module, node_mask:Tensor=None):
     r"""
     Modified from https://github.com/wuyxin/dir-gnn.
     """
     for module in model.modules():
         if isinstance(module, MessagePassing):
-            if pyg_v == "2.4.0":
+            if __pyg_version__ == "2.4.0":
                 module._fixed_explain = True
             else:
                 module.__explain__ = True
                 module._explain = True
+            
             module._apply_sigmoid = False    
-            module.__edge_mask__ = mask
             module._edge_mask = mask
 
+            if model.extractor.learn_edge_att == False:
+                module._node_mask = node_mask
 
 def clear_masks(model: nn.Module):
     r"""
@@ -497,10 +335,10 @@ def clear_masks(model: nn.Module):
     """
     for module in model.modules():
         if isinstance(module, MessagePassing):
-            if pyg_v == "2.4.0":
+            if __pyg_version__ == "2.4.0":
                 module._fixed_explain = False
             else:
                 module.__explain__ = False
                 module._explain = False
-            module.__edge_mask__ = None
             module._edge_mask = None
+            module._node_mask = None
