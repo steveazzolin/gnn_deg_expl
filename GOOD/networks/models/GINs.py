@@ -122,17 +122,18 @@ class Encoder(BasicEncoder):
     def __init__(self, config: Union[CommonArgs, Munch], *args, **kwargs):
 
         super(Encoder, self).__init__(config, *args, **kwargs)
-        num_layer = config.model.model_layer
+        
+        num_layer = config.model.model_layer if kwargs.get('gnn_clf_layer') is None else kwargs.get('gnn_clf_layer')
+        print("Num layers =",num_layer)
+
         self.without_readout = kwargs.get('without_readout')
 
         self.convs = nn.ModuleList()
-        self.convs.append(
-                self.get_conv_layer(config, kwargs.get('without_embed'))
-        )
+        self.convs.append(self.get_conv_layer(config, backbone="Identity", without_embed=None))
         self.convs = self.convs.extend(
             [
-                self.get_conv_layer(config, without_embed=True)
-                    for _ in range(num_layer - 1)
+                self.get_conv_layer(config, backbone=config.model.backbone, without_embed=True if n > 0 else kwargs.get('without_embed'))
+                    for n in range(num_layer)
             ]
         )
 
@@ -189,14 +190,14 @@ class Encoder(BasicEncoder):
             node feature representations
         """
 
-        layer_feat = [x]
+        layer_feat = x
         for i, (conv, batch_norm, relu, dropout) in enumerate(
                 zip(self.convs, self.batch_norms, self.relus, self.dropouts)):
-            post_conv = batch_norm(conv(layer_feat[-1], edge_index, batch=batch))
+            post_conv = batch_norm(conv(layer_feat, edge_index, batch=batch))
             if i != len(self.convs) - 1:
                 post_conv = relu(post_conv)
-            layer_feat.append(dropout(post_conv))
-        return layer_feat[-1]
+            layer_feat = dropout(post_conv)
+        return layer_feat
 
 class MolEncoder(BasicEncoder):
     r"""The GIN encoder for molecule data, using the :class:`~GINEConv` operator for message passing.
