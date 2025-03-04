@@ -52,7 +52,8 @@ def main():
         analysis.stability_detector_extended(args)
         exit(0)
     if args.task == 'plot_explanations':
-        analysis.plot_explanation_examples(args)
+        # analysis.plot_explanation_examples(args)
+        analysis.plot_explanations(args)
         exit(0)
     if args.task == 'print_faith':
         analysis.print_faith(args)
@@ -108,9 +109,7 @@ def main():
                 sa = pipeline.evaluate(s, compute_suff=False)
                 test_scores[s].append(sa['score'])
             
-            if config.global_side_channel and "simple_concept" in config.global_side_channel:
-                channel_relevances.append(model.combinator.classifier[0].alpha_norm.cpu().numpy())
-                print("\nConcept relevance scores for this run:\n", channel_relevances[-1], "\n")
+            
         elif config.task == 'test':
             test_score, test_loss = pipeline.load_task(load_param=True, load_split="id")
 
@@ -118,9 +117,8 @@ def main():
                 sa = pipeline.evaluate(
                     s,
                     compute_suff=False, 
-                    compute_wiou=(config.dataset.dataset_name == "TopoFeature" or config.dataset.dataset_name == "SimpleMotif" or config.dataset.dataset_name == "GOODMotif")
-                                    and 
-                                 config.model.model_name != "GIN"
+                    compute_wiou=False,
+                    compute_clf_only_pred=(s == "val")
                 )
                 test_scores[s].append(sa['score'])
                 test_losses[s].append(sa['loss'].item())
@@ -128,9 +126,10 @@ def main():
                 test_likelihoods_avg[s].append(sa['likelihood_avg'].item())
                 test_likelihoods_prod[s].append(sa['likelihood_prod'].item())
                 test_likelihoods_logprod[s].append(sa['likelihood_logprod'].item())
-            
-            if "GiSST" in config.model.model_name and config.dataset.dataset_name in ("BAColor", "TopoFeature", "AIDS", "AIDSC1"):
-                print("\nFeature explanation coeff. for this run:\n", model.prob_mask())
+
+                if s == "val":
+                    print("Predictions on VAL: \t", sa['pred'][0])
+                    print("CLF Predictions VAL: \t", sa['pred_clf_only'][0])
             
                 
     
@@ -142,37 +141,9 @@ def main():
     for s in test_scores.keys():
         print(f"{s.upper():<10} = {np.mean(test_scores[s]):.3f} +- {np.std(test_scores[s]):.3f}")
 
-    if config.global_side_channel and config.model.model_name != "GIN":
-        # threshold = 0.9
-        threshold = 0.0
-        id_val_accs = np.array(test_scores["id_val"])
-
-        print(f"\n\nFinal accuracies (model with id_val acc above {threshold}% - {sum(id_val_accs >= threshold)} runs): ")
-        for s in test_scores.keys():
-            tmp = np.array(test_scores[s])[id_val_accs >= threshold]
-            print(f"{s.upper():<10} = {np.mean(tmp):.3f} +- {np.std(tmp):.3f}")
-
-        if "simple_concept" in config.global_side_channel or config.global_side_channel == "simple_linear":
-            channel_relevances = np.concatenate(channel_relevances, axis=0)
-            print(f"\n\nAveraged channel relevance scores (model with id_val acc above {threshold}% - {sum(id_val_accs >= threshold)} runs): ")
-            print(f"{channel_relevances[id_val_accs >= threshold].mean(0)} +- {channel_relevances[id_val_accs >= threshold].std(0)}")
-
-        print(f"\n\nFinal Test WIoUs (model with id_val acc above {threshold}% - {sum(id_val_accs >= threshold)} runs):")
-        for s in test_wious.keys():
-            tmp = np.array(test_wious[s])[id_val_accs >= threshold]
-            print(f"{s.upper():<10} = {np.mean(tmp):.3f} +- {np.std(tmp):.3f}")
-
-        if config.dataset.dataset_name in ("BAColor", "TopoFeature", "AIDS", "AIDSC1"):
-            print(f"\n\nGlobal side channel coefficient wrt x1 (model with id_val acc above {threshold}% - {sum(id_val_accs >= threshold)} runs):")
-            tmp = np.array(global_coeffs)[id_val_accs >= threshold]
-            print(f"{tmp.mean(0)} +- {tmp.std(0)}")
-
-            print(f"\n\nAverage global channel weights (model with id_val acc above {threshold}% - {sum(id_val_accs >= threshold)} runs):")
-            tmp = np.array(global_weights)[id_val_accs >= threshold]
-            print(f"{tmp.mean(0)} +- {tmp.std(0)}")
-
-        # print(f"\n\nCorrelation local channel importance-OOD Test Acc")
-        # print(pearsonr(test_scores["test"], channel_relevances[:, 0]))   
+    if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated"):
+        print(f"\n\nClassifier weights:")
+        print(model.classifier.classifier[0].weight.detach())
 
 
 
