@@ -1,0 +1,19 @@
+includes:
+  - base.yaml
+model:
+  model_name: GiSST
+ood:
+  ood_alg: GiSST
+  ood_param: null
+  extra_param:
+    - true
+    - 0.01
+    - 0.1
+    - 1
+    - 0.1
+train:
+  mile_stones:
+    - 150
+log_file: exp_0
+clean_save: true
+use_norm:	bn
