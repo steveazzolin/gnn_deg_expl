@@ -89,7 +89,7 @@ class GiSST(BaseOODAlg):
             loss based on GiSST algorithm
 
         """ 
-        edge_att = self.edge_att
+        edge_att = self.edge_att.squeeze(1)
         feat_att = self.feat_att
 
         # L1 sparsification
@@ -100,7 +100,8 @@ class GiSST(BaseOODAlg):
         self.edge_entr_loss = self.edge_entr * torch.mean(-edge_att * torch.log(edge_att + 1e-6) - (1 - edge_att) * torch.log(1 - edge_att + 1e-6))
         self.feat_entr_loss = self.feat_entr * torch.mean(-feat_att * torch.log(feat_att + 1e-6) - (1 - feat_att) * torch.log(1 - feat_att + 1e-6))
 
+        self.spec_loss = self.edge_entr_loss + self.edge_l1_loss + self.feat_l1_loss + self.feat_entr_loss
         self.mean_loss = loss.mean()
-        loss = self.mean_loss + self.edge_entr_loss + self.edge_l1_loss + self.feat_l1_loss + self.feat_entr_loss
-        return loss
+        self.total_loss = self.mean_loss + self.spec_loss
+        return self.total_loss
     

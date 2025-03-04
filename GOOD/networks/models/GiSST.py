@@ -8,56 +8,40 @@ from torch_geometric import __version__ as pyg_v
 
 from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
-from .BaseGNN import GNNBasic
-from .Classifiers import Classifier, ConceptClassifier
-from .GINs import GINFeatExtractor, SimpleGlobalChannel, DecisionTreeGlobalChannel
-import copy
+from GOOD.utils.train import lift_node_att_to_edge_att
 from GOOD.utils.splitting import split_graph, relabel
+from .BaseGNN import GNNBasic
+from .Classifiers import Classifier
+from .GINs import FeatExtractor
+import copy
+
+from torch_geometric.nn import InstanceNorm, BatchNorm
 
 
 @register.model_register
-class GiSSTGIN(GNNBasic):
+class GiSST(GNNBasic):
 
     def __init__(self, config: Union[CommonArgs, Munch]):
-        super(GiSSTGIN, self).__init__(config)
+        super(GiSST, self).__init__(config)
 
         config = copy.deepcopy(config)
         fe_kwargs = {'mitigation_readout': config.mitigation_readout}
 
-        if config.mitigation_sampling == "raw":
-            config.mitigation_backbone = None
-            config.model.model_layer = 1
-
-        self.gnn_clf = GINFeatExtractor(config)
-        self.classifier = Classifier(config)
-
-        self.prob_mask = ProbMask(config.dataset.dim_node)
-        self.extractor = AttentionProb(config.dataset.dim_node)
-
+        self.learn_edge_att = config.ood.extra_param[0]
         self.config = config
         self.edge_mask = None
         print("Using mitigation_expl_scores:", config.mitigation_expl_scores)
 
+        if config.mitigation_sampling == "raw":
+            fe_kwargs["gnn_clf_layer"] = config.model.gnn_clf_layer
+            print(f"Using mitigation_sampling==raw with {config.model.gnn_clf_layer} layers")
 
-        if config.global_side_channel in ("simple", "simple_filternode", "simple_product", "simple_productscaled", "simple_godel"):
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.nn.Parameter(data=torch.tensor(0.0), requires_grad=True)
-            self.combinator = nn.Linear(config.dataset.num_classes*2, config.dataset.num_classes, bias=True) # not in use
-        elif config.global_side_channel == "simple_concept":
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.tensor(torch.nan)
-            self.combinator = ConceptClassifier(config)
-        elif config.global_side_channel == "simple_concept2":
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.tensor(torch.nan)
-            self.combinator = ConceptClassifier(config, method=2)
-        elif config.global_side_channel in ("simple_concept2discrete", "simple_concept2temperature"):
-            self.global_side_channel = SimpleGlobalChannel(config)
-            self.beta = torch.tensor(torch.nan)
-            self.combinator = ConceptClassifier(config, method=2)
-        elif config.global_side_channel == "dt":
-            self.global_side_channel = DecisionTreeGlobalChannel(config)
-            self.beta = torch.nn.Parameter(data=torch.tensor(0.0), requires_grad=True)
+        self.gnn_clf = FeatExtractor(config, **fe_kwargs)
+        self.classifier = Classifier(config)
+
+        self.prob_mask = ProbMask(config.dataset.dim_node)
+        self.extractor = AttentionProb(config.dataset.dim_node, config)
+
 
     
     def forward(self, *args, **kwargs):
@@ -92,26 +76,31 @@ class GiSSTGIN(GNNBasic):
             data.x = data.x * x_prob
             scaled_x = data.x
 
-        # edge topological explanation
-        edge_log_prob = self.extractor(scaled_x, data.edge_index)
-        
-        edge_prob = torch.sigmoid(edge_log_prob)
-        edge_prob = torch.clamp(edge_prob, self.extractor.clamp_min, self.extractor.clamp_max)
-        edge_prob.requires_grad_()
-        edge_prob.retain_grad()
+        # topological explanation        
+        att_log_prob = self.extractor(scaled_x, data.edge_index, data.batch)
+       
+        att_prob = torch.sigmoid(att_log_prob)
+        att_prob = torch.clamp(att_prob, self.extractor.clamp_min, self.extractor.clamp_max)
+        att_prob.requires_grad_()
+        att_prob.retain_grad()
 
-        if is_undirected(data.edge_index):
-            if self.config.average_edge_attn == "default":
-                assert False, f"self.config.average_edge_attn == 'default' not in use"
+        if self.learn_edge_att:
+            if is_undirected(data.edge_index):
+                if self.config.average_edge_attn == "default":
+                    assert False, f"self.config.average_edge_attn == 'default' not in use"
+                else:
+                    data.ori_edge_index = data.edge_index.detach().clone() #for backup and debug
+                    data.edge_index, edge_att = to_undirected(data.edge_index, att_prob.squeeze(-1), reduce="mean")
+
+                    if not data.edge_attr is None:
+                        assert False, "edge_attr not in use"
+                        edge_index_sorted, edge_attr_sorted = coalesce(data.ori_edge_index, data.edge_attr, is_sorted=False)
+                        data.edge_attr = edge_attr_sorted    
             else:
-                data.ori_edge_index = data.edge_index.detach().clone() #for backup and debug
-                data.edge_index, edge_att = to_undirected(data.edge_index, edge_prob.squeeze(-1), reduce="mean")
-
-                if not data.edge_attr is None:
-                    edge_index_sorted, edge_attr_sorted = coalesce(data.ori_edge_index, data.edge_attr, is_sorted=False)
-                    data.edge_attr = edge_attr_sorted    
+                edge_att = att_prob
         else:
-            edge_att = edge_prob
+            edge_att = lift_node_att_to_edge_att(att_prob, data.edge_index)
+
         
         if kwargs.get('weight', None):
             if kwargs.get('is_ratio'):
@@ -139,86 +128,12 @@ class GiSSTGIN(GNNBasic):
             kwargs['data'] = data_topk
             kwargs["batch_size"] =  data.batch[-1].item() + 1
         
-        
-        set_masks(edge_att, self)
+        set_masks(edge_att, self, att_prob)
         logits = self.classifier(self.gnn_clf(*args, **kwargs))
         clear_masks(self)
         self.edge_mask = edge_att
 
-        if self.config.global_side_channel and not kwargs.get('exclude_global', False):
-            logits_side_channel, filter_attn = self.global_side_channel(**kwargs)
-            logits_gnn = logits
-            
-            if "simple_concept" in self.config.global_side_channel:
-                # mask_channel = torch.zeros_like(logits_side_channel)
-
-                if self.config.global_side_channel == "simple_concept2discrete":
-                    # discrete reparametrization trick
-                    if logits_gnn.shape[1] > 1:
-                        index = logits_gnn.max(-1, keepdim=True)[1]
-                        logits_gnn_hard = torch.zeros_like(logits_gnn).scatter_(-1, index, 1.0)    
-                        index = logits_side_channel.max(-1, keepdim=True)[1]
-                        logits_side_channel_hard = torch.zeros_like(logits_side_channel).scatter_(-1, index, 1.0)    
-                    else:
-                        logits_gnn_hard = (logits_gnn >= 0.).to(torch.float)
-                        logits_side_channel_hard = (logits_side_channel >= 0.).to(torch.float)
-                    
-                    channel_gnn = logits_gnn_hard - logits_gnn.detach() + logits_gnn
-                    channel_global = logits_side_channel_hard - logits_side_channel.detach() + logits_side_channel
-                elif self.config.global_side_channel == "simple_concept2temperature":
-                    def get_temp(start_temp, end_temp, max_num_epoch, curr_epoch):
-                        if max_num_epoch is None:
-                            return end_temp
-                        if curr_epoch <= 20:
-                            return start_temp
-                        return start_temp - (start_temp - end_temp) / max_num_epoch * curr_epoch
-
-                    temp = get_temp(start_temp=1, end_temp=self.config.train.end_temp, max_num_epoch=kwargs.get('max_num_epoch'), curr_epoch=kwargs.get('curr_epoch'))
-                    channel_gnn = torch.sigmoid(logits_gnn / temp)
-                    channel_global = torch.sigmoid(logits_side_channel / temp)
-                else:
-                    channel_gnn = logits_gnn
-                    channel_global = logits_side_channel
-                        
-                logits = self.combinator(torch.cat((channel_gnn, channel_global), dim=1))
-            elif self.config.global_side_channel == "simple_product":
-                # logits = logits_gnn.sigmoid() * logits_side_channel.sigmoid()
-                # logits = torch.log(logits / (1 - logits + 1e-6)) # Revert Sigmoid
-                logits_gnn = torch.clip(logits_gnn, min=-50, max=50)
-                logits_side_channel = torch.clip(logits_side_channel, min=-50, max=50)
-                # logits_gnn = torch.full_like(logits_side_channel, 50) # masking one of the two channels setting to TRUE
-                logits = -torch.log(torch.exp(-logits_gnn) + torch.exp(-logits_side_channel) + torch.exp(-logits_gnn-logits_side_channel) + 1e-6) # Invert product of sigmoids in log space
-            elif self.config.global_side_channel == "simple_productscaled":
-                logits_gnn = torch.clip(logits_gnn, min=-20, max=20)
-                logits_side_channel = torch.clip(logits_side_channel, min=-20, max=20)
-                # logits_gnn = torch.full_like(logits_side_channel, 20) # masking one of the two channels setting to TRUE
-                logits = -torch.log(torch.exp(-logits_gnn/0.5) + torch.exp(-logits_side_channel/0.5) + torch.exp(-logits_gnn/0.5-logits_side_channel/0.5) + 1e-6) # Invert product of sigmoids in log space
-            elif self.config.global_side_channel == "simple_godel":
-                logits_gnn = torch.clip(logits_gnn, min=-50, max=50)
-                logits_side_channel = torch.clip(logits_side_channel, min=-50, max=50)
-                # logits_gnn = logits_side_channel # masking one channel
-                # logits = torch.min(torch.cat((logits_gnn.sigmoid(), logits_side_channel.sigmoid()), dim=1), dim=1, keepdim=True).values
-                logits = torch.min(logits_gnn.sigmoid(), logits_side_channel.sigmoid())
-                logits = torch.log(logits / (1 - logits + 1e-6)) # Revert Sigmoid to logit space
-            else:
-                exit("Not implemented")
-            
-            if torch.any(torch.isinf(logits)):
-                print("Inf detected")
-                idx = torch.isinf(logits)
-                print(logits_gnn[idx].flatten(), logits_side_channel[idx].flatten())
-                print(torch.exp(-logits_gnn)[idx].flatten(), torch.exp(-logits_side_channel)[idx].flatten(), torch.exp(-logits_gnn-logits_side_channel)[idx].flatten())
-                exit("AIA")
-            if torch.any(torch.isnan(logits)):
-                print("NaN detected")
-                print(logits_gnn[:5])
-                print(edge_att[:5])
-                exit("AIA2")
-
-            return logits, x_prob, edge_prob, filter_attn, (logits_gnn, logits_side_channel)
-        else:
-            return logits, x_prob, edge_prob
-        # return logits, x_prob, edge_prob # Original return from GiSST
+        return logits, x_prob, att_prob
     
     @torch.no_grad()
     def probs(self, *args, **kwargs):
@@ -259,35 +174,24 @@ class GiSSTGIN(GNNBasic):
                 return logits.sigmoid().log()
             
     @torch.no_grad()
-    def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None,  *args, **kwargs):
+    def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False, *args, **kwargs):
         # node feature explanation
         x_prob = self.prob_mask()
         x_prob.requires_grad_()
         x_prob.retain_grad()
         kwargs['data'].x = kwargs['data'].x * x_prob
 
-        set_masks(edge_att, self)
-        logits = self.classifier(self.gnn_clf(*args, **kwargs))
+        if self.config.dataset.dataset_type == 'mol':
+            # if node features are needed to compute AtomEmbedding, apply attention later only to extract edge scores
+            scaled_x = kwargs['data'].x * x_prob
+        else:
+            kwargs['data'].x = kwargs['data'].x * x_prob
+            scaled_x = kwargs['data'].x
+
+        set_masks(edge_att, self, node_att)
+        lc_logits = self.classifier(self.gnn_clf(*args, **kwargs))
         clear_masks(self)
 
-        if self.config.global_side_channel == "simple_concept2temperature":
-            logits_side_channel, filter_attn = self.global_side_channel(**kwargs)
-            logits_gnn = logits           
-                
-            def get_temp(start_temp, end_temp, max_num_epoch, curr_epoch):
-                if max_num_epoch is None:
-                    return end_temp
-                if curr_epoch <= 20:
-                    return start_temp
-                return start_temp - (start_temp - end_temp) / max_num_epoch * curr_epoch
-
-            temp = get_temp(start_temp=1, end_temp=self.config.train.end_temp, max_num_epoch=kwargs.get('max_num_epoch'), curr_epoch=kwargs.get('curr_epoch'))
-            channel_gnn = torch.sigmoid(logits_gnn / temp)
-            channel_global = torch.sigmoid(logits_side_channel / temp)
-                
-            lc_logits = self.combinator(torch.cat((channel_gnn, channel_global), dim=1))
-        else:
-            raise NotImplementedError("FIX ME")
 
         if log is None:
             if lc_logits.shape[-1] > 1:
@@ -316,41 +220,50 @@ class GiSSTGIN(GNNBasic):
 
         # node feature explanation
         x_prob = self.prob_mask()
-        data.x = data.x * x_prob
+        
+        if self.config.dataset.dataset_type == 'mol':
+            # if node features are needed to compute AtomEmbedding, apply attention later only to extract edge scores
+            scaled_x = data.x * x_prob
+        else:
+            data.x = data.x * x_prob
+            scaled_x = data.x
 
         # edge topological explanation
-        att = self.extractor(data.x, data.edge_index)
-        att_log_prob = self.extractor(data.x, data.edge_index)
-        att = torch.sigmoid(att_log_prob)
-        att = torch.clamp(att, self.extractor.clamp_min, self.extractor.clamp_max)
-        
-        if is_undirected(data.edge_index):
-            if self.config.average_edge_attn == "default":
-                raise NotImplementedError("average_edge_attn='default' not implemented")
+        att_log_prob = self.extractor(scaled_x, data.edge_index, data.batch)
+        att_prob = torch.sigmoid(att_log_prob)
+        att_prob = torch.clamp(att_prob, self.extractor.clamp_min, self.extractor.clamp_max)
+
+        if self.learn_edge_att:
+            if is_undirected(data.edge_index):
+                if self.config.average_edge_attn == "default":
+                    raise NotImplementedError("average_edge_attn='default' not implemented")
+                else:
+                    data.ori_edge_index = data.edge_index.detach().clone() #for backup and debug
+
+                    if not data.edge_attr is None:
+                        edge_index_sorted, edge_attr_sorted = coalesce(data.ori_edge_index, data.edge_attr, is_sorted=False)
+                        data.edge_attr = edge_attr_sorted   
+                    if hasattr(data, "edge_gt") and not data.edge_gt is None:
+                        edge_index_sorted, edge_gt_sorted = coalesce(data.ori_edge_index, data.edge_gt, is_sorted=False)
+                        data.edge_gt = edge_gt_sorted
+                    if hasattr(data, "causal_mask") and not data.causal_mask is None:
+                        _, data.causal_mask = coalesce(data.edge_index, data.causal_mask, is_sorted=False)
+
+                    data.edge_index, edge_att = to_undirected(data.edge_index, att_prob.squeeze(-1), reduce="mean")
             else:
-                data.ori_edge_index = data.edge_index.detach().clone() #for backup and debug
-
-                if not data.edge_attr is None:
-                    edge_index_sorted, edge_attr_sorted = coalesce(data.ori_edge_index, data.edge_attr, is_sorted=False)
-                    data.edge_attr = edge_attr_sorted   
-                if hasattr(data, "edge_gt") and not data.edge_gt is None:
-                    edge_index_sorted, edge_gt_sorted = coalesce(data.ori_edge_index, data.edge_gt, is_sorted=False)
-                    data.edge_gt = edge_gt_sorted
-                if hasattr(data, "causal_mask") and not data.causal_mask is None:
-                    _, data.causal_mask = coalesce(data.edge_index, data.causal_mask, is_sorted=False)
-
-                data.edge_index, edge_att = to_undirected(data.edge_index, att.squeeze(-1), reduce="mean")
+                edge_att = att_prob
         else:
-            edge_att = att
+            edge_att = lift_node_att_to_edge_att(att_prob, data.edge_index)
         
 
         if kwargs.get('return_attn', False):
+            assert False, "not in use"
             self.attn_distrib = self.gnn.encoder.get_attn_distrib()
             self.gnn.encoder.reset_attn_distrib()
 
         edge_att = edge_att.view(-1)
         if ratio is None:
-            return edge_att        
+            return edge_att, att_prob
         assert False
         
 class ProbMask(torch.nn.Module):
@@ -365,8 +278,8 @@ class ProbMask(torch.nn.Module):
     def __init__(
         self, 
         shape, 
-        clamp_min=0.00001,
-        clamp_max=0.99999
+        clamp_min=0.001,
+        clamp_max=0.999
     ):
         super(ProbMask, self).__init__()
         self.shape = shape
@@ -396,45 +309,94 @@ class AttentionProb(torch.nn.Module):
     def __init__(
         self, 
         input_size, 
-        clamp_min=0.00001,
-        clamp_max=0.99999
+        config,
+        clamp_min=0.001,
+        clamp_max=0.999
     ):
         super(AttentionProb, self).__init__()
         self.input_size = input_size
         self.clamp_min = clamp_min
         self.clamp_max = clamp_max
-        self.att_weight = torch.nn.Parameter(
-            torch.randn(input_size * 2)
-        )
+        self.learn_edge_att = config.ood.extra_param[0]
+
+        hidden_size = config.model.dim_hidden
+        dropout_p = config.model.dropout_rate
+
+        if self.learn_edge_att:
+            print("#D#Adopting edge level scores")
+        else:
+            print("#D#Adopting node level scores")
+
+        if self.learn_edge_att:
+            self.feature_extractor = MLP([input_size * 2, hidden_size * 4, hidden_size, 1], dropout=dropout_p)
+        else:
+            self.feature_extractor = MLP([input_size * 1, hidden_size * 2, hidden_size, 1], dropout=dropout_p)
+
+        # if self.learn_edge_att:
+        #     self.att_weight = torch.nn.Parameter(
+        #         torch.randn(input_size * 2)
+        #     )
+        # else:
+        #     self.att_weight = torch.nn.Parameter(
+        #         torch.randn(input_size)
+        #     )
     
     def forward(
         self,
         x,
-        edge_index
+        edge_index,
+        batch
     ):
-        """
-        Forward pass.
-
-        Args:
-            x (tensor): Node feature tensor with shape [num_nodes, input_size].
-            edge_index (torch.long): edges in COO format with shape [2, num_edges].
-
-        Return:
-            att (tensor): Edge attention probability with shape [num_edges].
-        """        
-        att = torch.matmul(
-            torch.cat(
-                (
-                    x[edge_index[0, :], :], # source node features
-                    x[edge_index[1, :], :]  # target node features
-                ), 
-                dim=1
-            ), 
-            self.att_weight
-        )
-        return att
+        if self.learn_edge_att:
+            col, row = edge_index
+            f1, f2 = x[col], x[row]
+            f12 = torch.cat([f1, f2], dim=-1)
+            att_log_logits = self.feature_extractor(f12, batch[col])
+        else:
+            att_log_logits = self.feature_extractor(x, batch)
+        return att_log_logits
     
-def set_masks(mask: Tensor, model: nn.Module):
+        # if self.learn_edge_att:
+        #     att = torch.matmul(
+        #         torch.cat(
+        #             (
+        #                 x[edge_index[0, :], :], # source node features
+        #                 x[edge_index[1, :], :]  # target node features
+        #             ), 
+        #             dim=1
+        #         ), 
+        #         self.att_weight
+        #     )
+        # else:
+        #     att = torch.matmul(
+        #         x, 
+        #         self.att_weight
+        #     )
+        # return att
+    
+class BatchSequential(nn.Sequential):
+    def forward(self, inputs, batch):
+        for module in self._modules.values():
+            if isinstance(module, (InstanceNorm)):
+                inputs = module(inputs, batch)
+            else:
+                inputs = module(inputs)
+        return inputs
+
+class MLP(BatchSequential):
+    def __init__(self, channels, dropout, bias=True):
+        m = []
+        for i in range(1, len(channels)):
+            m.append(nn.Linear(channels[i - 1], channels[i], bias))
+
+            if i < len(channels) - 1:
+                m.append(BatchNorm(channels[i]))
+                m.append(nn.ReLU())
+                m.append(nn.Dropout(dropout))
+
+        super(MLP, self).__init__(*m)
+    
+def set_masks(mask: Tensor, model: nn.Module, node_mask:Tensor=None):
     r"""
     Modified from https://github.com/wuyxin/dir-gnn.
     """
@@ -447,6 +409,9 @@ def set_masks(mask: Tensor, model: nn.Module):
                 module._explain = True
             module._apply_sigmoid = False    
             module._edge_mask = mask
+
+            if model.extractor.learn_edge_att == False:
+                module._node_mask = node_mask
 
 
 def clear_masks(model: nn.Module):
@@ -461,3 +426,4 @@ def clear_masks(model: nn.Module):
                 module.__explain__ = False
                 module._explain = False
             module._edge_mask = None
+            module._node_mask = None
