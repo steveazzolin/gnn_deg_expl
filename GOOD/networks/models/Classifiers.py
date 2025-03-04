@@ -17,20 +17,24 @@ class Classifier(torch.nn.Module):
         Args:
             config (Union[CommonArgs, Munch]): munchified dictionary of args (:obj:`config.model.dim_hidden`, :obj:`config.dataset.num_classes`)
     """
-    def __init__(self, config: Union[CommonArgs, Munch], output_dim:int = None):
+    def __init__(self, config: Union[CommonArgs, Munch], output_dim:int=None):
 
         super(Classifier, self).__init__()
-        # if config.global_side_channel in ("simple_concept2discrete", "simple_concept2discrete", "simple_concept2temperature") and config.dataset.dataset_name == "GOODTwitter":
-        #     self.classifier = nn.Sequential(*(
-        #             [nn.Linear(config.model.dim_hidden, config.model.dim_hidden)] +
-        #             [nn.ReLU(), nn.Dropout(0.5), nn.Linear(config.model.dim_hidden, config.dataset.num_classes if output_dim is None else output_dim)]
-        #     ))
-        # else:
-        #     self.classifier = nn.Sequential(*(
-        #         [nn.Linear(config.model.dim_hidden, config.dataset.num_classes if output_dim is None else output_dim)]
-        #     ))
+        
+
+        if config.model.gnn_clf_layer == 0:
+            hidden_dim = config.dataset.dim_node
+        else:
+            hidden_dim = config.model.dim_hidden
+
         self.classifier = nn.Sequential(*(
-            [nn.Linear(config.model.dim_hidden, config.dataset.num_classes if output_dim is None else output_dim)]
+            [
+                nn.Linear(
+                    hidden_dim,
+                    config.dataset.num_classes if output_dim is None else output_dim,
+                    bias=False
+                )
+            ]
         ))
 
     def forward(self, feat: Tensor) -> Tensor:
