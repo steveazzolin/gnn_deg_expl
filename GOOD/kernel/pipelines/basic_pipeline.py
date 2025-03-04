@@ -177,15 +177,9 @@ class Pipeline:
         else:
             loss = self.ood_algorithm.loss_calculate(raw_pred, targets, mask, node_norm, self.config, batch=data.batch)
             loss = self.ood_algorithm.loss_postprocess(loss, data, mask, self.config, epoch)
-        
-        if False and self.config.global_side_channel in ("simple", "simple_filternode"):
-            loss_clf_global_side_channel = self.ood_algorithm.loss_global_side_channel(data.y, mask, self.config)
-            loss += 0.005 * loss_clf_global_side_channel
-        else:
-            loss_clf_global_side_channel = torch.tensor(0.)
 
-        if self.config.global_side_channel and self.config.dataset.dataset_name == "AIDSC1":
-            loss += 0.01 * self.model.global_side_channel.classifier.classifier[0].weight.abs().sum()
+        # if self.config.dataset.dataset_name == "BAColorGVIsolated":
+        #     loss += 0.01 * self.model.classifier.classifier[0].weight.abs().sum()
 
         self.ood_algorithm.backward(loss)
         
@@ -195,7 +189,6 @@ class Pipeline:
             'loss': loss.detach(),
             'score': eval_score([pred], [target], self.config, pos_class=self.loader["train"].dataset.minority_class), 
             'clf_loss': self.ood_algorithm.clf_loss,
-            'clf_global_side_loss': loss_clf_global_side_channel.item(),
             'l_norm_loss': self.ood_algorithm.l_norm_loss.item(),
             'entr_loss': self.ood_algorithm.entr_loss.item(),
         }
@@ -268,7 +261,7 @@ class Pipeline:
             edge_scores = []
             node_feat_attn = torch.tensor([])
             raw_global_only, raw_gnn_only, raw_targets = [], [], []
-            train_batch_score, clf_batch_loss, clf_global_batch_loss, l_norm_batch_loss, entr_batch_loss  = [], [], [], [], []
+            train_batch_score, clf_batch_loss,  l_norm_batch_loss, entr_batch_loss  = [], [], [], []
             for index, data in pbar:
                 if data.batch is not None and (data.batch[-1] < self.config.train.train_bs - 1):
                     continue
@@ -281,7 +274,6 @@ class Pipeline:
                 train_stat = self.train_batch(data, pbar, epoch)
                 train_batch_score.append(train_stat["score"])
                 clf_batch_loss.append(train_stat["clf_loss"])
-                clf_global_batch_loss.append(train_stat["clf_global_side_loss"])
                 l_norm_batch_loss.append(train_stat["l_norm_loss"])
                 entr_batch_loss.append(train_stat["entr_loss"])
 
@@ -335,38 +327,6 @@ class Pipeline:
             )
             id_val_stat = self.evaluate('id_val')
             id_test_stat = self.evaluate('id_test')
-
-            if self.config.global_side_channel:
-                # preds_gnn_only = torch.cat(preds_gnn_only, dim=0).cpu()
-                # preds_global_only = torch.cat(preds_global_only, dim=0).cpu()
-                # labels = torch.cat(labels, dim=0).cpu()
-                # gnn_only_score = self.config.metric.score_func(labels, preds_gnn_only)
-                # global_only_score = self.config.metric.score_func(labels, preds_global_only)
-                # print(f"GNN only Acc: {gnn_only_score:.3f}")
-                # print(f"Global only Acc: {global_only_score:.3f}")
-                
-                global_only_score = eval_score(raw_global_only, raw_targets, self.config, pos_class=self.loader["train"].dataset.minority_class)
-                gnn_only_score = eval_score(raw_gnn_only, raw_targets, self.config, pos_class=self.loader["train"].dataset.minority_class)
-                print(f"Global only Acc: {global_only_score:.3f}")
-                print(f"GNN only Acc: {gnn_only_score:.3f}")
-
-                print(f"Beta param = {self.model.beta.sigmoid().item():.3f}")
-                if self.config.global_side_channel in ("simple_filternode", ):
-                    with torch.no_grad():
-                        # Print attention filter score for each unique node feature
-                        feats = self.loader["test"].dataset.x.unique(dim=0).to(self.config.device)
-                        node_feat_attn = self.model.global_side_channel.node_filter(feats)
-                        print(torch.cat((feats, node_feat_attn), dim=1))
-                if self.config.global_side_channel in ("simple_concept", "simple_concept2"):
-                    with torch.no_grad():
-                        # Print concept attention scores
-                        print("Concept relevance scores:\n", self.model.combinator.classifier[0].alpha_norm.cpu().numpy())
-                        # print("Gamma difference: \n", self.model.combinator.classifier[0].gamma.cpu().diff().item())
-
-                if self.config.dataset.dataset_name in ("BAColor", "TopoFeature"):
-                    w = self.model.global_side_channel.classifier.classifier[0].weight.detach().cpu().numpy()
-                    b = self.model.global_side_channel.classifier.classifier[0].bias.detach().cpu().numpy()
-                    print(f"\nWeight vector of global side channel:\nW: {w} b:{b}")
             
             if self.config.dataset.shift_type == "no_shift":
                 val_stat = id_val_stat
@@ -386,7 +346,6 @@ class Pipeline:
                 log_dict = {
                     "epoch": epoch,
                     "clf_loss": np.mean(clf_batch_loss),
-                    "clf_global_batch_loss": np.mean(clf_global_batch_loss),
                     "mean_loss": self.ood_algorithm.mean_loss,
                     "spec_loss": self.ood_algorithm.spec_loss,
                     "total_loss": self.ood_algorithm.total_loss,
@@ -400,14 +359,9 @@ class Pipeline:
                     "id_test_score": id_test_stat["score"],
                     "val_score": val_stat["score"],
                     "test_score": test_stat["score"],
-                    "beta_combination_param": self.model.beta.sigmoid().item() if self.config.global_side_channel else np.nan,
                     "edge_weight": wandb.Histogram(sequence=edge_scores, num_bins=100),
                     "filternode": wandb.Histogram(sequence=node_feat_attn.detach().cpu(), num_bins=100),
-                    "GNN train score": gnn_only_score if self.config.global_side_channel else np.nan,
-                    "global train score": global_only_score if self.config.global_side_channel else np.nan,
                     "wiou": epoch_train_stat["wiou"],
-                    # "diff_concept_gamma": self.model.combinator.classifier[0].gamma.cpu().diff().item() 
-                    #                                 if self.config.global_side_channel == "simple_concept" else np.nan,
                     "l_norm_loss": np.mean(l_norm_batch_loss),
                     "entr_loss": np.mean(entr_batch_loss)
                 }
@@ -1442,7 +1396,7 @@ class Pipeline:
             self.plot_hist_score(attns[key], density=False, log=False, name=f"ref_{key}_edge_scores_w{ratio}.png")
 
     @torch.no_grad()
-    def evaluate(self, split: str, compute_suff=False, compute_wiou=False):
+    def evaluate(self, split: str, compute_suff=False, compute_wiou=False, compute_clf_only_pred=False):
         r"""
         This function is design to collect data results and calculate scores and loss given a dataset subset.
         (For project use only)
@@ -1470,6 +1424,7 @@ class Pipeline:
         loss_all = []
         mask_all = []
         pred_all = []
+        pred_clf_only_all = []
         target_all = []
         likelihoods_all = []
         wious_all = []
@@ -1488,6 +1443,14 @@ class Pipeline:
                                                                                  self.config)
             model_output = self.model(data=data, edge_weight=None, ood_algorithm=self.ood_algorithm)
             raw_preds = self.ood_algorithm.output_postprocess(model_output)
+
+            if compute_clf_only_pred:
+                clf_only_output = self.model.predict_from_subgraph(
+                    data=data,
+                    edge_att=torch.ones(data.edge_index.shape[0], device=data.x.device),
+                    node_att=torch.ones((data.x.shape[0],1), device=data.x.device)
+                ).squeeze(-1)
+                pred_clf_only_all.append(clf_only_output.cpu().numpy())
 
             # --------------- Loss collection ------------------
             loss: torch.tensor = self.config.metric.loss_func(raw_preds, targets, reduction='none') * mask
@@ -1547,7 +1510,9 @@ class Pipeline:
             'likelihood_avg': stat['likelihood_avg'],
             'likelihood_prod': stat['likelihood_prod'],
             'likelihood_logprod': stat['likelihood_logprod'],
-            'wiou': stat['wiou']
+            'wiou': stat['wiou'],
+            'pred': pred_all,
+            'pred_clf_only': pred_clf_only_all
         }
 
     def load_task(self, load_param=False, load_split="ood"):
