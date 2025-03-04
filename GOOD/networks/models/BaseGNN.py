@@ -190,13 +190,13 @@ class BasicEncoder(torch.nn.Module):
         else:
             raise ValueError(f"Invalid value {config.use_norm}")
         
-    def get_conv_layer(self, config, without_embed):
+    def get_conv_layer(self, config, backbone, without_embed):
         if without_embed:
             embed = config.model.dim_hidden
         else:
             embed = config.dataset.dim_node
         
-        if config.model.backbone == "GIN":            
+        if backbone == "GIN":            
             return GINConvAttn(
                 nn.Sequential(nn.Linear(embed, 2 * config.model.dim_hidden),
                     self.get_norm_layer(config), 
@@ -204,7 +204,7 @@ class BasicEncoder(torch.nn.Module):
                     nn.Linear(2 * config.model.dim_hidden, config.model.dim_hidden)
                 )
             )
-        if config.model.backbone == "ACR":
+        elif backbone == "ACR":
             return ACRConv(
                 input_dim=embed,
                 output_dim=config.model.dim_hidden,
@@ -214,6 +214,8 @@ class BasicEncoder(torch.nn.Module):
                 combine_layers=3,
                 num_mlp_layers=3,
             )
+        elif backbone == "Identity":
+            return IdentityConv()
         else:
             raise ValueError(f"Invalid value {config.model.backbone} for config.model.backbone")
         
@@ -338,6 +340,19 @@ class GINEConv(gnn.MessagePassing):
 
     def __repr__(self) -> str:
         return f'{self.__class__.__name__}(nn={self.nn})'
+    
+class IdentityConv(gnn.MessagePassing):
+    def __init__(self):
+        super(IdentityConv, self).__init__()
+
+    def forward(self, x, edge_index, batch=None):
+        return x
+
+    def message(self, x_i, x_j):
+        assert False
+
+    def update(self, aggr_out):
+        assert False
     
 class GINConvAttn(gnn.MessagePassing):
     def __init__(self, mlp):
@@ -550,8 +565,8 @@ class ACR_MLP(nn.Module):
                 self.linears.append(nn.Linear(hidden_dim, hidden_dim))
             self.linears.append(nn.Linear(hidden_dim, output_dim))
 
-            for layer in range(num_layers - 1):
-                self.batch_norms.append(nn.BatchNorm1d((hidden_dim)))
+            # for layer in range(num_layers - 1):
+            #     self.batch_norms.append(nn.BatchNorm1d((hidden_dim)))
 
     def forward(self, x):
         if self.linear_or_not:
@@ -561,7 +576,9 @@ class ACR_MLP(nn.Module):
             # If MLP
             h = x
             for layer in range(self.num_layers - 1):
-                h = torch.relu(self.batch_norms[layer](self.linears[layer](h)))
+                h = self.linears[layer](h)
+                # h = self.batch_norms[layer](h)
+                h = torch.relu(h)
             return self.linears[self.num_layers - 1](h)
 
     def reset_parameters(self):
