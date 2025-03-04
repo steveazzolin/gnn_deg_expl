@@ -85,160 +85,160 @@ def mark_frontier(G, G_filt):
     nx.set_node_attributes(G_filt, name="frontier", values={n: True for n in frontier})
     return len(frontier)
 
-def draw(config, G, name, subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=350, with_labels=True, title=None, ax=None):
-    plt.figure(figsize=figsize)
+# def draw(config, G, name, subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=350, with_labels=True, title=None, ax=None):
+#     plt.figure(figsize=figsize)
 
-    if pos is None:
-        pos = nx.kamada_kawai_layout(G)
+#     if pos is None:
+#         pos = nx.kamada_kawai_layout(G)
 
-    edge_color = list(map(lambda x: edge_colors[x], nx.get_edge_attributes(G,'origin').values()))
-    node_gt = list(nx.get_node_attributes(G, "node_gt").values())
-    # edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
-    # edge_color = ["red" if e > 0.90 else "black" for e in edge_color]
-    # nx.draw_networkx_edges(
-    #     G,
-    #     pos=pos,
-    #     edge_color="black"
-    # )
-    nx.draw(
-        G,
-        with_labels=with_labels,
-        pos=pos,
-        ax=ax,
-        node_size=nodesize,
-        node_color = ['lightgreen' if node_gt[i] else 'orange' for i in range(len(node_gt))],
-        # node_color=list(map(lambda x: node_colors[x], [nx.get_node_attributes(G,'frontier').get(n, False) for n in G.nodes()])),
-        # edgelist=[e for i, e in enumerate(G.edges()) if edge_color[i] > 0.5],
-        edge_color=edge_color,
-        # edge_cmap=plt.cm.Reds,
-    )
+#     edge_color = list(map(lambda x: edge_colors[x], nx.get_edge_attributes(G,'origin').values()))
+#     node_gt = list(nx.get_node_attributes(G, "node_gt").values())
+#     # edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
+#     # edge_color = ["red" if e > 0.90 else "black" for e in edge_color]
+#     # nx.draw_networkx_edges(
+#     #     G,
+#     #     pos=pos,
+#     #     edge_color="black"
+#     # )
+#     nx.draw(
+#         G,
+#         with_labels=with_labels,
+#         pos=pos,
+#         ax=ax,
+#         node_size=nodesize,
+#         node_color = ['lightgreen' if node_gt[i] else 'orange' for i in range(len(node_gt))],
+#         # node_color=list(map(lambda x: node_colors[x], [nx.get_node_attributes(G,'frontier').get(n, False) for n in G.nodes()])),
+#         # edgelist=[e for i, e in enumerate(G.edges()) if edge_color[i] > 0.5],
+#         edge_color=edge_color,
+#         # edge_cmap=plt.cm.Reds,
+#     )
 
-    # Annotate with edge scores
-    if nx.get_edge_attributes(G, 'attn_weight') != {}:
-        nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'attn_weight'), font_size=6, alpha=0.8)
+#     # Annotate with edge scores
+#     if nx.get_edge_attributes(G, 'attn_weight') != {}:
+#         nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'attn_weight'), font_size=6, alpha=0.8)
     
-    title = title if title is not None else f"Selected {sum([e == 'green' for e in edge_color])} relevant edges"
-    plt.title(title)
-    # print(f"Selected {sum([e == 'green' for e in edge_color])} relevant edges over {len(G.edges())}")
+#     title = title if title is not None else f"Selected {sum([e == 'green' for e in edge_color])} relevant edges"
+#     plt.title(title)
+#     # print(f"Selected {sum([e == 'green' for e in edge_color])} relevant edges over {len(G.edges())}")
 
-    if save:
-        path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
-        if not os.path.exists(path):
-            try:
-                os.makedirs(path)
-            except Exception as e:
-                print(e)
-                exit(e)
-        plt.savefig(f'{path}/{name}.png')
-    else:
-        plt.show()
+#     if save:
+#         path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
+#         if not os.path.exists(path):
+#             try:
+#                 os.makedirs(path)
+#             except Exception as e:
+#                 print(e)
+#                 exit(e)
+#         plt.savefig(f'{path}/{name}.png')
+#     else:
+#         plt.show()
 
-    if ax is None:
-        plt.close()
-    return pos
+#     if ax is None:
+#         plt.close()
+#     return pos
 
-def draw_antonio(config, d, pos, subfolder, name, save=True):
-    what_take = "mask"
-    g1 = to_networkx(d, edge_attrs=["causal_mask", "mask"], to_undirected=False)
-    e_col = []
-    for e in g1.edges():
-        if g1.edges()[e][what_take]:
-            e_col.append("green")
-        else:
-            e_col.append("black")
+# def draw_antonio(config, d, pos, subfolder, name, save=True):
+#     what_take = "mask"
+#     g1 = to_networkx(d, edge_attrs=["causal_mask", "mask"], to_undirected=False)
+#     e_col = []
+#     for e in g1.edges():
+#         if g1.edges()[e][what_take]:
+#             e_col.append("green")
+#         else:
+#             e_col.append("black")
     
-    if pos is None:
-        pos = nx.kamada_kawai_layout(g1)
+#     if pos is None:
+#         pos = nx.kamada_kawai_layout(g1)
 
-    plt.figure(figsize=(10,10))
+#     plt.figure(figsize=(10,10))
     
-    # Draw nodes
-    nx.draw_networkx_nodes(g1, pos, node_color='lightblue', node_size=40)
-    nx.draw_networkx_labels(g1, pos, )
+#     # Draw nodes
+#     nx.draw_networkx_nodes(g1, pos, node_color='lightblue', node_size=40)
+#     nx.draw_networkx_labels(g1, pos, )
 
-    # Draw labels
-    # Draw directed edges with rounded style to show bidirectionality
-    nx.draw_networkx_edges(
-        g1, 
-        pos,
-        edgelist=g1.edges(),
-        edge_color= e_col,
-        arrowstyle='->',
-        arrowsize=20,
-        connectionstyle='arc3,rad=0.1'  # The 'rad' parameter makes edges curved
-    )
+#     # Draw labels
+#     # Draw directed edges with rounded style to show bidirectionality
+#     nx.draw_networkx_edges(
+#         g1, 
+#         pos,
+#         edgelist=g1.edges(),
+#         edge_color= e_col,
+#         arrowstyle='->',
+#         arrowsize=20,
+#         connectionstyle='arc3,rad=0.1'  # The 'rad' parameter makes edges curved
+#     )
 
-    # Display the graph
-    if save:
-        path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
-        if not os.path.exists(path):
-            try:
-                os.makedirs(path)
-            except Exception as e:
-                print(e)
-                exit(e)
-        plt.savefig(f'{path}/{name}.png')
-    else:
-        plt.show()
-    return pos
+#     # Display the graph
+#     if save:
+#         path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
+#         if not os.path.exists(path):
+#             try:
+#                 os.makedirs(path)
+#             except Exception as e:
+#                 print(e)
+#                 exit(e)
+#         plt.savefig(f'{path}/{name}.png')
+#     else:
+#         plt.show()
+#     return pos
 
-def draw_topk(config, G, name, k, subfolder="", pos=None):
-    if pos is None:
-        pos = nx.kamada_kawai_layout(G)
+# def draw_topk(config, G, name, k, subfolder="", pos=None):
+#     if pos is None:
+#         pos = nx.kamada_kawai_layout(G)
 
-    w = sorted(list(nx.get_edge_attributes(G, 'attn_weight').values()), reverse=True)
-    edge_color = []
-    for e in G.edges():
-        if G.edges[e]["attn_weight"] >= w[k]:
-            edge_color.append("green")
-        else:
-            edge_color.append("blue")
+#     w = sorted(list(nx.get_edge_attributes(G, 'attn_weight').values()), reverse=True)
+#     edge_color = []
+#     for e in G.edges():
+#         if G.edges[e]["attn_weight"] >= w[k]:
+#             edge_color.append("green")
+#         else:
+#             edge_color.append("blue")
 
-    nx.draw(
-        G,
-        with_labels = True,
-        pos=pos,
-        edge_color=edge_color
-    )
-    # nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'attn_weight'), font_size=6, alpha=0.8)
-    path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
-    if not os.path.exists(path):
-        try:
-            os.makedirs(path)
-        except Exception as e:
-            exit(e)
-    plt.savefig(f'{path}/{name}.png')
-    plt.close()
-    return pos
+#     nx.draw(
+#         G,
+#         with_labels = True,
+#         pos=pos,
+#         edge_color=edge_color
+#     )
+#     # nx.draw_networkx_edge_labels(G, pos, edge_labels=nx.get_edge_attributes(G, 'attn_weight'), font_size=6, alpha=0.8)
+#     path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
+#     if not os.path.exists(path):
+#         try:
+#             os.makedirs(path)
+#         except Exception as e:
+#             exit(e)
+#     plt.savefig(f'{path}/{name}.png')
+#     plt.close()
+#     return pos
 
-def draw_gt(config, G, name, gt, edge_index, subfolder="", pos=None):
-    if pos is None:
-        pos = nx.kamada_kawai_layout(G)
+# def draw_gt(config, G, name, gt, edge_index, subfolder="", pos=None):
+#     if pos is None:
+#         pos = nx.kamada_kawai_layout(G)
 
-    edge_color = {}
-    for i in range(len(gt)):
-        (u,v) = edge_index.T[i]
-        if gt[i]:            
-            edge_color[(u.item(), v.item())] = "green"
-        else:
-            edge_color[(u.item(), v.item())] = "blue"
-    nx.draw(
-        G,
-        with_labels = True,
-        pos=pos,
-        edge_color=[edge_color[(u,v)] for u,v in G.edges()]
-    )
-    path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
-    if not os.path.exists(path):
-        try:
-            os.makedirs(path)
-        except Exception as e:
-            exit(e)
-    plt.savefig(f'{path}/{name}.png')
-    plt.close()
-    return pos
+#     edge_color = {}
+#     for i in range(len(gt)):
+#         (u,v) = edge_index.T[i]
+#         if gt[i]:            
+#             edge_color[(u.item(), v.item())] = "green"
+#         else:
+#             edge_color[(u.item(), v.item())] = "blue"
+#     nx.draw(
+#         G,
+#         with_labels = True,
+#         pos=pos,
+#         edge_color=[edge_color[(u,v)] for u,v in G.edges()]
+#     )
+#     path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}/'
+#     if not os.path.exists(path):
+#         try:
+#             os.makedirs(path)
+#         except Exception as e:
+#             exit(e)
+#     plt.savefig(f'{path}/{name}.png')
+#     plt.close()
+#     return pos
 
-def draw_colored(config, G, name, thrs, subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None):
+def draw_colored(config, G, name, thrs, node_expl="", edge_expl="", subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None):
     plt.figure(figsize=figsize)
 
     if pos is None:
@@ -251,17 +251,16 @@ def draw_colored(config, G, name, thrs, subfolder="", pos=None, save=True, figsi
     for i in range(len(node_attr)):
         if len(node_gt) > 0 and node_gt[i]:
             node_colors.append("orange") # "lightgreen"
-        elif node_attr[i] == [1.0, 0., 0.]:
+        elif node_attr[i] == [1., 0., 0., 0.]:
             node_colors.append("red")
-        elif node_attr[i] == [1.0, 0.]:
-            node_colors.append("red")
-        elif node_attr[i] == [0., 1.]:
+        elif node_attr[i] == [0., 1., 0., 0.]:
             node_colors.append("blue")
+        elif node_attr[i] == [0., 0., 1., 0.]:
+            node_colors.append("green")
+        elif node_attr[i] == [0., 0., 0., 1.]:
+            node_colors.append("violet")
         else:
             node_colors.append("orange")
-    
-    edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
-    edge_color = ["red" if e >= thrs else "black" for e in edge_color]
 
     nx.draw(
         G,
@@ -270,7 +269,24 @@ def draw_colored(config, G, name, thrs, subfolder="", pos=None, save=True, figsi
         ax=ax,
         node_size=nodesize,
         node_color=node_colors,
-        edge_color=edge_color,
+        # edge_color=edge_color,
+        alpha=0.5
+    )
+
+
+    if node_expl is not None:
+        node_labels = {u: "E" if score >= thrs else "" for u, score in enumerate(node_expl)}
+    else:
+        assert False, "Not implemented"
+        edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
+        edge_color = ["red" if e >= thrs else "black" for e in edge_color]
+
+    nx.draw_networkx_labels(
+        G,
+        pos,
+        node_labels,
+        font_size=12,
+        font_color="black"
     )
 
     # Annotate with edge scores

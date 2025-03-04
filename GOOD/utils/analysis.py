@@ -10,9 +10,12 @@ from GOOD.ood_algorithms.ood_manager import load_ood_alg
 from GOOD.utils.logger import load_logger
 from GOOD.utils.metric import assign_dict
 from GOOD.utils.loader import initialize_model_dataset
+import GOOD.kernel.pipelines.xai_metric_utils as xai_utils
 
 import numpy as np
 import torch
+
+from torch_geometric.utils import to_networkx, from_networkx, to_undirected
 
 import matplotlib.pyplot as plt
 
@@ -446,7 +449,6 @@ def generate_plot_sampling(args):
             # plt.savefig(f"./GOOD/kernel/pipelines/plots/metrics/pdfs/small_v2_dev_nec_sampling_{config.ood.ood_alg}_{config.dataset.dataset_name}_{config.dataset.domain}_({SPLIT}).pdf")
             plt.show(); 
 
-
 def evaluate_metric(args):
     load_splits = ["id"]
 
@@ -787,53 +789,135 @@ def print_r_ge_b_hist(args):
             pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
             pipeline.load_task(load_param=True, load_split=load_split) 
 
+            if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated"):
+                print(f"\n\nClassifier weights:")
+                print(model.classifier.classifier[0].weight.detach()) #, model.classifier.classifier[0].bias.detach()
+
             # GET EXPLANATIONS
             ret = pipeline.get_node_explanations()
 
-            # PLOT HISTOGRAM
-            list_of_colors = {}
-            list_of_scores = {}
+            # AGGREGATE INFO BY LABEL
             list_of_labels = np.array([ret["id_val"]["samples"][i].y.item() for i in range(len(ret["id_val"]["samples"]))])
+            list_of_colors = {l: [] for l in np.unique(list_of_labels)}
+            count_of_relevant_colors = {l: defaultdict(int) for l in np.unique(list_of_labels)}
+            list_of_scores = {l: [] for l in np.unique(list_of_labels)}
 
             for i, label in enumerate(np.unique(list_of_labels)):
                 for j in range(len(ret["id_val"]["samples"])):
                     if ret["id_val"]["samples"][j].y.item() == label:
-                        list_of_colors[label].extend()
-                
-                
-                all_graphs = torch.cat([ret["id_val"]["samples"][i].x for i in range(len(ret["id_val"]["samples"])) if ret["id_val"]["samples"][i].y.item() == label], dim=0)            
-                list_of_tuples = [tuple(row.tolist()) for row in all_graphs]
+                        node_colors = list(
+                            map( # Convert list of tuples into list of colors
+                                loader["id_val"].dataset.color_map.get,
+                                [tuple(r) for r in ret["id_val"]["samples"][j].x.tolist()] # convert feature matrix into list of tuples [(1., 0.)]
+                            )
+                        )                        
+                        list_of_colors[label].extend(node_colors)
+                        list_of_scores[label].extend(
+                            ret["id_val"]["scores"][j]
+                        )
 
-                list_of_colors[label] = np.array(list(map(loader["id_val"].dataset.color_map.get, list_of_tuples)))
-                list_of_scores[label] = np.array(list(chain(*ret["id_val"]["scores"])))
-            
+                        important_colors_count = np.unique(
+                            np.array(node_colors)[np.array(ret["id_val"]["scores"][j]) >= 0.5],
+                            return_counts=True
+                        )
+                        for c, count in zip(important_colors_count[0], important_colors_count[1]):
+                            count_of_relevant_colors[label][c] += count.item()
 
+                # average the count of relevant colors
+                for c in count_of_relevant_colors[label].keys():
+                    count_of_relevant_colors[label][c] /= sum(loader["id_val"].dataset.y == label).item()
 
-            print(len(list_of_colors), len(list_of_scores), len(list_of_labels))
-            
+                list_of_colors[label] = np.array(list_of_colors[label])
+                list_of_scores[label] = np.array(list_of_scores[label])
+
+            # PLOT HISTOGRAMS
             n_row = 2
-            fig, axs = plt.subplots(n_row, 1, figsize=(9,4))
+            n_col = np.unique(list_of_colors[0]).shape[0]
+            fig, axs = plt.subplots(n_row, n_col, figsize=(12,7))
 
             for i, label in enumerate(np.unique(list_of_labels)):
-                print(min(np.concatenate(list_of_scores[list_of_labels == label])), max(np.concatenate(list_of_scores[list_of_labels == label])), np.mean(np.concatenate(list_of_scores[list_of_labels == label])), np.std(np.concatenate(list_of_scores[list_of_labels == label])))
+                print(f"\ny={int(label)}")
+                print(f"\tStats of node scores: min={min(list_of_scores[label]):.2f}, max={max(list_of_scores[label]):.2f}, avg={np.mean(list_of_scores[label]):.2f}, std={np.std(list_of_scores[label]):.2f} ")
+                print(f"\tAverage count of relevant colors: {count_of_relevant_colors[label]}")
                 
-                for color in np.unique(list_of_colors):
-                    axs[i].hist(np.concatenate(list_of_scores[list_of_labels == label & list_of_colors == color]), density=True, log=False, bins=100, label=color)
-                    axs[i].set_xlim(-0.1, 1.1)
-                    axs[i].set_ylim(0.0, 100)
-
+                for c, color in enumerate(["R", "B", "G", "V"]):
+                    axs[i,c].hist(
+                        list_of_scores[label][list_of_colors[label] == color] + np.random.normal(0.0, scale=0.005, size=list_of_scores[label][list_of_colors[label] == color].shape),
+                        density=True,
+                        log=False,
+                        bins=100,
+                        label=color
+                    )
+                    axs[i,c].set_xlim(-0.1, 1.1)
+                    axs[i,c].set_ylim(0.0, 100)
+                    axs[i,c].set_title(f"color {color}")
+                    if c == 0:
+                        axs[i,0].set_ylabel(f"y={int(label)}")
 
             fig.supxlabel('explanation relevance scores', fontsize=13)
             fig.supylabel('density', fontsize=13)
-            plt.legend()
-
+            fig.suptitle(f'{config.model.model_name} seed {seed}', fontsize=13)
+            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
             
             path = f'GOOD/kernel/pipelines/plots/panels/{config.ood_dirname}/'
             if not os.path.exists(path):
                 os.makedirs(path)
-
             path += f"{config.load_split}_{config.dataset.dataset_name}_{config.dataset.domain}_{config.util_model_dirname}_{config.random_seed}"
             plt.savefig(path + ".png")
             plt.close()
+
+def plot_explanations(args):
+    load_splits = ["id"]
+    split = "id_val"
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        edge_scores_seed = []
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"GENERATING PLOT FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)        
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+
+            if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated"):
+                print(f"\n\nClassifier weights:")
+                print(model.classifier.classifier[0].weight.detach()) #, model.classifier.classifier[0].bias.detach()
+
+            # GET EXPLANATIONS
+            ret = pipeline.get_node_explanations()
+
+            # PLOT GRAPHS
+            for i in range(len(ret[split]["samples"])):
+                if i > 10:
+                    break
+
+                data = ret[split]["samples"][i]
+                expl = ret[split]["scores"][i]
+
+                g = to_networkx(data, node_attrs=["x"], to_undirected=True)
+                xai_utils.draw_colored(
+                    config,
+                    g,
+                    node_expl=expl,
+                    subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
+                    name=f"graph_{split}_{i}",
+                    thrs=0.5,
+                    title=f"Idx: {i} Class {int(data.y.item())}",
+                    with_labels=False,
+                    figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8)
+                )
+                print(f"graph {i} is of class {int(data.y.item())}")
+
             
 
