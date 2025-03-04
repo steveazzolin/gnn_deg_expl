@@ -1,0 +1,28 @@
+includes:
+  - ../base.yaml
+model:
+  backbone: GIN
+  model_layer: 3
+  gnn_clf_layer: 0
+  global_pool: sum
+  dim_hidden: 100
+  dim_ffn: 100
+  dropout_rate: 0.0
+train:
+  num_steps: 10
+  max_epoch: 100
+  train_bs: 64
+  val_bs: 512
+  test_bs: 512
+  lr: 0.0001
+  weight_decay: 0.
+  lr_filternode: 0.
+  l_norm_coeff: 0.2
+  entr_coeff: 0.1
+dataset:
+  dataset_name: BAColorGV
+  domain: basis
+  generate: false
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted
