@@ -1,7 +1,7 @@
 includes:
   - ../base.yaml
 model:
-  backbone: GIN
+  backbone: ACR
   model_layer: 2
   gnn_clf_layer: 0
   global_pool: sum
