@@ -232,9 +232,13 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
         ood_dirname += f'_{config.ood.ood_param}'
     else:
         ood_dirname += '_no_param'
+    
     if config.ood.extra_param is not None:
         for i, param in enumerate(config.ood.extra_param):
             ood_dirname += f'_{param}'
+    
+    if "SMGNN" in model_dirname or "GiSST" in model_dirname:        
+        ood_dirname += f'_spar{config.train.l_norm_coeff}_entr{config.train.entr_coeff}'
     
     config.ood_dirname = ood_dirname # Added by Steve
     config.complete_dirname = opj(model_dirname, train_dirname, ood_dirname) # Added by Steve
