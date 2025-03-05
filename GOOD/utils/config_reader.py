@@ -204,6 +204,7 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
     model_dirname = f'{tmp}{config.model.model_name}_' \
                     f'{config.model.backbone}_' \
                     f'{config.model.model_layer}l_' \
+                    f'{config.model.gnn_clf_layer}clf_' \
                     f'{config.model.global_pool}pool_' \
                     f'{config.model.dropout_rate}dp_' \
                     f'mitig_backbone{args.mitigation_backbone}_' \
