@@ -89,8 +89,7 @@ class GSAT(BaseOODAlg):
             loss based on GSAT algorithm
 
         """
-        att = self.att # WARNING: original version was using self.att
-        # att = self.att
+        att = self.edge_att
         eps = 1e-6
         
         # Original GSAT spec_loss
@@ -119,8 +118,8 @@ class GSAT(BaseOODAlg):
         # else:
         #     self.spec_loss = config.ood.ood_param * info_loss
 
-        loss = self.mean_loss + self.spec_loss
-        return loss
+        self.total_loss = self.mean_loss + self.spec_loss
+        return self.total_loss
 
     def get_r(self, decay_interval, decay_r, current_epoch, init_r=0.9, final_r=0.5):
         r = init_r - current_epoch // decay_interval * decay_r
