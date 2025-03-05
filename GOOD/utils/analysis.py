@@ -799,7 +799,7 @@ def print_r_ge_b_hist(args):
             # AGGREGATE INFO BY LABEL
             list_of_labels = np.array([ret["id_val"]["samples"][i].y.item() for i in range(len(ret["id_val"]["samples"]))])
             list_of_colors = {l: [] for l in np.unique(list_of_labels)}
-            count_of_relevant_colors = {l: defaultdict(int) for l in np.unique(list_of_labels)}
+            count_of_relevant_colors = {l: defaultdict(list) for l in np.unique(list_of_labels)}
             list_of_scores = {l: [] for l in np.unique(list_of_labels)}
 
             for i, label in enumerate(np.unique(list_of_labels)):
@@ -820,26 +820,34 @@ def print_r_ge_b_hist(args):
                             np.array(node_colors)[np.array(ret["id_val"]["scores"][j]) >= 0.5],
                             return_counts=True
                         )
-                        for c, count in zip(important_colors_count[0], important_colors_count[1]):
-                            count_of_relevant_colors[label][c] += count.item()
+
+                        for color in np.unique(node_colors):
+                            if color in important_colors_count[0]:
+                                count_of_relevant_colors[label][color].append(important_colors_count[1][important_colors_count[0] == color][0])
+                            else:
+                                count_of_relevant_colors[label][color].append(0)
+
+                        # for c, count in zip(important_colors_count[0], important_colors_count[1]):
+                        #     # count_of_relevant_colors[label][c] += count.item()
 
                 # average the count of relevant colors
-                for c in count_of_relevant_colors[label].keys():
-                    count_of_relevant_colors[label][c] /= sum(loader["id_val"].dataset.y == label).item()
+                # for c in count_of_relevant_colors[label].keys():
+                #     count_of_relevant_colors[label][c] /= sum(loader["id_val"].dataset.y == label).item()
 
                 list_of_colors[label] = np.array(list_of_colors[label])
                 list_of_scores[label] = np.array(list_of_scores[label])
 
             # PLOT HISTOGRAMS
             n_row = 2
-            n_col = np.unique(list_of_colors[0]).shape[0]
+            n_col = np.unique(list_of_colors[0]).shape[0] + 1
             fig, axs = plt.subplots(n_row, n_col, figsize=(12,7))
 
             for i, label in enumerate(np.unique(list_of_labels)):
                 print(f"\ny={int(label)}")
                 print(f"\tStats of node scores: min={min(list_of_scores[label]):.2f}, max={max(list_of_scores[label]):.2f}, avg={np.mean(list_of_scores[label]):.2f}, std={np.std(list_of_scores[label]):.2f} ")
-                print(f"\tAverage count of relevant colors: {count_of_relevant_colors[label]}")
+                print(f"\tAverage count of relevant colors:", {c: round(np.mean(count_of_relevant_colors[label][c]), 2) for c in count_of_relevant_colors[label].keys()})
                 
+                # per-color hist
                 for c, color in enumerate(["R", "B", "G", "V"]):
                     axs[i,c].hist(
                         list_of_scores[label][list_of_colors[label] == color] + np.random.normal(0.0, scale=0.005, size=list_of_scores[label][list_of_colors[label] == color].shape),
@@ -853,6 +861,19 @@ def print_r_ge_b_hist(args):
                     axs[i,c].set_title(f"color {color}")
                     if c == 0:
                         axs[i,0].set_ylabel(f"y={int(label)}")
+                
+                # per-sample boxplot
+                axs[i, -1].set_title(f"per-sample avg count")
+                bplot = axs[i, -1].boxplot([
+                        count_of_relevant_colors[label][c] for c in ["R", "B", "G", "V"]
+                    ],
+                    patch_artist=True,
+                    labels=["R", "B", "G", "V"],
+                    showfliers=False
+                )
+                for patch, color in zip(bplot['boxes'], ["red", "blue", "green", "violet"]):
+                    patch.set_facecolor(color)
+                axs[i, -1].axhline(y=0, color='red', linestyle='--', linewidth=1, alpha=0.5)
 
             fig.supxlabel('explanation relevance scores', fontsize=13)
             fig.supylabel('density', fontsize=13)
@@ -899,7 +920,7 @@ def plot_explanations(args):
 
             # PLOT GRAPHS
             for i in range(len(ret[split]["samples"])):
-                if i > 10:
+                if i > 20:
                     break
 
                 data = ret[split]["samples"][i]
