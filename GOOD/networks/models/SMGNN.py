@@ -79,7 +79,6 @@ class SMGNN(GNNBasic):
             else:
                 edge_att = att
         else:
-            # att = torch.ones_like(att)
             edge_att = lift_node_att_to_edge_att(att, data.edge_index)
             
 
@@ -116,6 +115,7 @@ class SMGNN(GNNBasic):
             temp = (self.config.train.epoch * 0.1 + (200 - self.config.train.epoch) * 5) / 200
 
         att = self.concrete_sample(att_log_logits, temp=1, training=training)
+
         if mitigation_expl_scores == "hard":
             att_hard = (att > 0.5).float()
             att = att_hard - att.detach() + att
@@ -292,10 +292,11 @@ class ExtractorMLP(nn.Module):
 class BatchSequential(nn.Sequential):
     def forward(self, inputs, batch):
         for module in self._modules.values():
-            if isinstance(module, (InstanceNorm)):
-                inputs = module(inputs, batch)
-            else:
-                inputs = module(inputs)
+            # if isinstance(module, (BatchNorm)):
+            #     inputs = module(inputs, batch)
+            # else:
+            #     inputs = module(inputs)
+            inputs = module(inputs)
         return inputs
 
 class MLP(BatchSequential):
