@@ -211,8 +211,8 @@ class BasicEncoder(torch.nn.Module):
                 aggregate_type="add",
                 readout_type="add",
                 combine_type="mlp",
-                combine_layers=3,
-                num_mlp_layers=3,
+                combine_layers=2,
+                num_mlp_layers=2,
                 no_bias=no_bias
             )
         elif backbone == "Identity":
@@ -449,6 +449,7 @@ class ACRConv(gnn.MessagePassing):
         ) # this give a (batch_size, features) tensor
         readout = readout[batch] # this give a (nodes, features) tensor
 
+        # WARNING: TESTING THIS TEMPORARY
         readout = (readout - readout.min(0, keepdim=True)[0] + 1e-6) / (readout.max(0, keepdim=True)[0] - readout.min(0, keepdim=True)[0] + 1e-6)        
 
         return self.propagate(
