@@ -791,7 +791,7 @@ def print_r_ge_b_hist(args):
 
             if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated"):
                 print(f"\n\nClassifier weights:")
-                print(model.classifier.classifier[0].weight.detach()) #, model.classifier.classifier[0].bias.detach()
+                print(model.classifierS.classifier[0].weight.detach()) #, model.classifier.classifier[0].bias.detach()
 
             # GET EXPLANATIONS
             ret = pipeline.get_node_explanations()
@@ -844,7 +844,7 @@ def print_r_ge_b_hist(args):
 
             for i, label in enumerate(np.unique(list_of_labels)):
                 print(f"\ny={int(label)}")
-                print(f"\tStats of node scores: min={min(list_of_scores[label]):.2f}, max={max(list_of_scores[label]):.2f}, avg={np.mean(list_of_scores[label]):.2f}, std={np.std(list_of_scores[label]):.2f} ")
+                print(f"\tStats of node scores: min={min(list_of_scores[label]):.3f}, max={max(list_of_scores[label]):.3f}, avg={np.mean(list_of_scores[label]):.3f}, std={np.std(list_of_scores[label]):.3f} ")
                 print(f"\tAverage count of relevant colors:", {c: round(np.mean(count_of_relevant_colors[label][c]), 2) for c in count_of_relevant_colors[label].keys()})
                 
                 # per-color hist
@@ -869,7 +869,7 @@ def print_r_ge_b_hist(args):
                     ],
                     patch_artist=True,
                     labels=["R", "B", "G", "V"],
-                    showfliers=False
+                    showfliers=False,
                 )
                 for patch, color in zip(bplot['boxes'], ["red", "blue", "green", "violet"]):
                     patch.set_facecolor(color)
