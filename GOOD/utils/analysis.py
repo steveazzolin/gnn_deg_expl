@@ -827,8 +827,8 @@ def print_r_ge_b_hist(args):
                             else:
                                 count_of_relevant_colors[label][color].append(0)
 
-                        # for c, count in zip(important_colors_count[0], important_colors_count[1]):
-                        #     # count_of_relevant_colors[label][c] += count.item()
+                        # if label == 1.0 and count_of_relevant_colors[label]["R"] >= count_of_relevant_colors[label]["B"]:
+                        #     print(i)
 
                 # average the count of relevant colors
                 # for c in count_of_relevant_colors[label].keys():
@@ -837,6 +837,7 @@ def print_r_ge_b_hist(args):
                 list_of_colors[label] = np.array(list_of_colors[label])
                 list_of_scores[label] = np.array(list_of_scores[label])
 
+            
             # PLOT HISTOGRAMS
             n_row = 2
             n_col = np.unique(list_of_colors[0]).shape[0] + 1
@@ -920,11 +921,12 @@ def plot_explanations(args):
 
             # PLOT GRAPHS
             for i in range(len(ret[split]["samples"])):
-                if i > 20:
-                    break
+                if i < 0 or i > 20:
+                    continue
 
                 data = ret[split]["samples"][i]
                 expl = ret[split]["scores"][i]
+                pred = ret[split]["pred"][i].sigmoid().item()
 
                 g = to_networkx(data, node_attrs=["x"], to_undirected=True)
                 xai_utils.draw_colored(
@@ -934,7 +936,7 @@ def plot_explanations(args):
                     subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
                     name=f"graph_{split}_{i}",
                     thrs=0.5,
-                    title=f"Idx: {i} Class {int(data.y.item())}",
+                    title=f"Idx: {i} Class={int(data.y.item())} Pred={pred:.2f}",
                     with_labels=False,
                     figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8)
                 )
