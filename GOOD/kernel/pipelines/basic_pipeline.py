@@ -1447,7 +1447,7 @@ class Pipeline:
             if compute_clf_only_pred:
                 clf_only_output = self.model.predict_from_subgraph(
                     data=data,
-                    edge_att=torch.ones(data.edge_index.shape[0], device=data.x.device),
+                    edge_att=torch.ones((data.edge_index.shape[1]), device=data.x.device),
                     node_att=torch.ones((data.x.shape[0],1), device=data.x.device)
                 ).squeeze(-1)
                 pred_clf_only_all.append(clf_only_output.cpu().numpy())
