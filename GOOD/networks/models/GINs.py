@@ -20,6 +20,8 @@ from .MolEncoders import AtomEncoder, BondEncoder
 from .Pooling import GlobalAddPool
 from torch.nn import Identity
 
+
+
 from sklearn.metrics import accuracy_score
 
 @register.model_register
@@ -129,13 +131,26 @@ class Encoder(BasicEncoder):
         self.without_readout = kwargs.get('without_readout')
 
         self.convs = nn.ModuleList()
-        self.convs.append(self.get_conv_layer(config, backbone="Identity", without_embed=None))
-        self.convs = self.convs.extend(
-            [
-                self.get_conv_layer(config, backbone=config.model.backbone, without_embed=True if n > 0 else kwargs.get('without_embed'))
-                    for n in range(num_layer)
-            ]
-        )
+
+        if num_layer == 0:
+            self.convs.append(self.get_conv_layer(config, backbone="Identity", without_embed=None, no_bias=None))
+        else:
+            self.convs = self.convs.extend(
+                [
+                    self.get_conv_layer(
+                        config,
+                        backbone=config.model.backbone,
+                        without_embed=True if n > 0 else kwargs.get('without_embed'),
+                        no_bias=kwargs.get('no_bias', False)
+                    )
+                        for n in range(num_layer)
+                ]
+            )
+
+        # self.batch_norms = nn.ModuleList([
+        #     gnn.BatchNorm(config.model.dim_hidden if i > 0 else config.dataset.dim_node, track_running_stats=True)
+        #         for i in range(num_layer)
+        # ])
 
     def get_attn_distrib(self):
         ret = []
