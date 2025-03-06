@@ -58,7 +58,7 @@ def main():
     if args.task == 'print_faith':
         analysis.print_faith(args)
         exit(0)
-    if args.task == 'print_r_ge_b_hist':
+    if args.task == 'hist':
         analysis.print_r_ge_b_hist(args)
         exit(0)
         
@@ -141,9 +141,9 @@ def main():
     for s in test_scores.keys():
         print(f"{s.upper():<10} = {np.mean(test_scores[s]):.3f} +- {np.std(test_scores[s]):.3f}")
 
-    if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated"):
+    if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated") and config.model.gnn_clf_layer == 0:
         print(f"\n\nClassifier weights:")
-        print(model.classifier.classifier[0].weight.detach())
+        print(model.classifierS.classifier[0].weight.detach())
 
 
 
