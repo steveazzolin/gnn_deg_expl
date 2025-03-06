@@ -105,8 +105,7 @@ class GSAT(GNNBasic):
         if self.gnn_clf:
             logits = self.classifier(self.gnn_clf(*args, **kwargs))
         else:
-            logits = self.classifier(self.gnn(*args, **kwargs))
-        
+            logits = self.classifier(self.gnn(*args, **kwargs))        
         clear_masks(self)
         self.edge_mask = edge_att
 
@@ -230,12 +229,20 @@ class GSAT(GNNBasic):
             edge_att = lift_node_att_to_edge_att(att, data.edge_index)
 
         if kwargs.get('return_attn', False):
+            assert False
             self.attn_distrib = self.gnn.encoder.get_attn_distrib()
             self.gnn.encoder.reset_attn_distrib()
 
+        set_masks(edge_att, self, att)
+        if self.gnn_clf:
+            logits = self.classifier(self.gnn_clf(*args, **kwargs))
+        else:
+            logits = self.classifier(self.gnn(*args, **kwargs))        
+        clear_masks(self)
+
         edge_att = edge_att.view(-1)
         if ratio is None:
-            return edge_att, att
+            return edge_att, att, logits
         assert False
         
 
@@ -311,7 +318,13 @@ def set_masks(mask: Tensor, model: nn.Module, node_mask:Tensor=None):
     r"""
     Modified from https://github.com/wuyxin/dir-gnn.
     """
-    for module in model.modules():
+    if model.gnn_clf is None:
+        modules = model.gnn.encoder.convs.modules()
+    else:
+        modules = model.gnn_clf.encoder.convs.modules()
+
+    for module in modules:
+    # for module in model.modules():
         if isinstance(module, MessagePassing):
             if __pyg_version__ == "2.4.0":
                 module._fixed_explain = True
@@ -330,7 +343,13 @@ def clear_masks(model: nn.Module):
     r"""
     Modified from https://github.com/wuyxin/dir-gnn.
     """
-    for module in model.modules():
+    if model.gnn_clf is None:
+        modules = model.gnn.encoder.convs.modules()
+    else:
+        modules = model.gnn_clf.encoder.convs.modules()
+
+    for module in modules:
+    # for module in model.modules():
         if isinstance(module, MessagePassing):
             if __pyg_version__ == "2.4.0":
                 module._fixed_explain = False

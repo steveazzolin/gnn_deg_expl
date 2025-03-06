@@ -1834,7 +1834,8 @@ class Pipeline:
         ret = {
             split: {
                 "scores": [],
-                "samples": []
+                "samples": [],
+                "pred": []
             } for split in splits
         }
                 
@@ -1844,7 +1845,7 @@ class Pipeline:
             loader = DataLoader(dataset, batch_size=512, shuffle=False, num_workers=2)
             for data in loader:
                 data: Batch = data.to(self.config.device)   
-                edge_scores, node_scores = self.model.get_subgraph(
+                edge_scores, node_scores, logits = self.model.get_subgraph(
                     data=data,
                     edge_weight=None,
                     ood_algorithm=self.ood_algorithm,
@@ -1861,7 +1862,8 @@ class Pipeline:
                     #     edge_scores = [(e - e.min()) / (e.max() - e.min() + 1e-7) for e in edge_scores if len(e) > 0]
 
                     ret[split]["scores"].append(node_expl.tolist())
-                    ret[split]["samples"].append(g)            
+                    ret[split]["samples"].append(g)
+                    ret[split]["pred"].append(logits[j])
         return ret
 
     def generate_panel(self):

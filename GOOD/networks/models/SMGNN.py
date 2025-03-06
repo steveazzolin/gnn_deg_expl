@@ -34,7 +34,6 @@ class SMGNN(GNNBasic):
             print("Init CLASSIFIER")
             fe_kwargs["gnn_clf_layer"] = config.model.gnn_clf_layer
             fe_kwargs["no_bias"] = True
-            # config.model.dim_hidden = 10
             self.gnn_clf = FeatExtractor(config, **fe_kwargs)
             print(f"Using mitigation_sampling==raw with {config.model.gnn_clf_layer} layers")
         else:
@@ -81,7 +80,6 @@ class SMGNN(GNNBasic):
             else:
                 edge_att = att
         else:
-            # att = torch.zeros_like(att)
             edge_att = lift_node_att_to_edge_att(att, data.edge_index)
             
 
@@ -107,7 +105,7 @@ class SMGNN(GNNBasic):
             logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         else:
             logits = self.classifierS(self.gnn(*args, **kwargs))
-        
+
         clear_masks(self)
         self.edge_mask = edge_att
 
@@ -235,13 +233,20 @@ class SMGNN(GNNBasic):
         else:
             edge_att = lift_node_att_to_edge_att(att, data.edge_index)
 
-        if kwargs.get('return_attn', False):
-            self.attn_distrib = self.gnn.encoder.get_attn_distrib()
-            self.gnn.encoder.reset_attn_distrib()
+        # if kwargs.get('return_attn', False):
+        #     self.attn_distrib = self.gnn.encoder.get_attn_distrib()
+        #     self.gnn.encoder.reset_attn_distrib()
+
+        set_masks(edge_att, self, att)        
+        if self.gnn_clf:
+            logits = self.classifierS(self.gnn_clf(*args, **kwargs))
+        else:
+            logits = self.classifierS(self.gnn(*args, **kwargs))
+        clear_masks(self)
 
         edge_att = edge_att.view(-1)
         if ratio is None:
-            return edge_att, att
+            return edge_att, att, logits
         assert False
 
 @register.model_register
@@ -319,7 +324,13 @@ def set_masks(mask: Tensor, model: nn.Module, node_mask:Tensor=None):
     r"""
     Modified from https://github.com/wuyxin/dir-gnn.
     """
-    for module in model.modules():
+    if model.gnn_clf is None:
+        modules = model.gnn.encoder.convs.modules()
+    else:
+        modules = model.gnn_clf.encoder.convs.modules()
+
+    for module in modules:
+    # for module in model.modules():
         if isinstance(module, MessagePassing):
             if __pyg_version__ == "2.4.0":
                 module._fixed_explain = True
@@ -337,7 +348,13 @@ def clear_masks(model: nn.Module):
     r"""
     Modified from https://github.com/wuyxin/dir-gnn.
     """
-    for module in model.modules():
+    if model.gnn_clf is None:
+        modules = model.gnn.encoder.convs.modules()
+    else:
+        modules = model.gnn_clf.encoder.convs.modules()
+
+    for module in modules:
+    # for module in model.modules():
         if isinstance(module, MessagePassing):
             if __pyg_version__ == "2.4.0":
                 module._fixed_explain = False
