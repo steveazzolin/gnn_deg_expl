@@ -190,7 +190,7 @@ class BasicEncoder(torch.nn.Module):
         else:
             raise ValueError(f"Invalid value {config.use_norm}")
         
-    def get_conv_layer(self, config, backbone, without_embed):
+    def get_conv_layer(self, config, backbone, without_embed, no_bias):
         if without_embed:
             embed = config.model.dim_hidden
         else:
@@ -213,6 +213,7 @@ class BasicEncoder(torch.nn.Module):
                 combine_type="mlp",
                 combine_layers=3,
                 num_mlp_layers=3,
+                no_bias=no_bias
             )
         elif backbone == "Identity":
             return IdentityConv()
@@ -391,6 +392,7 @@ class ACRConv(gnn.MessagePassing):
             combine_type: str,
             combine_layers: int,
             num_mlp_layers: int,
+            no_bias: bool,
             **kwargs):
 
         assert aggregate_type in ["add", "mean", "max"]
@@ -409,7 +411,9 @@ class ACRConv(gnn.MessagePassing):
                 num_layers=num_mlp_layers,
                 input_dim=output_dim,
                 hidden_dim=output_dim,
-                output_dim=output_dim)
+                output_dim=output_dim,
+                no_bias=no_bias
+            )
 
             self.mlp_combine = True
 
@@ -417,17 +421,23 @@ class ACRConv(gnn.MessagePassing):
             num_layers=combine_layers,
             input_dim=input_dim,
             hidden_dim=output_dim,
-            output_dim=output_dim)
+            output_dim=output_dim,
+            no_bias=no_bias
+        )
         self.A = ACR_MLP(
             num_layers=combine_layers,
             input_dim=input_dim,
             hidden_dim=output_dim,
-            output_dim=output_dim)
+            output_dim=output_dim,
+            no_bias=no_bias
+        )
         self.R = ACR_MLP(
             num_layers=combine_layers,
             input_dim=input_dim,
             hidden_dim=output_dim,
-            output_dim=output_dim)
+            output_dim=output_dim,
+            no_bias=no_bias
+        )
 
         self.readout = self.__get_readout_fn(readout_type)
 
@@ -438,6 +448,8 @@ class ACRConv(gnn.MessagePassing):
             node_mask=getattr(self, "_node_mask", None)
         ) # this give a (batch_size, features) tensor
         readout = readout[batch] # this give a (nodes, features) tensor
+
+        readout = (readout - readout.min(0, keepdim=True)[0] + 1e-6) / (readout.max(0, keepdim=True)[0] - readout.min(0, keepdim=True)[0] + 1e-6)        
 
         return self.propagate(
             edge_index=edge_index,
@@ -454,7 +466,10 @@ class ACRConv(gnn.MessagePassing):
         return x_j
 
     def update(self, aggr, x, readout):
-        updated = self.V(x) + self.A(aggr) + self.R(readout)
+        if getattr(self, "_node_mask", None) is None:
+            updated = self.V(x) + self.A(aggr) + self.R(readout)
+        else:
+            updated = self.V(x * getattr(self, "_node_mask")) + self.A(aggr) + self.R(readout)
 
         if self.mlp_combine:
             updated = self.mlp(updated)
@@ -543,7 +558,7 @@ class ACConv(gnn.MessagePassing):
 class ACR_MLP(nn.Module):
 
     # MLP with linear output
-    def __init__(self, num_layers, input_dim, hidden_dim, output_dim):
+    def __init__(self, num_layers, input_dim, hidden_dim, output_dim, no_bias):
         super(ACR_MLP, self).__init__()
 
         self.linear_or_not = True  # default is linear model
@@ -553,17 +568,17 @@ class ACR_MLP(nn.Module):
             self.linear = nn.Identity()
         elif num_layers == 1:
             # Linear model
-            self.linear = nn.Linear(input_dim, output_dim)
+            self.linear = nn.Linear(input_dim, output_dim, bias=not no_bias)
         else:
             # Multi-layer model
             self.linear_or_not = False
             self.linears = torch.nn.ModuleList()
             self.batch_norms = torch.nn.ModuleList()
 
-            self.linears.append(nn.Linear(input_dim, hidden_dim))
+            self.linears.append(nn.Linear(input_dim, hidden_dim, bias=not no_bias))
             for layer in range(num_layers - 2):
-                self.linears.append(nn.Linear(hidden_dim, hidden_dim))
-            self.linears.append(nn.Linear(hidden_dim, output_dim))
+                self.linears.append(nn.Linear(hidden_dim, hidden_dim, bias=not no_bias))
+            self.linears.append(nn.Linear(hidden_dim, output_dim, bias=not no_bias))
 
             # for layer in range(num_layers - 1):
             #     self.batch_norms.append(nn.BatchNorm1d((hidden_dim)))
