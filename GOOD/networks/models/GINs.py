@@ -14,7 +14,7 @@ import torch.nn.functional as F
 
 from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
-from .BaseGNN import GNNBasic, BasicEncoder, GINEConv
+from .BaseGNN import GNNBasic, BasicEncoder, GINEConv, IdentityConv
 from .Classifiers import Classifier
 from .MolEncoders import AtomEncoder, BondEncoder
 from .Pooling import GlobalAddPool
@@ -208,9 +208,15 @@ class Encoder(BasicEncoder):
         layer_feat = x
         for i, (conv, batch_norm, relu, dropout) in enumerate(
                 zip(self.convs, self.batch_norms, self.relus, self.dropouts)):
+            
+            if isinstance(conv, IdentityConv):
+                continue
+
             post_conv = batch_norm(conv(layer_feat, edge_index, batch=batch))
+
             if i != len(self.convs) - 1:
                 post_conv = relu(post_conv)
+
             layer_feat = dropout(post_conv)
         return layer_feat
 
