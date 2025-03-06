@@ -191,22 +191,21 @@ class BaseOODAlg(ABC):
 
         """
         self.model: torch.nn.Module = model
-        if self.config.global_side_channel:
-            print("Using gropus")
-            self.optimizer = torch.optim.Adam(
-                [
-                    {'params': model.global_side_channel.parameters(), "lr": config.train.lr_filternode, 'weight_decay': config.train.channel_weight_decay},
-                    {'params': model.combinator.parameters(), "lr": config.train.lr_filternode, 'weight_decay': config.train.combinator_weight_decay},
-                    {'params': [p for name, p in model.named_parameters() if ('global_side_channel' not in name) and ('combinator' not in name)]}
-                ],
-                lr=config.train.lr,
-                weight_decay=config.train.weight_decay
-            )
-        else:
-            self.optimizer = torch.optim.Adam(self.model.parameters(), lr=config.train.lr,
-                                            weight_decay=config.train.weight_decay)
-        self.scheduler = torch.optim.lr_scheduler.MultiStepLR(self.optimizer, milestones=config.train.mile_stones,
-                                                              gamma=0.1)
+        self.optimizer = torch.optim.Adam(
+            self.model.parameters(),
+            lr=config.train.lr,
+            weight_decay=config.train.weight_decay
+        )
+        # self.optimizer = torch.optim.Adam(
+        #         [
+        #             {'params': model.classifierS.parameters(), "lr": config.train.lr / 5, 'weight_decay': config.train.weight_decay},
+        #             {'params': model.gnn_clf.parameters(), "lr": config.train.lr / 5, 'weight_decay': config.train.weight_decay},
+        #             {'params': [p for name, p in model.named_parameters() if ('gnn_clf' not in name) and (('classifierS' not in name))]}
+        #         ],
+        #         lr=config.train.lr,
+        #         weight_decay=config.train.weight_decay
+        # )
+        self.scheduler = torch.optim.lr_scheduler.MultiStepLR(self.optimizer, milestones=config.train.mile_stones, gamma=0.1)
 
     def backward(self, loss):
         r"""
