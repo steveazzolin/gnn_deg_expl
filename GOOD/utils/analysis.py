@@ -913,7 +913,7 @@ def plot_explanations(args):
 
             if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated"):
                 print(f"\n\nClassifier weights:")
-                print(model.classifier.classifier[0].weight.detach()) #, model.classifier.classifier[0].bias.detach()
+                print(model.classifierS.classifier[0].weight.detach())
 
             # GET EXPLANATIONS
             ret = pipeline.get_node_explanations()
