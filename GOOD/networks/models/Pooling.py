@@ -97,16 +97,19 @@ class GlobalMaxPool(GNNPool):
     r"""
     Global max pooling
     """
-    def __init__(self):
-        super().__init__()
 
-    def forward(self, x, batch, batch_size=None):
-        r"""Returns batch-wise graph-level-outputs by taking the channel-wise
-            maximum across the node dimension, so that for a single graph
+    def __init__(self, **kwargs):
+        super().__init__()
+        self.mitigation_readout = kwargs["mitigation_readout"] if "mitigation_readout" in kwargs.keys() else None
+        print("Max pooling mitigation_readout = ", self.mitigation_readout)
+
+    def forward(self, x, batch, batch_size=None, edge_index=None, edge_mask=None, node_mask=None):
+        r"""Returns batch-wise graph-level-outputs by adding node features
+            across the node dimension, so that for a single graph
             :math:`\mathcal{G}_i` its output is computed by
 
             .. math::
-                \mathbf{r}_i = \mathrm{max}_{n=1}^{N_i} \, \mathbf{x}_n
+                \mathbf{r}_i = \sum_{n=1}^{N_i} \mathbf{x}_n
 
             Args:
                 x (Tensor): Node feature matrix
@@ -117,11 +120,14 @@ class GlobalMaxPool(GNNPool):
                 batch_size (int): Batch size.
 
             Returns (Tensor):
-                   batch-wise graph-level-outputs by taking the channel-wise maximum across the node dimension.
-
+                batch-wise graph-level-outputs by adding node features across the node dimension.
         """
         if batch_size is None:
             batch_size = batch[-1].item() + 1
+        if self.mitigation_readout == "weighted" and (node_mask is not None or edge_mask is not None):
+            if node_mask is None:
+                node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0]).unsqueeze(1)
+            x = x * node_mask
         return gnn.global_max_pool(x, batch, batch_size)
 
 
