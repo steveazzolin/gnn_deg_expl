@@ -37,12 +37,14 @@ class GSAT(GNNBasic):
         if config.mitigation_sampling == "raw":
             print("Init CLASSIFIER")
             fe_kwargs["gnn_clf_layer"] = config.model.gnn_clf_layer
+            fe_kwargs["no_bias"] = True
+            # config.model.backbone = "GIN"
             self.gnn_clf = FeatExtractor(config, **fe_kwargs)
             print(f"Using mitigation_sampling==raw with {config.model.gnn_clf_layer} layers")
         else:
             self.gnn_clf = None
 
-        self.classifier = Classifier(config)
+        self.classifierS = Classifier(config)
         
         self.learn_edge_att = config.ood.extra_param[0]
         self.config = config
@@ -102,10 +104,12 @@ class GSAT(GNNBasic):
                 edge_att = edge_att[edge_att >= kwargs.get('weight')]
 
         set_masks(edge_att, self, att)
+
         if self.gnn_clf:
-            logits = self.classifier(self.gnn_clf(*args, **kwargs))
+            logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         else:
-            logits = self.classifier(self.gnn(*args, **kwargs))        
+            logits = self.classifierS(self.gnn(*args, **kwargs))  
+
         clear_masks(self)
         self.edge_mask = edge_att
 
@@ -172,9 +176,9 @@ class GSAT(GNNBasic):
     def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False, *args, **kwargs):
         set_masks(edge_att, self, node_att)
         if self.gnn_clf:
-            lc_logits = self.classifier(self.gnn_clf(*args, **kwargs))
+            lc_logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         else:
-            lc_logits = self.classifier(self.gnn(*args, **kwargs))
+            lc_logits = self.classifierS(self.gnn(*args, **kwargs))
         clear_masks(self)
 
         if log is None:
@@ -235,9 +239,9 @@ class GSAT(GNNBasic):
 
         set_masks(edge_att, self, att)
         if self.gnn_clf:
-            logits = self.classifier(self.gnn_clf(*args, **kwargs))
+            logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         else:
-            logits = self.classifier(self.gnn(*args, **kwargs))        
+            logits = self.classifierS(self.gnn(*args, **kwargs))        
         clear_masks(self)
 
         edge_att = edge_att.view(-1)
