@@ -182,6 +182,9 @@ class Pipeline:
             'clf_loss': self.ood_algorithm.clf_loss,
             'l_norm_loss': self.ood_algorithm.l_norm_loss.item(),
             'entr_loss': self.ood_algorithm.entr_loss.item(),
+            'spec_loss': self.ood_algorithm.spec_loss.item(),
+            'mean_loss': self.ood_algorithm.mean_loss.item(),
+            'total_loss': self.ood_algorithm.total_loss.item(),
         }
 
 
@@ -200,26 +203,10 @@ class Pipeline:
         print('Load training utils')
         self.ood_algorithm.set_up(self.model, self.config)
 
-        if self.config.global_side_channel == "dt":
-            print(f"Training Decision Tree")
-            data_list = [self.loader["train"].dataset[i] for i in range(len(self.loader["train"].dataset))]
-            batch = Batch.from_data_list(data_list)
-            self.model.global_side_channel.fit(batch)
-            for split in ["train", "id_val", "id_test", "test"]:
-                data_list = [self.loader[split].dataset[i] for i in range(len(self.loader[split].dataset))]
-                batch = Batch.from_data_list(data_list)
-                acc = self.model.global_side_channel.score(batch)
-                print(f"DT {split} Acc={acc}")
-
         print("Before training:")
         epoch_train_stat = self.evaluate('eval_train')
         id_val_stat = self.evaluate('id_val')
         id_test_stat = self.evaluate('id_test')
-
-        if self.config.global_side_channel in ("simple_concept", "simple_concept2"):
-            with torch.no_grad():
-                print("Concept relevance scores:\n", self.model.combinator.classifier[0].alpha_norm.cpu().numpy())
-                # print("Gamma difference: \n", self.model.combinator.classifier[0].gamma.cpu().diff().item())
 
         if self.config.wandb:
             wandb.log({
@@ -231,10 +218,9 @@ class Pipeline:
                     "id_test_score": id_test_stat["score"],
                     "val_score": np.nan,
                     "test_score": np.nan,
-                    # "diff_concept_gamma": self.model.combinator.classifier[0].gamma.cpu().diff().item() 
-                    #                                 if self.config.global_side_channel == "simple_concept" else np.nan
-            }, step=0)
-
+                },
+                step=0
+            )
 
         # train the model
         counter = 1
@@ -242,17 +228,12 @@ class Pipeline:
             self.config.train.epoch = epoch
             print(f'\nEpoch {epoch}:')
 
-            mean_loss = 0
-            spec_loss = 0
-
             self.ood_algorithm.stage_control(self.config)
 
             pbar = tqdm(enumerate(self.loader['train']), total=len(self.loader['train']), **pbar_setting)
             loss_per_batch_dict = defaultdict(list)
             edge_scores = []
-            node_feat_attn = torch.tensor([])
-            raw_global_only, raw_gnn_only, raw_targets = [], [], []
-            train_batch_score, clf_batch_loss,  l_norm_batch_loss, entr_batch_loss  = [], [], [], []
+            train_batch_score, clf_batch_loss,  l_norm_batch_loss, entr_batch_loss, spec_batch_loss, mean_batch_loss, total_batch_loss  = [], [], [], [], [], [], []
             for index, data in pbar:
                 if data.batch is not None and (data.batch[-1] < self.config.train.train_bs - 1):
                     continue
@@ -263,52 +244,29 @@ class Pipeline:
 
                 # train a batch
                 train_stat = self.train_batch(data, pbar, epoch)
+
+                # log stats
                 train_batch_score.append(train_stat["score"])
                 clf_batch_loss.append(train_stat["clf_loss"])
                 l_norm_batch_loss.append(train_stat["l_norm_loss"])
                 entr_batch_loss.append(train_stat["entr_loss"])
-
-                mean_loss = (mean_loss * index + self.ood_algorithm.mean_loss) / (index + 1)
+                spec_batch_loss.append(train_stat["spec_loss"])
+                mean_batch_loss.append(train_stat["mean_loss"])
+                total_batch_loss.append(train_stat["total_loss"])
 
                 if self.config.model.model_name != "GIN":
                     edge_scores.append(self.ood_algorithm.edge_att.detach().cpu())
 
                 if self.config.wandb:                    
-                    for l in ("mean_loss", "spec_loss", "entropy_filternode_loss", "side_channel_loss"):
-                        loss_per_batch_dict[l].append(getattr(self.ood_algorithm, l, np.nan))
-
-                if self.ood_algorithm.spec_loss is not None:
-                    if isinstance(self.ood_algorithm.spec_loss, dict):
-                        desc = f'ML: {mean_loss:.4f}|'
-                        for loss_name, loss_value in self.ood_algorithm.spec_loss.items():
-                            if not isinstance(spec_loss, dict):
-                                spec_loss = dict()
-                            if loss_name not in spec_loss.keys():
-                                spec_loss[loss_name] = 0
-                            spec_loss[loss_name] = (spec_loss[loss_name] * index + loss_value) / (index + 1)
-                            desc += f'{loss_name}: {spec_loss[loss_name]:.4f}|'
-                        pbar.set_description(desc[:-1])
-                    else:
-                        spec_loss = (spec_loss * index + self.ood_algorithm.spec_loss) / (index + 1)
-                        pbar.set_description(f'M/S Loss: {mean_loss:.4f}/{spec_loss:.4f}')
-                else:
-                    pbar.set_description(f'Loss: {mean_loss:.4f}')
+                    for l in ("mean_loss", "spec_loss"):
+                        loss_per_batch_dict[l].append(getattr(self.ood_algorithm, l, np.nan))               
 
             # Epoch val
             print('Evaluating...')
-            print("Clf loss: ", np.mean(clf_batch_loss))
-            print("Spec loss: ", self.ood_algorithm.spec_loss.item())
-            print("Total loss: ", self.ood_algorithm.total_loss.item())
-            if self.ood_algorithm.spec_loss is not None:
-                if isinstance(self.ood_algorithm.spec_loss, dict):
-                    desc = f'ML: {mean_loss:.4f}|'
-                    for loss_name, loss_value in self.ood_algorithm.spec_loss.items():
-                        desc += f'{loss_name}: {spec_loss[loss_name]:.4f}|'
-                    print(f'Approximated ' + desc[:-1])
-                else:
-                    print(f'Approximated average M/S Loss {mean_loss:.4f}/{spec_loss:.4f}')
-            else:
-                print(f'Approximated average training loss {mean_loss.cpu().item():.4f}')
+            print(f"Clf loss: {np.mean(clf_batch_loss):.4f}")
+            print(f"Spec loss: {np.mean(spec_batch_loss):.4f}")
+            print(f"Mean loss: {np.mean(mean_batch_loss):.4f}")
+            print(f"Total loss: {np.mean(total_batch_loss):.4f}")
 
             epoch_train_stat = self.evaluate(
                 'eval_train',
@@ -351,7 +309,6 @@ class Pipeline:
                     "val_score": val_stat["score"],
                     "test_score": test_stat["score"],
                     "edge_weight": wandb.Histogram(sequence=edge_scores, num_bins=100),
-                    "filternode": wandb.Histogram(sequence=node_feat_attn.detach().cpu(), num_bins=100),
                     "wiou": epoch_train_stat["wiou"],
                     "l_norm_loss": np.mean(l_norm_batch_loss),
                     "entr_loss": np.mean(entr_batch_loss)
