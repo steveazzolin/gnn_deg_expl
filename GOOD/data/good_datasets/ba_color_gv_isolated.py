@@ -50,7 +50,7 @@ class BAColorGVIsolated(InMemoryDataset):
             self.num_nodes_min = 10
             self.num_nodes_max = 10
             self.graph_distribution = "BA"
-            self.num_graphs = 6
+            self.num_graphs = 7
         else:
             raise NotImplementedError(f"{shift} shift not implemented")
         
@@ -129,7 +129,16 @@ class BAColorGVIsolated(InMemoryDataset):
                 y=torch.tensor([[1.]]),
                 node_is_spurious=torch.tensor([0])
             )
-            data_list.extend([data1, data2, data3, data4, data5, data6])
+            data7 = Data(
+                x=torch.tensor([
+                    [0., 0., 1., 0.],
+                    [0., 0., 0., 1.],
+                ]),
+                edge_index=torch.empty(2, 0, dtype=torch.long),
+                y=torch.tensor([[1.]]),
+                node_is_spurious=torch.tensor([1])
+            )
+            data_list.extend([data1, data2, data3, data4, data5, data6, data7])
 
         for _ in range(self.num_graphs - len(data_list)):
             # Step 1: Generate a random number of nodes
