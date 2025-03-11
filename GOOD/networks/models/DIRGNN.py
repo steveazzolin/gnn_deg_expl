@@ -8,6 +8,7 @@ import math
 import torch
 import torch.nn as nn
 from torch import Tensor
+from torch_geometric.nn import BatchNorm
 from torch_geometric.data import Data
 from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import degree
@@ -15,21 +16,25 @@ from torch_geometric.utils import degree
 from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
 from .BaseGNN import GNNBasic
-from .GINvirtualnode import vGINFeatExtractor
-from .GINs import GINFeatExtractor
+from .GINvirtualnode import vFeatExtractor
+from .GINs import FeatExtractor
 from torch_geometric.utils.loop import add_self_loops, remove_self_loops
 
 
 
 @register.model_register
-class DIRGIN(GNNBasic):
+class DIR(GNNBasic):
 
     def __init__(self, config: Union[CommonArgs, Munch]):
-        super(DIRGIN, self).__init__(config)
+        super(DIR, self).__init__(config)
+
         self.att_net = CausalAttNet(config.ood.ood_param, config)
+
         config_fe = copy.deepcopy(config)
         config_fe.model.model_layer = config.model.model_layer - 2
-        self.feat_encoder = GINFeatExtractor(config_fe, without_embed=True)
+        print(f"feat_encoder with {config_fe.model.model_layer} layers")
+
+        self.feat_encoder = FeatExtractor(config_fe, without_embed=True)
 
         self.num_tasks = config.dataset.num_classes
         self.causal_lin = torch.nn.Linear(config.model.dim_hidden, self.num_tasks)
@@ -54,7 +59,7 @@ class DIRGIN(GNNBasic):
 
         (causal_x, causal_edge_index, causal_edge_attr, causal_edge_weight, causal_batch), \
         (conf_x, conf_edge_index, conf_edge_attr, conf_edge_weight, conf_batch), \
-        pred_edge_weight = self.att_net(*args, **kwargs)
+        scores = self.att_net(*args, **kwargs)
 
 
 
@@ -82,14 +87,24 @@ class DIRGIN(GNNBasic):
             clear_masks(self)
 
             # --- combine to causal phase (detach the conf phase) ---
-            rep_out = []
-            for conf in conf_rep:
-                rep_out.append(self.get_comb_pred(causal_rep, conf))
-            rep_out = torch.stack(rep_out, dim=0)
+            rep_out = None
+            # rep_out = []
+            # for idx, conf in enumerate(conf_rep):
+            #     rep_out.append(self.get_comb_pred(causal_rep, conf))
+            # rep_out = torch.stack(rep_out, dim=0)
 
-            return rep_out, causal_out, conf_out
+            # --- Efficient version ---
+            rep_out2 = torch.transpose(
+                self.get_comb_pred_eff(causal_rep, conf_rep),
+                0,
+                1
+            ) # rep_out2[i] contains a tensor with every causal_rep keeping fixed conf_rep[i]
+            
+            # DEBUG EFFICIENT VERSION
+            # assert torch.allclose(rep_out, rep_out2, atol=1e-6)
+
+            return (rep_out, rep_out2), causal_out, conf_out, scores
         else:
-
             return causal_out
 
     def get_graph_rep(self, *args, **kwargs):
@@ -105,32 +120,39 @@ class DIRGIN(GNNBasic):
         causal_pred = self.causal_lin(causal_graph_x)
         conf_pred = self.conf_lin(conf_graph_x).detach()
         return torch.sigmoid(conf_pred) * causal_pred
+    
+    def get_comb_pred_eff(self, causal_graph_x, conf_graph_x):
+        causal_pred = self.causal_lin(causal_graph_x)
+        conf_pred = self.conf_lin(conf_graph_x).detach()
+        return torch.sigmoid(conf_pred).unsqueeze(0) * causal_pred.unsqueeze(1)
 
 @register.model_register
-class DIRvGIN(DIRGIN):
+class DIRvGIN(DIR):
     r"""
     The GIN virtual node version of DIR.
     """
 
     def __init__(self, config: Union[CommonArgs, Munch]):
         super(DIRvGIN, self).__init__(config)
+        assert False
         self.att_net = CausalAttNet(config.ood.ood_param, config, virtual_node=True)
         config_fe = copy.deepcopy(config)
         config_fe.model.model_layer = config.model.model_layer - 2
-        self.feat_encoder = vGINFeatExtractor(config_fe, without_embed=True)
+        self.feat_encoder = vFeatExtractor(config_fe, without_embed=True)
 
 @register.model_register
-class DIRvGINNB(DIRGIN):
+class DIRvGINNB(DIR):
     r"""
     The GIN virtual node without batchnorm version of DIR.
     """
 
     def __init__(self, config: Union[CommonArgs, Munch]):
         super(DIRvGINNB, self).__init__(config)
+        assert False
         self.att_net = CausalAttNet(config.ood.ood_param, config, virtual_node=True, no_bn=True)
         config_fe = copy.deepcopy(config)
         config_fe.model.model_layer = config.model.model_layer - 2
-        self.feat_encoder = vGINFeatExtractor(config_fe, without_embed=True)
+        self.feat_encoder = vFeatExtractor(config_fe, without_embed=True)
 
 
 class CausalAttNet(nn.Module):
@@ -140,33 +162,46 @@ class CausalAttNet(nn.Module):
 
     def __init__(self, causal_ratio, config, **kwargs):
         super(CausalAttNet, self).__init__()
+
         config_catt = copy.deepcopy(config)
         config_catt.model.model_layer = 2
         config_catt.model.dropout_rate = 0
+
         if kwargs.get('virtual_node'):
-            self.gnn_node = vGINFeatExtractor(config_catt, without_readout=True, **kwargs)
+            assert False, "Virtual node not in use"
+            self.gnn_node = vFeatExtractor(config_catt, without_readout=True, **kwargs)
         else:
-            self.gnn_node = GINFeatExtractor(config_catt, without_readout=True, **kwargs)
-        self.linear = nn.Linear(config_catt.model.dim_hidden * 2, 1)
+            self.gnn_node = FeatExtractor(config_catt, without_readout=True, **kwargs)
+        
+        # self.linear = nn.Linear(config_catt.model.dim_hidden * 2, 1)
+        self.extractor = ExtractorMLP(config)
         self.ratio = causal_ratio
+
+        print("Causal ratio = ", self.ratio)
 
     def forward(self, *args, **kwargs):
         data = kwargs.get('data') or None
 
-        # x are last layer node representations
+        # extract node embeddigns
         x = self.gnn_node(*args, **kwargs)
 
-        row, col = data.edge_index
-        edge_rep = torch.cat([x[row], x[col]], dim=-1)
-        edge_score = self.linear(edge_rep).view(-1)
+        # row, col = data.edge_index
+        # edge_rep = torch.cat([x[row], x[col]], dim=-1)
+        # edge_score = self.linear(edge_rep).view(-1)
+
+        # WARNING this are log_logits
+        edge_score = self.extractor(x, data.edge_index, data.batch).view(-1)
 
         if data.edge_index.shape[1] != 0:
             (causal_edge_index, causal_edge_attr, causal_edge_weight), \
-            (conf_edge_index, conf_edge_attr, conf_edge_weight) = split_graph(data, edge_score, self.ratio)
+                (conf_edge_index, conf_edge_attr, conf_edge_weight) = split_graph(data, edge_score, self.ratio)
 
+
+            # WARNING: Using confounded embeddings?
             causal_x, causal_edge_index, causal_batch, _ = relabel(x, causal_edge_index, data.batch)
             conf_x, conf_edge_index, conf_batch, _ = relabel(x, conf_edge_index, data.batch)
         else:
+            raise ValueError(f"{data.x.shape} {data.edge_index.shape}")
             causal_x, causal_edge_index, causal_edge_attr, causal_edge_weight, causal_batch = \
                 x, data.edge_index, data.edge_attr, \
                 float('inf') * torch.ones(data.edge_index.shape[1], device=data.x.device), \
@@ -176,6 +211,50 @@ class CausalAttNet(nn.Module):
         return (causal_x, causal_edge_index, causal_edge_attr, causal_edge_weight, causal_batch), \
                (conf_x, conf_edge_index, conf_edge_attr, conf_edge_weight, conf_batch), \
                edge_score
+
+class ExtractorMLP(nn.Module):
+
+    def __init__(self, config: Union[CommonArgs, Munch]):
+        super().__init__()
+        hidden_size = config.model.dim_hidden
+        self.learn_edge_att = config.ood.extra_param[0]
+        dropout_p = config.model.dropout_rate
+
+        if self.learn_edge_att:
+            self.feature_extractor = MLP([hidden_size * 2, hidden_size * 4, hidden_size, 1], dropout=dropout_p)
+        else:
+            self.feature_extractor = MLP([hidden_size * 1, hidden_size * 2, hidden_size, 1], dropout=dropout_p)
+
+    def forward(self, emb, edge_index, batch):
+        if self.learn_edge_att:
+            col, row = edge_index
+            f1, f2 = emb[col], emb[row]
+            f12 = torch.cat([f1, f2], dim=-1)
+            att_log_logits = self.feature_extractor(f12, batch[col])
+        else:
+            att_log_logits = self.feature_extractor(emb, batch)
+        return att_log_logits
+
+
+class BatchSequential(nn.Sequential):
+    def forward(self, inputs, batch):
+        for module in self._modules.values():
+            inputs = module(inputs)
+        return inputs
+
+
+class MLP(BatchSequential):
+    def __init__(self, channels, dropout, bias=True):
+        m = []
+        for i in range(1, len(channels)):
+            m.append(nn.Linear(channels[i - 1], channels[i], bias))
+
+            if i < len(channels) - 1:
+                m.append(BatchNorm(channels[i]))
+                m.append(nn.ReLU())
+                m.append(nn.Dropout(dropout))
+
+        super(MLP, self).__init__(*m)
 
 
 def set_masks(mask: Tensor, model: nn.Module):
@@ -201,6 +280,42 @@ def clear_masks(model: nn.Module):
             module.__edge_mask__ = None
             module._edge_mask = None
 
+
+def split_graph_eff(data, edge_score, ratio):
+    has_edge_attr = hasattr(data, 'edge_attr') and getattr(data, 'edge_attr') is not None
+
+    causal_edge_index = torch.LongTensor([[],[]]).to(data.x.device)
+    causal_edge_weight = torch.tensor([]).to(data.x.device)
+    causal_edge_attr = torch.tensor([]).to(data.x.device)
+    conf_edge_index = torch.LongTensor([[],[]]).to(data.x.device)
+    conf_edge_weight = torch.tensor([]).to(data.x.device)
+    conf_edge_attr = torch.tensor([]).to(data.x.device)
+
+    edge_indices, _, _, num_edges, cum_edges = split_batch(data)
+    for edge_index, N, C in zip(edge_indices, num_edges, cum_edges):
+        n_reserve = int(ratio * N)        
+        single_mask = edge_score[C:C+N]
+
+        # Use torch.topk to get the indices of the top n_reserve values
+        idx_reserve = torch.topk(single_mask, n_reserve, largest=True).indices
+        idx_drop = torch.topk(single_mask, N - n_reserve, largest=False).indices
+
+        causal_edge_index = torch.cat([causal_edge_index, edge_index[:, idx_reserve]], dim=1)
+        conf_edge_index = torch.cat([conf_edge_index, edge_index[:, idx_drop]], dim=1)
+
+        causal_edge_weight = torch.cat([causal_edge_weight, single_mask[idx_reserve]])
+        conf_edge_weight = torch.cat([conf_edge_weight, -1 * single_mask[idx_drop]])
+
+        if has_edge_attr:
+            edge_attr = data.edge_attr[C:C+N]
+            causal_edge_attr = torch.cat([causal_edge_attr, edge_attr[idx_reserve]])
+            conf_edge_attr = torch.cat([conf_edge_attr, edge_attr[idx_drop]])
+        else:
+            new_causal_edge_attr = None
+            new_conf_edge_attr = None
+
+    return (causal_edge_index, causal_edge_attr, causal_edge_weight), \
+           (conf_edge_index, conf_edge_attr, conf_edge_weight)
 
 def split_graph(data, edge_score, ratio):
     r"""

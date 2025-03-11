@@ -42,7 +42,8 @@ class DIR(BaseOODAlg):
         if self.stage == 0 and at_stage(1, config):
             reset_random_seed(config)
             self.stage = 1
-        config.train.alpha = config.ood.extra_param[0] * (config.train.epoch ** 1.6)
+        config.train.alpha = config.ood.extra_param[1] * (config.train.epoch ** 1.6)
+        print("config.train.alpha = ", config.train.alpha)
 
     def output_postprocess(self, model_output: Tensor, **kwargs) -> Tensor:
         r"""
@@ -56,14 +57,14 @@ class DIR(BaseOODAlg):
 
         """
         if isinstance(model_output, tuple):
-            self.rep_out, self.causal_out, self.conf_out = model_output
+            (self.rep_out_ori, self.rep_out), self.causal_out, self.conf_out, self.edge_att = model_output
         else:
             self.causal_out = model_output
             self.rep_out, self.conf_out = None, None
         return self.causal_out
 
     def loss_calculate(self, raw_pred: Tensor, targets: Tensor, mask: Tensor, node_norm: Tensor,
-                       config: Union[CommonArgs, Munch]) -> Tensor:
+                       config: Union[CommonArgs, Munch], batch: Tensor = None) -> Tensor:
         r"""
         Calculate loss based on DIR algorithm
 
@@ -86,29 +87,48 @@ class DIR(BaseOODAlg):
 
         """
 
+
         if self.rep_out is not None:
             causal_loss = (config.metric.loss_func(raw_pred, targets, reduction='none') * mask).sum() / mask.sum()
             conf_loss = (config.metric.loss_func(self.conf_out, targets, reduction='none') * mask).sum() / mask.sum()
 
-            env_loss = torch.tensor([]).to(config.device)
-            for rep in self.rep_out:
-                tmp = (config.metric.loss_func(rep, targets, reduction='none') * mask).sum() / mask.sum()
-                env_loss = torch.cat([env_loss, (tmp.sum() / mask.sum()).unsqueeze(0)])
-            causal_loss += config.train.alpha * env_loss.mean()
-            env_loss = config.train.alpha * torch.var(env_loss * self.rep_out.size(0))
+            #  ORIGINAL VERSION
+            # env_loss2 = torch.tensor([]).to(config.device)
+            # for idx, rep in enumerate(self.rep_out_ori):
+            #     tmp = (config.metric.loss_func(rep, targets, reduction='none') * mask).mean()
+            #     env_loss2 = torch.cat([env_loss2, tmp.unsqueeze(0)])
+            # env_loss_mean2 = config.train.alpha * env_loss2.mean()
+            # env_loss_var2 = config.train.alpha * torch.var(env_loss2)            
+            
+            #  EFFICIENT VERSION
+            tmp = config.metric.loss_func(
+                self.rep_out, 
+                targets.expand(targets.shape[0], -1, 1), # targets.unsqueeze(1).expand(-1, self.rep_out.shape[1], -1),  # Repeat targets across batch dim
+                reduction='none'
+            ) * mask.unsqueeze(-1)
+            tmp = tmp.reshape(self.rep_out.shape[0], self.rep_out.shape[0])
+            tmp = tmp.mean(-1)
 
-            loss = causal_loss + env_loss + conf_loss
-            self.mean_loss = causal_loss
-            self.spec_loss = env_loss + conf_loss
+            env_loss_mean = config.train.alpha * tmp.mean()
+            env_loss_var = config.train.alpha * torch.var(tmp)
+
+            # DEBUG EFFICIENT VERSION
+            # assert torch.allclose(env_loss_mean2, env_loss_mean, atol=1e-6), f"{env_loss_mean2} vs {env_loss_mean}"
+            # assert torch.allclose(env_loss_var2, env_loss_var, atol=1e-6), f"{env_loss_var2} vs {env_loss_var}"
+
+            self.clf_loss = causal_loss.detach().item()
+            self.mean_loss = env_loss_mean
+            self.total_loss = causal_loss + env_loss_mean + env_loss_var + conf_loss            
+            self.spec_loss = env_loss_var
         else:
+            raise ValueError("Not Var loss")
             causal_loss = (config.metric.loss_func(raw_pred, targets, reduction='none') * mask).sum() / mask.sum()
-
             loss = causal_loss
             self.mean_loss = causal_loss
 
-        return loss
+        return self.total_loss
 
-    def loss_postprocess(self, loss: Tensor, data: Batch, mask: Tensor, config: Union[CommonArgs, Munch],
+    def loss_postprocess(self, loss: Tensor, data: Batch, mask: Tensor, config: Union[CommonArgs, Munch], epoch:int,
                          **kwargs) -> Tensor:
         r"""
         Process loss based on DIR algorithm

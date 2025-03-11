@@ -1,0 +1,24 @@
+includes:
+  - base.yaml
+model:
+  model_name: DIR
+ood:
+  ood_alg: DIR
+  ood_param: 0.1 # Causal ratio
+  extra_param:
+    - true
+    - 10.0 # alpha param (strenght Invariant loss)
+train:
+  mile_stones:
+    - 150
+log_file: exp_0
+clean_save: true
+use_norm: none
+
+
+
+# ood:
+#   ood_alg: DIR
+#   ood_param: 0.8
+#   extra_param:
+#     - 10.0
