@@ -165,18 +165,9 @@ class Pipeline:
         )
 
         raw_pred = self.ood_algorithm.output_postprocess(model_output)
-
-        warmup = 20 #if self.config.dataset.dataset_name != "MNIST" else 0
-        if self.config.global_side_channel and self.config.dataset.dataset_name != "BAColor" and epoch < warmup:
-            # pre-train the individual channels
-            loss_global = self.ood_algorithm.loss_calculate(self.ood_algorithm.logit_global, targets, mask, node_norm, self.config, batch=data.batch)
-            loss_global = loss_global.mean()
-            loss_gnn    = self.ood_algorithm.loss_calculate(self.ood_algorithm.logit_gnn, targets, mask, node_norm, self.config, batch=data.batch)
-            loss_gnn    = self.ood_algorithm.loss_postprocess(loss_gnn, data, mask, self.config, epoch)
-            loss = loss_gnn + loss_global
-        else:
-            loss = self.ood_algorithm.loss_calculate(raw_pred, targets, mask, node_norm, self.config, batch=data.batch)
-            loss = self.ood_algorithm.loss_postprocess(loss, data, mask, self.config, epoch)
+        
+        loss = self.ood_algorithm.loss_calculate(raw_pred, targets, mask, node_norm, self.config, batch=data.batch)
+        loss = self.ood_algorithm.loss_postprocess(loss, data, mask, self.config, epoch)
 
         # if self.config.dataset.dataset_name == "BAColorGVIsolated":
         #     loss += 0.01 * self.model.classifier.classifier[0].weight.abs().sum()
