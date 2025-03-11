@@ -119,37 +119,6 @@ class BaseOODAlg(ABC):
         loss = config.metric.loss_func(raw_pred, targets, reduction='none') * mask
         loss = loss * node_norm * mask.sum() if config.model.model_level == 'node' else loss
         self.clf_loss = loss.detach().mean().item()
-        
-        # Penalize uncertain values of beta
-        if self.config.global_side_channel in ("simple", "simple_filternode", "dt"):
-            assert False, self.config.global_side_channel
-            p = self.model.beta.sigmoid()
-            self.side_channel_loss = config.train.channel_int * (
-                    - (p * torch.log(p + 1e-10) 
-                    + (1 - p) * torch.log(1 - p + 1e-10))
-                )
-            loss += self.side_channel_loss
-
-            # Penalize filter node feature attn
-            if self.config.global_side_channel in ("simple_filternode", ):
-                attn = self.global_filter_attn
-                eps = 1e-6
-                
-                # Same loss as for edge weights, but is too strong as push everything to zero
-                # attn_entropy_loss = (att * torch.log(att / r + eps) +
-                #                         (1 - att) * torch.log((1 - att) / (1 - r + eps) + eps)).mean()
-
-                # Entropy regularization
-                # r = 0.01
-                # attn_entropy_loss = - (att * torch.log(att + eps) 
-                #                     + (1 - att) * torch.log(1 - att + eps))
-                # loss += config.ood.ood_param * attn_entropy_loss.mean()
-
-                # Entropy regularization over batch
-                attn_norm_per_batch = scatter_softmax(attn.squeeze(1), batch)
-                logattn = torch.log(attn_norm_per_batch + eps)
-                self.entropy_filternode_loss = config.ood.ood_param * scatter_sum(-attn_norm_per_batch * logattn, batch).mean()
-                loss += self.entropy_filternode_loss
         return loss
     
 
