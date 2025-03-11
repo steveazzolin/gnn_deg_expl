@@ -109,8 +109,8 @@ class DIR(BaseOODAlg):
             tmp = tmp.reshape(self.rep_out.shape[0], self.rep_out.shape[0])
             tmp = tmp.mean(-1)
 
-            env_loss_mean = config.train.alpha * tmp.mean()
-            env_loss_var = config.train.alpha * torch.var(tmp)
+            env_loss_mean = tmp.mean()
+            env_loss_var =  torch.var(tmp)
 
             # DEBUG EFFICIENT VERSION
             # assert torch.allclose(env_loss_mean2, env_loss_mean, atol=1e-6), f"{env_loss_mean2} vs {env_loss_mean}"
@@ -118,14 +118,13 @@ class DIR(BaseOODAlg):
 
             self.clf_loss = causal_loss.detach().item()
             self.mean_loss = env_loss_mean
-            self.total_loss = causal_loss + env_loss_mean + env_loss_var + conf_loss            
+            self.total_loss = causal_loss + config.train.alpha * env_loss_mean + config.train.alpha * env_loss_var + conf_loss            
             self.spec_loss = env_loss_var
         else:
             raise ValueError("Not Var loss")
             causal_loss = (config.metric.loss_func(raw_pred, targets, reduction='none') * mask).sum() / mask.sum()
             loss = causal_loss
             self.mean_loss = causal_loss
-
         return self.total_loss
 
     def loss_postprocess(self, loss: Tensor, data: Batch, mask: Tensor, config: Union[CommonArgs, Munch], epoch:int,
