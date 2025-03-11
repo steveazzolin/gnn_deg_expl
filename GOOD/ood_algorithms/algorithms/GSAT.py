@@ -104,6 +104,14 @@ class GSAT(BaseOODAlg):
         # logattn = torch.log(attn_norm_per_batch + eps)
         # info_loss = scatter_sum(-attn_norm_per_batch * logattn, data.batch[data.edge_index[0]]).mean()
 
+        if self.model.entropy_reg:
+          attn = att.squeeze(1)
+          self.entr_loss = self.config.train.entr_coeff * torch.mean(-attn * torch.log(attn + 1e-6) - (1 - attn) * torch.log(1 - attn + 1e-6))  
+          self.spec_loss += self.entr_loss
+
+          if torch.all(torch.isnan(self.entr_loss)):
+            print("ECCO2")
+
         # TESTING L1 sparsification (optionally + Entropy regularization as in GiSST)
         # self.l_norm_loss = self.config.train.l_norm_coeff * att.squeeze(1).abs().mean(-1) # L1
         # # self.l_norm_loss = att.squeeze(1).pow(2).mean(-1) # L2        

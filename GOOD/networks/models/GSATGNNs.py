@@ -25,7 +25,7 @@ from GOOD.utils.train import lift_node_att_to_edge_att
 @register.model_register
 class GSAT(GNNBasic):
 
-    def __init__(self, config: Union[CommonArgs, Munch]):
+    def __init__(self, config: Union[CommonArgs, Munch], entropy_reg: bool=False):
         super(GSAT, self).__init__(config)
         
         config = copy.deepcopy(config)
@@ -49,6 +49,7 @@ class GSAT(GNNBasic):
         self.learn_edge_att = config.ood.extra_param[0]
         self.config = config
         self.edge_mask = None
+        self.entropy_reg = entropy_reg
         print("Using mitigation_expl_scores:", config.mitigation_expl_scores)
         
 
@@ -66,7 +67,7 @@ class GSAT(GNNBasic):
         """
         data = kwargs.get('data')
         
-        emb = self.gnn(*args, without_readout=True, **kwargs)        
+        emb = self.gnn(*args, without_readout=True, **kwargs)    
         att_log_logits = self.extractor(emb, data.edge_index, data.batch)
         att = self.sampling(att_log_logits, self.training, self.config.mitigation_expl_scores)
 
@@ -268,6 +269,24 @@ class GSATvGIN(GSAT):
         else:
             self.gnn_clf = None
 
+@register.model_register
+class GSATEntropy(GSAT):
+    r"""
+    The GSAT model with the additional Entropy regularization
+    """
+
+    def __init__(self, config: Union[CommonArgs, Munch]):
+        super(GSATEntropy, self).__init__(config, entropy_reg = True)
+        print("Using GSAT with entropy regularization")
+
+    def sampling(self, att_log_logits, training, mitigation_expl_scores):
+        att = super().sampling(att_log_logits, training, mitigation_expl_scores)
+        att = torch.clamp(
+            att,
+            min=0.001,
+            max=0.999
+        )
+        return att
 
 class ExtractorMLP(nn.Module):
 
