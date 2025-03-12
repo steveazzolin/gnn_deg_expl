@@ -231,9 +231,9 @@ class Pipeline:
             self.ood_algorithm.stage_control(self.config)
 
             pbar = tqdm(enumerate(self.loader['train']), total=len(self.loader['train']), **pbar_setting)
-            loss_per_batch_dict = defaultdict(list)
             edge_scores = []
-            train_batch_score, clf_batch_loss,  l_norm_batch_loss, entr_batch_loss, spec_batch_loss, mean_batch_loss, total_batch_loss  = [], [], [], [], [], [], []
+            train_batch_score = []
+            loss_per_batch_dict = defaultdict(list)
             for index, data in pbar:
                 if data.batch is not None and (data.batch[-1] < self.config.train.train_bs - 1):
                     continue
@@ -247,26 +247,22 @@ class Pipeline:
 
                 # log stats
                 train_batch_score.append(train_stat["score"])
-                clf_batch_loss.append(train_stat["clf_loss"])
-                l_norm_batch_loss.append(train_stat["l_norm_loss"])
-                entr_batch_loss.append(train_stat["entr_loss"])
-                spec_batch_loss.append(train_stat["spec_loss"])
-                mean_batch_loss.append(train_stat["mean_loss"])
-                total_batch_loss.append(train_stat["total_loss"])
+                for l in ("mean_loss", "spec_loss", "total_loss", "entr_loss", "l_norm_loss", "clf_loss"):
+                    loss_per_batch_dict[l].append(train_stat.get(l, np.nan)) 
 
                 if self.config.model.model_name != "GIN":
-                    edge_scores.append(self.ood_algorithm.edge_att.detach().cpu())
+                    edge_scores.append(self.ood_algorithm.edge_att.detach().cpu())                                  
 
-                if self.config.wandb:                    
-                    for l in ("mean_loss", "spec_loss"):
-                        loss_per_batch_dict[l].append(getattr(self.ood_algorithm, l, np.nan))               
+            
+            for l in ("mean_loss", "spec_loss", "total_loss", "entr_loss", "l_norm_loss", "clf_loss"):
+                loss_per_batch_dict[l] = np.mean(loss_per_batch_dict[l])
 
             # Epoch val
             print('Evaluating...')
-            print(f"Clf loss: {np.mean(clf_batch_loss):.4f}")
-            print(f"Spec loss: {np.mean(spec_batch_loss):.4f}")
-            print(f"Mean loss: {np.mean(mean_batch_loss):.4f}")
-            print(f"Total loss: {np.mean(total_batch_loss):.4f}")
+            print(f"Clf loss: {loss_per_batch_dict['clf_loss']:.4f}")
+            print(f"Spec loss: {loss_per_batch_dict['spec_loss']:.4f}")
+            print(f"Mean loss: {loss_per_batch_dict['mean_loss']:.4f}")
+            print(f"Total loss: {loss_per_batch_dict['total_loss']:.4f}")
 
             epoch_train_stat = self.evaluate(
                 'eval_train',
@@ -294,12 +290,12 @@ class Pipeline:
                 edge_scores = torch.cat(edge_scores, dim=0)
                 log_dict = {
                     "epoch": epoch,
-                    "clf_loss": np.mean(clf_batch_loss),
-                    "mean_loss": self.ood_algorithm.mean_loss,
-                    "spec_loss": self.ood_algorithm.spec_loss,
-                    "total_loss": self.ood_algorithm.total_loss,
-                    "entropy_filternode_loss": getattr(self.ood_algorithm, "entropy_filternode_loss", np.nan),
-                    "side_channel_loss": getattr(self.ood_algorithm, "side_channel_loss", np.nan),
+                    "clf_loss": loss_per_batch_dict["clf_loss"],
+                    "mean_loss": loss_per_batch_dict["mean_loss"],
+                    "spec_loss": loss_per_batch_dict["spec_loss"],
+                    "total_loss": loss_per_batch_dict["total_loss"],
+                    "l_norm_loss": loss_per_batch_dict["l_norm_loss"],
+                    "entr_loss": loss_per_batch_dict["entr_loss"],
                     "all_train_loss": epoch_train_stat["loss"],
                     "all_id_val_loss": id_val_stat["loss"],
                     "train_batch_score": np.mean(train_batch_score),
@@ -310,14 +306,12 @@ class Pipeline:
                     "test_score": test_stat["score"],
                     "edge_weight": wandb.Histogram(sequence=edge_scores, num_bins=100),
                     "wiou": epoch_train_stat["wiou"],
-                    "l_norm_loss": np.mean(l_norm_batch_loss),
-                    "entr_loss": np.mean(entr_batch_loss)
                 }
                 wandb.log(log_dict, step=counter)
                 counter += 1
 
             # checkpoints save
-            self.save_epoch(epoch, epoch_train_stat, id_val_stat, id_test_stat, val_stat, test_stat, self.config)
+            self.save_epoch(epoch, epoch_train_stat, id_val_stat, id_test_stat, val_stat, test_stat, self.config, loss_per_batch_dict)
 
             # --- scheduler step ---
             self.ood_algorithm.scheduler.step()
@@ -1512,7 +1506,10 @@ class Pipeline:
                 print(f'#IN#Loading best In-Domain Checkpoint {id_ckpt["epoch"]} in {self.config.id_test_ckpt}')
                 print(f'#IN#Checkpoint {id_ckpt["epoch"]}: \n-----------------------------------\n'
                       f'Train {self.config.metric.score_name}: {id_ckpt["train_score"]:.4f}\n'
-                      f'Train Loss: {id_ckpt["train_loss"].item():.4f}\n'
+                      f'Train Loss: {id_ckpt.get("train_loss", np.nan):.4f}\n'
+                      f'Spec Loss: {id_ckpt.get("spec_loss", np.nan):.4f}\n'
+                      f'Mean Loss: {id_ckpt.get("mean_loss", np.nan):.4f}\n'
+                      f'Total Loss: {id_ckpt.get("total_loss", np.nan):.4f}\n'
                       f'ID Validation {self.config.metric.score_name}: {id_ckpt["id_val_score"]:.4f}\n'
                       f'ID Validation Loss: {id_ckpt["id_val_loss"].item():.4f}\n'
                       f'ID Test {self.config.metric.score_name}: {id_ckpt["id_test_score"]:.4f}\n'
@@ -1669,7 +1666,7 @@ class Pipeline:
     #         print('#IM#Saved a new best OOD checkpoint based on validation loss.')
 
     def save_epoch(self, epoch: int, train_stat: dir, id_val_stat: dir, id_test_stat: dir, val_stat: dir,
-                   test_stat: dir, config: Union[CommonArgs, Munch]):
+                   test_stat: dir, config: Union[CommonArgs, Munch], loss_per_batch_dict: dict):
         r"""
         Training util for checkpoint saving.
 
@@ -1723,6 +1720,8 @@ class Pipeline:
             'epoch': epoch,
             'max epoch': config.train.max_epoch
         }
+        ckpt.update(loss_per_batch_dict)
+
         if epoch < config.train.pre_train:
             return
 
