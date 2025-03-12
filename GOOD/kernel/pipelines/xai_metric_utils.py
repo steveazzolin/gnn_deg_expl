@@ -10,6 +10,7 @@ from torch_geometric.utils import remove_isolated_nodes, dropout_edge, to_networ
 from torch_scatter import scatter_sum, scatter_add
 
 from GOOD.utils.splitting import split_graph
+from GOOD.definitions import ROOT_DIR
 
 edge_colors = {
     "inv": "green",
@@ -302,7 +303,7 @@ def draw_colored(config, G, name, thrs, node_expl="", edge_expl="", subfolder=""
     plt.suptitle(title)
 
     if save:
-        path = f'GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}_{config.random_seed}/'
+        path = f'{ROOT_DIR}/GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}_{config.random_seed}/'
         if not os.path.exists(path):
             try:
                 os.makedirs(path)

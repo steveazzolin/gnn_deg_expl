@@ -11,6 +11,7 @@ from GOOD.utils.logger import load_logger
 from GOOD.utils.metric import assign_dict
 from GOOD.utils.loader import initialize_model_dataset
 import GOOD.kernel.pipelines.xai_metric_utils as xai_utils
+from GOOD.definitions import ROOT_DIR
 
 import numpy as np
 import torch
@@ -318,7 +319,6 @@ def permute_attention_scores(args):
             print(f"({load_split}) {split} {loader[split].dataset.metric} orig.: \t{np.mean(results[load_split][split]['ori']):.3f} +- {np.std(results[load_split][split]['ori']):.3f}")
             print(f"({load_split}) {split} {loader[split].dataset.metric} perm.: \t{np.mean(results[load_split][split]['perm']):.3f} +- {np.std(results[load_split][split]['perm']):.3f}")
 
-
 def generate_panel(args):
     load_splits = ["id"]
     for l, load_split in enumerate(load_splits):
@@ -346,7 +346,6 @@ def generate_panel(args):
             edge_scores = pipeline.generate_panel()
             edge_scores_seed.append(edge_scores)
         pipeline.generate_panel_all_seeds(edge_scores_seed)
-
 
 def generate_plot_sampling(args):
     load_splits = ["id"]
@@ -774,7 +773,7 @@ def print_r_ge_b_hist(args):
         edge_scores_seed = []
         for i, seed in enumerate(args.seeds.split("/")):
             print(f"GENERATING PLOT FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
-            seed = int(seed)        
+            seed = int(seed)
             args.random_seed = seed
             args.exp_round = seed
             
@@ -881,7 +880,7 @@ def print_r_ge_b_hist(args):
             fig.suptitle(f'{config.model.model_name} seed {seed}', fontsize=13)
             plt.tight_layout(rect=[0, 0.03, 1, 0.95])
             
-            path = f'GOOD/kernel/pipelines/plots/panels/{config.ood_dirname}/'
+            path = f'{ROOT_DIR}/GOOD/kernel/pipelines/plots/panels/{config.ood_dirname}/'
             if not os.path.exists(path):
                 os.makedirs(path)
             path += f"{config.load_split}_{config.dataset.dataset_name}_{config.dataset.domain}_{config.util_model_dirname}_{config.random_seed}"
