@@ -84,6 +84,7 @@ class DIR(GNNBasic):
         )
         causal_out = self.get_causal_pred(causal_rep)
         clear_masks(self)
+
         self.edge_mask = causal_edge_weight
 
         if self.training:
@@ -144,8 +145,8 @@ class DIR(GNNBasic):
         data.ori_x = data.x
 
         (causal_x, causal_edge_index, causal_edge_attr, causal_node_weight, causal_edge_weight, causal_batch), \
-        (conf_x, conf_edge_index, conf_edge_attr, conf_node_weight, conf_edge_weight, conf_batch), \
-            (node_att) = self.att_net.get_full_graph_explanation(*args, **kwargs)
+            (conf_x, conf_edge_index, conf_edge_attr, conf_node_weight, conf_edge_weight, conf_batch), \
+                (node_att) = self.att_net.get_full_graph_explanation(*args, **kwargs)
 
         set_masks(causal_edge_weight, self, causal_node_weight)
 
@@ -198,8 +199,6 @@ class CausalAttNet(nn.Module):
         super(CausalAttNet, self).__init__()
 
         config_catt = copy.deepcopy(config)
-        config_catt.model.model_layer = 2
-        config_catt.model.dropout_rate = 0
 
         if kwargs.get('virtual_node'):
             assert False, "Virtual node not in use"
