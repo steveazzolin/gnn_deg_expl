@@ -49,7 +49,9 @@ def load_dataset(name: str, config: Union[CommonArgs, Munch]) -> dir:
                                                           domain=config.dataset.domain,
                                                           shift=config.dataset.shift_type,
                                                           generate=config.dataset.generate,
-                                                          debias=config.debias)
+                                                          debias=config.debias,
+                                                          model_name=config.model.model_name
+                                                        )
     except KeyError as e:
         print('Dataset not found.')
         raise e
@@ -57,8 +59,6 @@ def load_dataset(name: str, config: Union[CommonArgs, Munch]) -> dir:
 
     config.metric.set_score_func(dataset['metric'] if type(dataset) is dict else getattr(dataset, 'metric'))
     config.metric.set_loss_func(dataset['task'] if type(dataset) is dict else getattr(dataset, 'task'))
-
-
     return dataset
 
 
