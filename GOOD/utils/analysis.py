@@ -933,7 +933,11 @@ def plot_explanations(args):
 
                 data = ret[split]["samples"][i]
                 expl = ret[split]["scores"][i]
-                pred = ret[split]["pred"][i].sigmoid().item()
+                
+                if config.metric.dataset_task == 'Multi-label classification':
+                    pred = ret[split]["pred"][i].softmax(dim=0)[1].item()
+                else:
+                    pred = ret[split]["pred"][i].sigmoid().item()
 
                 g = to_networkx(data, node_attrs=["x"], to_undirected=True)
                 xai_utils.draw_colored(
