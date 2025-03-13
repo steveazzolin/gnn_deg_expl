@@ -98,14 +98,17 @@ class DIR(BaseOODAlg):
             #     tmp = (config.metric.loss_func(rep, targets, reduction='none') * mask).mean()
             #     env_loss2 = torch.cat([env_loss2, tmp.unsqueeze(0)])
             # env_loss_mean2 = config.train.alpha * env_loss2.mean()
-            # env_loss_var2 = config.train.alpha * torch.var(env_loss2)            
+            # env_loss_var2 = config.train.alpha * torch.var(env_loss2)    
             
             #  EFFICIENT VERSION
+            # targets = targets.unsqueeze(1)   
             tmp = config.metric.loss_func(
-                self.rep_out, 
-                targets.expand(targets.shape[0], -1, 1), # targets.unsqueeze(1).expand(-1, self.rep_out.shape[1], -1),  # Repeat targets across batch dim
+                # self.rep_out.reshape(self.rep_out.shape[0] * self.rep_out.shape[0], self.rep_out.shape[-1]), 
+                self.rep_out.reshape(self.rep_out.shape[0] * self.rep_out.shape[0], self.rep_out.shape[-1]),
+                # targets.expand(targets.shape[0], -1, 1).reshape(self.rep_out.shape[0] * self.rep_out.shape[0]), # targets.unsqueeze(1).expand(-1, self.rep_out.shape[1], -1),  # Repeat targets across batch dim
+                targets.repeat(targets.shape[0]),
                 reduction='none'
-            ) * mask.unsqueeze(-1)
+            ) * mask.repeat(targets.shape[0])
             tmp = tmp.reshape(self.rep_out.shape[0], self.rep_out.shape[0])
             tmp = tmp.mean(-1)
 

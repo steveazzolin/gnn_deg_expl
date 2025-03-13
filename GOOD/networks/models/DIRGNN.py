@@ -49,11 +49,16 @@ class DIR(GNNBasic):
             self.gnn_clf = FeatExtractor(config, **fe_kwargs)
             print(f"Using mitigation_sampling==raw with {config.model.gnn_clf_layer} gnn_clf_layers")
         else:
-            assert False
+            config.model.model_layer = config.model.model_layer - 2
+            self.gnn_clf = FeatExtractor(config, without_embed=True)
+
+        output_dim = 2
+        if config.dataset.num_classes > 2:
+            output_dim = config.dataset.num_classes
 
         self.learn_edge_att = config.ood.extra_param[0]
-        self.classifierS = Classifier(config)
-        self.conf_classifierS = Classifier(config)
+        self.classifierS = Classifier(config, output_dim=output_dim)
+        self.conf_classifierS = Classifier(config, output_dim=output_dim)
         self.edge_mask = None
 
     def forward(self, *args, **kwargs):
@@ -70,6 +75,12 @@ class DIR(GNNBasic):
         """
         data = kwargs.get('data')
         batch_size = data.batch[-1].item() + 1
+
+        # print()
+        # print(data.x[data.batch==0].sum(0), data.y[0])
+        # print(data.x[data.batch==1].sum(0), data.y[1])
+        # print(self.classifierS.classifier[0].weight)
+        # print(self.conf_classifierS.classifier[0].weight)
 
         (causal_x, causal_edge_index, causal_edge_attr, causal_node_weight, causal_edge_weight, causal_batch), \
         (conf_x, conf_edge_index, conf_edge_attr, conf_node_weight, conf_edge_weight, conf_batch), \
@@ -89,7 +100,10 @@ class DIR(GNNBasic):
 
         if self.training:
             # --- Conf repr ---
-            set_masks(conf_edge_weight, self, conf_node_weight)
+            # Not using weighted message passing for the confounded part because
+            # if the scores have an importance around zero then the conf_classifier
+            # might not predict the conf label correctly.
+            # set_masks(conf_edge_weight, self, conf_node_weight)
 
             conf_rep = self.get_graph_rep(
                 data=Data(x=conf_x, edge_index=conf_edge_index,
@@ -98,7 +112,7 @@ class DIR(GNNBasic):
             ).detach()
             conf_out = self.get_conf_pred(conf_rep)
 
-            clear_masks(self)
+            # clear_masks(self)
 
             # --- combine to causal phase (detach the conf phase) ---
             rep_out = None
@@ -116,6 +130,28 @@ class DIR(GNNBasic):
                 1
             ) # rep_out2[i] contains a tensor with every causal_rep keeping fixed conf_rep[i]
             
+            # print()
+            # print("causal_x:", causal_x[causal_batch==0].sum(0), causal_x[causal_batch==1].sum(0))
+            # print("conf_x:", conf_x[conf_batch==0].sum(0), conf_x[conf_batch==1].sum(0))
+            # print()
+            # print("causal_out:", causal_out, causal_out.sigmoid())
+            # print("conf_out:", conf_out, conf_out.sigmoid())
+            # print("rep_out2:", rep_out2, rep_out2.sigmoid())
+
+
+            # targets = data.y 
+            # tmp = self.config.metric.loss_func(
+            #     rep_out2.reshape(rep_out2.shape[0] * rep_out2.shape[0], 2), 
+            #     targets.expand(targets.shape[0], -1, 2).reshape(rep_out2.shape[0] * rep_out2.shape[0], 2),
+            #     reduction='none'
+            # )            
+            # print()
+            # tmp = tmp.reshape(rep_out2.shape[0], rep_out2.shape[0])
+            # tmp = tmp.mean(-1)
+            # print("mean_loss:", tmp.mean())
+            # exit("deb")
+
+
             return (rep_out, rep_out2), causal_out, conf_out, node_att
         else:
             return causal_out
@@ -139,6 +175,41 @@ class DIR(GNNBasic):
         conf_pred = self.conf_classifierS(conf_graph_x).detach()
         return torch.sigmoid(conf_pred).unsqueeze(0) * causal_pred.unsqueeze(1)
     
+    @torch.no_grad()
+    def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False, *args, **kwargs):
+        # if self.gnn_clf:
+        #     lc_logits = self.classifierS(self.gnn_clf(*args, **kwargs))
+        # else:
+        #     lc_logits = self.classifierS(self.gnn(*args, **kwargs))
+
+        set_masks(edge_att, self, node_att)
+        causal_rep = self.get_graph_rep(
+            *args, **kwargs
+        )
+        lc_logits = self.get_causal_pred(causal_rep)
+        clear_masks(self)
+
+        if log is None:
+            if lc_logits.shape[-1] > 1:
+                return lc_logits.argmax(-1)
+            else:
+                return lc_logits.sigmoid()
+        else:
+            assert not (eval_kl is None)
+            if lc_logits.shape[-1] > 1:
+                return lc_logits.log_softmax(dim=1)
+            else:
+                if eval_kl: # make the single logit a proper distribution summing to 1 to compute KL
+                    lc_logits = lc_logits.sigmoid()
+                    new_logits = torch.zeros((lc_logits.shape[0], lc_logits.shape[1]+1), device=lc_logits.device)
+                    new_logits[:, 1] = new_logits[:, 1] + lc_logits.squeeze(1)
+                    new_logits[:, 0] = 1 - new_logits[:, 1]
+                    new_logits[new_logits == 0.] = 1e-10
+                    return new_logits.log()
+                else:
+                    return lc_logits.sigmoid().log()
+    
+    @torch.no_grad()
     def get_subgraph(self, *args, **kwargs):
         data = kwargs.get('data') or None
         batch_size = data.batch[-1].item() + 1
@@ -209,6 +280,7 @@ class CausalAttNet(nn.Module):
         self.learn_edge_att = config.ood.extra_param[0]
         self.extractor = ExtractorMLP(config)
         self.ratio = causal_ratio
+        self.config = config
 
         print("Causal ratio = ", self.ratio)
 
@@ -243,6 +315,9 @@ class CausalAttNet(nn.Module):
                 # Using confounded embeddings
                 causal_x, causal_edge_index, causal_batch, _ = relabel(x, causal_edge_index, data.batch)
                 conf_x, conf_edge_index, conf_batch, _ = relabel(x, conf_edge_index, data.batch)
+
+                conf_node_weight = None
+                causal_node_weight = None
             else:
                 # NOT Using confounded embeddings for causal_x and conf_x
                 (causal_x, causal_edge_index, causal_edge_attr, causal_batch, causal_node_weight), \
@@ -308,7 +383,7 @@ class CausalAttNet(nn.Module):
         else:
             raise ValueError(f"{data.x.shape} {data.edge_index.shape}")
         
-        att[idx_remove] = 0.0
+        att[idx_remove] = -1.0 #att[idx_remove]
 
         return (causal_x, causal_edge_index, causal_edge_attr, causal_node_weight, causal_edge_weight, causal_batch), \
                (conf_x, conf_edge_index, conf_edge_attr, conf_node_weight, conf_edge_weight, conf_batch), \
@@ -372,7 +447,7 @@ def split_graph_node(data, node_score, ratio, embed, use_input_feat):
     conf_batch = data.batch[new_idx_drop]
 
     causal_node_weight = node_score[new_idx_reserve]
-    conf_node_weight = -node_score[new_idx_drop]
+    conf_node_weight = node_score[new_idx_drop]
 
     # S1 = Data(x=data.x[new_idx_reserve], edge_index=new_causal_edge_index, ori_node_idx=new_idx_reserve)
     # S2 = Data(x=data.x[new_idx_drop],    edge_index=new_conf_edge_index, ori_node_idx=new_idx_drop)
@@ -439,19 +514,22 @@ def split_batch(g):
     return edge_indices, num_nodes, cum_nodes, num_edges, cum_edges
 
 
-def relabel(ori_num_nodes, edge_index, batch, pos=None):
+def relabel(x, edge_index, batch, pos=None):
     r"""
     Adopted from https://github.com/wuyxin/dir-gnn.
     """
+    num_nodes = x.size(0)
     sub_nodes = torch.unique(edge_index)
+    x = x[sub_nodes]
+    batch = batch[sub_nodes]
     row, col = edge_index
     # remapping the nodes in the explanatory subgraph to new ids.
-    node_idx = row.new_full((ori_num_nodes,), -1)
+    node_idx = row.new_full((num_nodes,), -1)
     node_idx[sub_nodes] = torch.arange(sub_nodes.size(0), device=row.device)
     edge_index = node_idx[edge_index]
     if pos is not None:
         pos = pos[sub_nodes]
-    return edge_index, batch, pos
+    return x, edge_index, batch, pos
 
 
 def sparse_sort(src: torch.Tensor, index: torch.Tensor, dim=0, descending=False, eps=1e-12):
