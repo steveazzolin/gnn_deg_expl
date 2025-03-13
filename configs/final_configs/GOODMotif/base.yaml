@@ -3,10 +3,12 @@ includes:
 model:
   model_layer: 3
   global_pool: mean
+  backbone: GIN
+  gnn_clf_layer: 3
 train:
   mile_stones:
     - 150
-  train_bs: 64
+  train_bs: 32
   val_bs: 512
   test_bs: 512
   num_steps: 10
@@ -14,3 +16,6 @@ train:
   lr_filternode: 0.005
   weight_decay: 0.0
   channel_weight_decay: 0.0
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted
