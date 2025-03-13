@@ -17,7 +17,7 @@ class Classifier(torch.nn.Module):
         Args:
             config (Union[CommonArgs, Munch]): munchified dictionary of args (:obj:`config.model.dim_hidden`, :obj:`config.dataset.num_classes`)
     """
-    def __init__(self, config: Union[CommonArgs, Munch], output_dim:int=None):
+    def __init__(self, config: Union[CommonArgs, Munch], output_dim:int=None, is_linear:bool=True):
 
         super(Classifier, self).__init__()
         
@@ -27,15 +27,27 @@ class Classifier(torch.nn.Module):
         else:
             hidden_dim = config.model.dim_hidden
 
-        self.classifier = nn.Sequential(*(
-            [
-                nn.Linear(
-                    hidden_dim,
-                    config.dataset.num_classes if output_dim is None else output_dim,
-                    bias=False
-                )
-            ]
-        ))
+        if is_linear:
+            self.classifier = nn.Sequential(*(
+                [
+                    nn.Linear(
+                        hidden_dim,
+                        config.dataset.num_classes if output_dim is None else output_dim,
+                        bias=False
+                    )
+                ]
+            ))
+        else:
+            print("Using non linear ClassifierS")
+            self.classifier = nn.Sequential(*(
+                [
+                    nn.Linear(hidden_dim, config.model.dim_hidden, bias=False),
+                    torch.nn.LeakyReLU(),
+                    nn.Linear(hidden_dim, config.model.dim_hidden, bias=False),
+                    torch.nn.LeakyReLU(),
+                    nn.Linear(hidden_dim, config.dataset.num_classes if output_dim is None else output_dim, bias=False)
+                ]
+            ))
 
     def forward(self, feat: Tensor) -> Tensor:
         r"""
