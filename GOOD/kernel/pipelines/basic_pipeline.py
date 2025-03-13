@@ -266,9 +266,7 @@ class Pipeline:
 
             epoch_train_stat = self.evaluate(
                 'eval_train',
-                compute_wiou=(self.config.dataset.dataset_name == "TopoFeature" or self.config.dataset.dataset_name == "SimpleMotif" or self.config.dataset.dataset_name == "GOODMotif") 
-                                and 
-                             self.config.model.model_name != "GIN"
+                compute_wiou=False
             )
             id_val_stat = self.evaluate('id_val')
             id_test_stat = self.evaluate('id_test')
@@ -1372,8 +1370,14 @@ class Pipeline:
         wious_all = []
         pbar = tqdm(self.loader[split], desc=f'Eval {split.capitalize()}', total=len(self.loader[split]),
                     **pbar_setting)
+        c = 0
         for data in pbar:
             data: Batch = data.to(self.config.device)
+
+            # c += 1
+            # if c < 2:
+            #     continue
+            
 
             mask, targets = nan2zero_get_mask(data, split, self.config)
             if mask is None:
