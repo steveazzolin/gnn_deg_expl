@@ -66,9 +66,8 @@ def main():
         exit(0)
 
     run = None
-    test_scores, test_losses = defaultdict(list), defaultdict(list)
+    test_scores, test_losses, ckpt_losses = defaultdict(list), defaultdict(list), defaultdict(list)
     test_likelihoods_avg, test_likelihoods_prod, test_likelihoods_logprod, test_wious = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
-    channel_relevances, global_coeffs, global_weights = [], [], []
     for i, seed in enumerate(args.seeds.split("/")):
         seed = int(seed)
         print(f"\n\n#D#Running with seed = {seed}")
@@ -105,7 +104,7 @@ def main():
 
             # Eval model
             pipeline.task = 'test'
-            test_score, test_loss = pipeline.load_task(load_param=True, load_split="id")
+            test_score, _ = pipeline.load_task(load_param=True, load_split="id")
             test_scores["saved_score"].append(test_score)
             for s in ["id_val", "id_test", "val", "test"]:
                 sa = pipeline.evaluate(s, compute_suff=False)
@@ -113,7 +112,7 @@ def main():
             
             
         elif config.task == 'test':
-            test_score, test_loss = pipeline.load_task(load_param=True, load_split="id")
+            test_score, ckpt = pipeline.load_task(load_param=True, load_split="id")
 
             for s in ["train", "id_val", "id_test", "val", "test"]:
                 sa = pipeline.evaluate(
@@ -132,8 +131,10 @@ def main():
                 if s == "val":
                     print("Predictions on VAL: \t", sa['pred'][0])
                     print("CLF Predictions VAL: \t", sa['pred_clf_only'][0])
-            
-                
+
+            for loss_name in ckpt.keys():
+                if loss_name in ("mean_loss", "spec_loss", "total_loss", "entr_loss", "l_norm_loss", "clf_loss"):
+                    ckpt_losses[loss_name].append(ckpt[loss_name])
     
     if config.save_metrics:
         with open(f"storage/metric_results/acc_plaus.json", "r") as jsonFile:
@@ -146,12 +147,19 @@ def main():
     if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated") and config.model.gnn_clf_layer == 0:
         print(f"\n\nClassifier weights:")
         print(model.classifierS.classifier[0].weight.detach())
+        if "DIR" in config.model.model_name:
+            print(f"\n\nConfounded Classifier weights:")
+            print(model.conf_classifierS.classifier[0].weight.detach())
 
 
 
     print("\n\nFinal losses: ")
     for s in test_losses.keys():
         print(f"{s.upper():<10} = {np.mean(test_losses[s]):.4f} +- {np.std(test_losses[s]):.4f}")
+
+    print("\n\nCkpt losses for TRAIN: ")
+    for s in ckpt_losses.keys():
+        print(f"{s:<12} = {np.mean(ckpt_losses[s]):.4f} +- {np.std(ckpt_losses[s]):.4f}")
             
     for s in [""]: #"ood_"
         print(f"Diff id_val-test {s} = {abs(np.mean(test_losses[s + 'id_val']) - np.mean(test_losses[s + 'test'])):.4f} ")

@@ -239,8 +239,8 @@ class Pipeline:
                     continue
 
                 # Parameter for DANN
-                p = (index / len(self.loader['train']) + epoch) / self.config.train.max_epoch
-                self.config.train.alpha = 2. / (1. + np.exp(-10 * p)) - 1
+                # p = (index / len(self.loader['train']) + epoch) / self.config.train.max_epoch
+                # self.config.train.alpha = 2. / (1. + np.exp(-10 * p)) - 1
 
                 # train a batch
                 train_stat = self.train_batch(data, pbar, epoch)
@@ -1442,7 +1442,6 @@ class Pipeline:
             (f'{split.capitalize()} WIoU: {stat["wiou"]:.3f} \t' if compute_wiou else '')
         )
 
-
         if was_training:
             self.model.train()
 
@@ -1467,8 +1466,8 @@ class Pipeline:
         elif self.task == 'test':
             # config model
             print('#D#Config model and output the best checkpoint info...')
-            test_score, test_loss = self.config_model('test', load_param=load_param, load_split=load_split)
-            return test_score, test_loss
+            test_score, ckpt = self.config_model('test', load_param=load_param, load_split=load_split)
+            return test_score, ckpt
 
     def config_model(self, mode: str, load_param=False, load_split="ood"):
         r"""
@@ -1558,7 +1557,7 @@ class Pipeline:
                         raise ValueError(f"{load_split} not supported")
                 else:
                     self.model.gnn.load_state_dict(ckpt['state_dict'])
-            return ckpt["test_score"], ckpt["test_loss"]
+            return ckpt["test_score"], id_ckpt
 
     # @torch.no_grad()
     # def save_epoch(self, epoch: int, train_stat: dir, id_val_stat: dir, id_test_stat: dir, val_stat: dir,
