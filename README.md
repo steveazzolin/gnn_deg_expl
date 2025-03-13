@@ -22,9 +22,9 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --see
 
 
  # BAColorGVIsolated (DIR - ACR k=0.1)
- goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --ood_param 0.1
+ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.1
  # BAColorGVIsolated (DIR - ACR k=0.5)
- goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --ood_param 0.5
+ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.5
  # BAColorGVIsolated (DIR - ACR k=0.1 w 1-layer CLF)
  # BAColorGVIsolated (DIR - ACR k=0.5 w 1-layer CLF)
 
