@@ -801,6 +801,11 @@ def print_r_ge_b_hist(args):
             count_of_relevant_colors = {l: defaultdict(list) for l in np.unique(list_of_labels)}
             list_of_scores = {l: [] for l in np.unique(list_of_labels)}
 
+            if "DIR" in config.model.model_name:
+                importance_threshold = 0.05
+            else:
+                importance_threshold = 0.5
+
             for i, label in enumerate(np.unique(list_of_labels)):
                 for j in range(len(ret["id_val"]["samples"])):
                     if ret["id_val"]["samples"][j].y.item() == label:
@@ -816,7 +821,7 @@ def print_r_ge_b_hist(args):
                         )
 
                         important_colors_count = np.unique(
-                            np.array(node_colors)[np.array(ret["id_val"]["scores"][j]) >= 0.5],
+                            np.array(node_colors)[np.array(ret["id_val"]["scores"][j]) >= importance_threshold],
                             return_counts=True
                         )
 
@@ -856,7 +861,10 @@ def print_r_ge_b_hist(args):
                         bins=100,
                         label=color
                     )
-                    axs[i,c].set_xlim(-0.1, 1.1)
+                    if "DIR" in config.model.model_name:
+                        axs[i,c].set_xlim(-1.1, 1.1)
+                    else:
+                        axs[i,c].set_xlim(-0.1, 1.1)
                     axs[i,c].set_ylim(0.0, 100)
                     axs[i,c].set_title(f"color {color}")
                     if c == 0:
