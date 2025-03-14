@@ -57,8 +57,8 @@ class DIR(GNNBasic):
             output_dim = config.dataset.num_classes
 
         self.learn_edge_att = config.ood.extra_param[0]
-        self.classifierS = Classifier(config, output_dim=output_dim)
-        self.conf_classifierS = Classifier(config, output_dim=output_dim)
+        self.classifierS = Classifier(config, output_dim=output_dim, is_linear=config.model.gnn_clf_layer==0)
+        self.conf_classifierS = Classifier(config, output_dim=output_dim, is_linear=config.model.gnn_clf_layer==0)
         self.edge_mask = None
 
     def forward(self, *args, **kwargs):
