@@ -1851,9 +1851,6 @@ class Pipeline:
             print('#IM#Saved a new best In-Domain checkpoint.')
 
         # --- Out-Of-Domain checkpoint ---
-        # if id_val_stat.get('score'):
-        #     if not (config.metric.lower_better * id_val_stat['score'] < config.metric.lower_better * val_stat['score']):
-        #         return
         if config.metric.best_stat[reference_metric] is None or lower_better * val_stat[
             reference_metric] < lower_better * \
                 config.metric.best_stat[reference_metric]:
