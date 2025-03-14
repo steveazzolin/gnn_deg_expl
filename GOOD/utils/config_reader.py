@@ -221,8 +221,8 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
         if config.mitigation_expl_scores.lower() == "topk":
             assert config.mitigation_expl_scores_topk >= 0
             model_dirname += f'{args.mitigation_expl_scores_topk}'
-    if config.global_side_channel:
-        model_dirname += f"gchannel{config.global_side_channel}"
+    if config.train.pretrain_degenerate:
+        model_dirname += f"_pretdeg"
 
     print("model_dirname=", model_dirname)
     

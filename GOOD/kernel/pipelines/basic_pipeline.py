@@ -135,6 +135,90 @@ class Pipeline:
         self.ood_algorithm: BaseOODAlg = ood_algorithm
         self.config: Union[CommonArgs, Munch] = config
 
+    def pretrain_batch_degenerate(self, loader: DataLoader, config: Union[CommonArgs, Munch]) -> dict:
+        for epoch in range(0, 10):
+            self.config.train.epoch = epoch
+            print(f'\nEpoch {epoch}:')
+
+            per_batch_metrics = defaultdict(list)
+            pbar = tqdm(enumerate(loader), total=len(loader), **pbar_setting)
+            for index, data in pbar:
+                
+                # train a batch
+                self.ood_algorithm.optimizer.zero_grad()
+                data = data.to(self.config.device)
+
+                mask, targets = nan2zero_get_mask(data, 'train', self.config)
+                node_norm = data.get('node_norm') if self.config.model.model_level == 'node' else None
+                data, _, mask, _ = self.ood_algorithm.input_preprocess(
+                    data,
+                    targets,
+                    mask,
+                    node_norm,
+                    self.model.training,
+                    self.config
+                )
+
+                model_output = self.model(
+                    data=data,
+                    edge_weight=None,
+                    ood_algorithm=self.ood_algorithm,
+                    max_num_epoch=self.config.train.max_epoch,
+                    curr_epoch=epoch
+                )
+
+                _ = self.ood_algorithm.output_postprocess(model_output)
+                node_att = self.ood_algorithm.edge_att
+
+                targets = torch.zeros_like(data.node_is_spurious, dtype=torch.float, device=data.x.device)
+                graph_label_per_node = data.y[data.batch] # contains for each node the label of the graph it belong to
+                blue_nodes_for_negative = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 0).float()
+                red_nodes_for_positive = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 1).float()
+                targets += blue_nodes_for_negative + red_nodes_for_positive
+                
+                loss = F.binary_cross_entropy(node_att.squeeze(1), targets)
+                self.ood_algorithm.backward(loss)
+                
+                f1_pos = f1_score(
+                    targets.cpu().numpy(),
+                    (node_att.squeeze(1) > 0.8).cpu().numpy(),
+                    average='binary',
+                    pos_label=1
+                )
+                f1_neg = f1_score(
+                    targets.cpu().numpy(),
+                    (node_att.squeeze(1) > 0.8).cpu().numpy(),
+                    average='binary',
+                    pos_label=0
+                )
+                per_batch_metrics["loss"].append(loss.item())
+                per_batch_metrics["f1_pos"].append(f1_pos)
+                per_batch_metrics["f1_neg"].append(f1_neg)
+            
+            print(f"Degenerate Loss: {np.mean(per_batch_metrics['loss'])} F1_pos: {np.mean(per_batch_metrics['f1_pos'])} F1_neg: {np.mean(per_batch_metrics['f1_neg'])}")
+
+            # --- scheduler step ---
+            self.ood_algorithm.scheduler.step()
+
+        epoch_train_stat = self.evaluate(
+            'eval_train',
+            compute_wiou=False
+        )
+        id_val_stat = self.evaluate('id_val')
+        id_test_stat = self.evaluate('id_test')
+        val_stat = id_val_stat
+        test_stat = id_test_stat
+        loss_per_batch_dict = {}
+        self.save_epoch(
+            epoch,
+            epoch_train_stat, id_val_stat, id_test_stat, val_stat, test_stat,
+            self.config,
+            loss_per_batch_dict,
+            manual_save="pretrain_degenerate"
+        )
+
+        return None
+
     def train_batch(self, data: Batch, pbar, epoch:int) -> dict:
         r"""
         Train a batch. (Project use only)
@@ -222,6 +306,11 @@ class Pipeline:
                 step=0
             )
 
+        if self.config.train.pretrain_degenerate:
+            print("#IM#Pretraining model for degenerate explanations")
+            self.pretrain_batch_degenerate(self.loader['train'], self.config)
+            print("#IM#End of pretraining")
+
         # train the model
         counter = 1
         for epoch in range(self.config.train.ctn_epoch, self.config.train.max_epoch):
@@ -252,7 +341,6 @@ class Pipeline:
 
                 if self.config.model.model_name != "GIN":
                     edge_scores.append(self.ood_algorithm.edge_att.detach().cpu())                                  
-
             
             for l in ("mean_loss", "spec_loss", "total_loss", "entr_loss", "l_norm_loss", "clf_loss"):
                 loss_per_batch_dict[l] = np.mean(loss_per_batch_dict[l])
@@ -1669,7 +1757,7 @@ class Pipeline:
     #         print('#IM#Saved a new best OOD checkpoint based on validation loss.')
 
     def save_epoch(self, epoch: int, train_stat: dir, id_val_stat: dir, id_test_stat: dir, val_stat: dir,
-                   test_stat: dir, config: Union[CommonArgs, Munch], loss_per_batch_dict: dict):
+                   test_stat: dir, config: Union[CommonArgs, Munch], loss_per_batch_dict: dict, manual_save:str=None):
         r"""
         Training util for checkpoint saving.
 
@@ -1750,6 +1838,9 @@ class Pipeline:
         torch.save(ckpt, saved_file)
         shutil.copy(saved_file, os.path.join(config.ckpt_dir, f'last.ckpt'))
 
+        if manual_save is not None:
+            shutil.copy(saved_file, os.path.join(config.ckpt_dir, f'{manual_save}.ckpt'))
+
         # --- In-Domain checkpoint ---
         if id_val_stat.get(reference_metric) and (
                 config.metric.id_best_stat[reference_metric] is None or lower_better * id_val_stat[
@@ -1770,6 +1861,7 @@ class Pipeline:
             config.metric.best_stat['loss'] = val_stat['loss']
             shutil.copy(saved_file, os.path.join(config.ckpt_dir, f'best.ckpt'))
             print('#IM#Saved a new best checkpoint.')
+        
         if config.clean_save:
             os.unlink(saved_file)
 

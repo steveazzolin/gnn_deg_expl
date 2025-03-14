@@ -9,6 +9,7 @@ model:
   dim_ffn: 100
   dropout_rate: 0.0
 train:
+  pre_train: 0
   num_steps: 10
   max_epoch: 200
   train_bs: 64
@@ -19,6 +20,7 @@ train:
   lr_filternode: 0.
   l_norm_coeff: 0.4
   entr_coeff: 0.1
+  pretrain_degenerate: false
 dataset:
   dataset_name: BAColorGVIsolated
   domain: basis

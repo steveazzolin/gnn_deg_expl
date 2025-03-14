@@ -39,6 +39,8 @@ class TrainArgs(Tap):
     end_temp: float = 0.3 # Added by Steve
     combinator_temp: float = None # Added by Steve
 
+    pretrain_degenerate: bool = None  #: Whether to do a pretrain inducing a degenerate-like behaviour
+
     alpha = None  #: A parameter for DANN.
 
 
