@@ -195,7 +195,7 @@ class Pipeline:
                 per_batch_metrics["f1_pos"].append(f1_pos)
                 per_batch_metrics["f1_neg"].append(f1_neg)
             
-            print(f"Degenerate Loss: {np.mean(per_batch_metrics['loss'])} F1_pos: {np.mean(per_batch_metrics['f1_pos'])} F1_neg: {np.mean(per_batch_metrics['f1_neg'])}")
+            print(f"Degenerate Loss: {np.mean(per_batch_metrics['loss']):.4f} F1_pos: {np.mean(per_batch_metrics['f1_pos']):.2f} F1_neg: {np.mean(per_batch_metrics['f1_neg']):.2f}")
 
             # --- scheduler step ---
             self.ood_algorithm.scheduler.step()
