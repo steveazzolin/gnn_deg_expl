@@ -170,8 +170,12 @@ class Pipeline:
                 _ = self.ood_algorithm.output_postprocess(model_output)
                 node_att = self.ood_algorithm.edge_att
 
+                if len(data.y.shape) > 1:
+                    graph_label_per_node = data.y.view(-1)[data.batch] # contains for each node the label of the graph it belong to
+                else:
+                    graph_label_per_node = data.y[data.batch]
+
                 targets = torch.zeros_like(data.node_is_spurious, dtype=torch.float, device=data.x.device)
-                graph_label_per_node = data.y[data.batch] # contains for each node the label of the graph it belong to
                 blue_nodes_for_negative = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 0).float()
                 red_nodes_for_positive = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 1).float()
                 targets += blue_nodes_for_negative + red_nodes_for_positive
@@ -209,6 +213,7 @@ class Pipeline:
         val_stat = id_val_stat
         test_stat = id_test_stat
         loss_per_batch_dict = {}
+        
         self.save_epoch(
             epoch,
             epoch_train_stat, id_val_stat, id_test_stat, val_stat, test_stat,
