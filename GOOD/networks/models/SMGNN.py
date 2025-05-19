@@ -72,33 +72,18 @@ class SMGNN(GNNBasic):
                     edge_att = (att + transpose(data.edge_index, att, nodesize, nodesize, coalesced=False)[1]) / 2
                 else:
                     data.ori_edge_index = data.edge_index.detach().clone() #for backup and debug
-                    data.edge_index, edge_att = to_undirected(data.edge_index, att.squeeze(-1), reduce="mean")
-
                     if not data.edge_attr is None:
                         edge_index_sorted, edge_attr_sorted = coalesce(data.ori_edge_index, data.edge_attr, is_sorted=False)
-                        data.edge_attr = edge_attr_sorted    
+                        data.edge_attr = edge_attr_sorted
+                    if hasattr(data, "edge_gt") and not data.edge_gt is None:
+                        edge_index_sorted, edge_gt_sorted = coalesce(data.ori_edge_index, data.edge_gt, is_sorted=False)
+                        data.edge_gt = edge_gt_sorted
+                    data.edge_index, edge_att = to_undirected(data.edge_index, att.squeeze(-1), reduce="mean")
             else:
                 edge_att = att
         else:
             edge_att = lift_node_att_to_edge_att(att, data.edge_index)
             
-
-        if kwargs.get('weight', None):
-            if kwargs.get('is_ratio'):
-                (causal_edge_index, causal_edge_attr, causal_edge_weight), _ = split_graph(data, edge_att, kwargs.get('weight'))
-                causal_x, causal_edge_index, causal_batch, _ = relabel(data.x, causal_edge_index, data.batch)
-                data.x = causal_x
-                data.batch = causal_batch
-                data.edge_index = causal_edge_index
-                if not data.edge_attr is None:
-                    data.edge_attr = causal_edge_attr
-                edge_att = causal_edge_weight                
-            else:
-                data.edge_index = (data.edge_index.T[edge_att >= kwargs.get('weight')]).T
-                if not data.edge_attr is None:
-                    data.edge_attr = data.edge_attr[edge_att >= kwargs.get('weight')]
-                edge_att = edge_att[edge_att >= kwargs.get('weight')]
-
         set_masks(edge_att, self, att)
         
         if self.gnn_clf:
@@ -112,14 +97,7 @@ class SMGNN(GNNBasic):
         return logits, att_log_logits, att
 
     def sampling(self, att_log_logits, training, mitigation_expl_scores):
-        if mitigation_expl_scores == "anneal":
-            temp = (self.config.train.epoch * 0.1 + (200 - self.config.train.epoch) * 5) / 200
-
         att = self.concrete_sample(att_log_logits, temp=1, training=training)
-
-        if mitigation_expl_scores == "hard":
-            att_hard = (att > 0.5).float()
-            att = att_hard - att.detach() + att
         return att
 
     @staticmethod
@@ -203,51 +181,9 @@ class SMGNN(GNNBasic):
                 else:
                     return lc_logits.sigmoid().log()
     
-    def get_subgraph(self, ratio=None, *args, **kwargs):
-        data = kwargs.get('data') or None
-        data.ori_x = data.x
-
-        emb = self.gnn(*args, without_readout=True, **kwargs)
-        att_log_logits = self.extractor(emb, data.edge_index, data.batch)
-        att = self.sampling(att_log_logits, False, self.config.mitigation_expl_scores)
-
-        if self.learn_edge_att:
-            if is_undirected(data.edge_index):
-                if self.config.average_edge_attn == "default":
-                    nodesize = data.x.shape[0]
-                    edge_att = (att + transpose(data.edge_index, att, nodesize, nodesize, coalesced=False)[1]) / 2
-                else:
-                    data.ori_edge_index = data.edge_index.detach().clone() #for backup and debug
-                    if not data.edge_attr is None:
-                        edge_index_sorted, edge_attr_sorted = coalesce(data.ori_edge_index, data.edge_attr, is_sorted=False)
-                        data.edge_attr = edge_attr_sorted   
-                    if hasattr(data, "edge_gt") and not data.edge_gt is None:
-                        edge_index_sorted, edge_gt_sorted = coalesce(data.ori_edge_index, data.edge_gt, is_sorted=False)
-                        data.edge_gt = edge_gt_sorted
-                    if hasattr(data, "causal_mask") and not data.causal_mask is None:
-                        _, data.causal_mask = coalesce(data.edge_index, data.causal_mask, is_sorted=False)
-
-                    data.edge_index, edge_att = to_undirected(data.edge_index, att.squeeze(-1), reduce="mean")
-            else:
-                edge_att = att
-        else:
-            edge_att = lift_node_att_to_edge_att(att, data.edge_index)
-
-        # if kwargs.get('return_attn', False):
-        #     self.attn_distrib = self.gnn.encoder.get_attn_distrib()
-        #     self.gnn.encoder.reset_attn_distrib()
-
-        set_masks(edge_att, self, att)        
-        if self.gnn_clf:
-            logits = self.classifierS(self.gnn_clf(*args, **kwargs))
-        else:
-            logits = self.classifierS(self.gnn(*args, **kwargs))
-        clear_masks(self)
-
-        edge_att = edge_att.view(-1)
-        if ratio is None:
-            return edge_att, att, logits
-        assert False
+    def get_subgraph(self, *args, **kwargs):
+        logits, att_log_logits, att = self.forward(*args, **kwargs)
+        return self.edge_mask, att, logits
 
 @register.model_register
 class SMGNNv(SMGNN):
@@ -262,7 +198,6 @@ class SMGNNv(SMGNN):
         self.gnn = vFeatExtractor(config, **fe_kwargs)
 
         if config.mitigation_sampling == "raw":
-            config.mitigation_backbone = None
             config.model.model_layer = 1
             self.gnn_clf = vFeatExtractor(config)
         else:
