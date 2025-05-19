@@ -439,6 +439,8 @@ class ACRConv(gnn.MessagePassing):
             no_bias=no_bias
         )
 
+        self.bn_readout = nn.BatchNorm1d(input_dim)
+
         self.readout = self.__get_readout_fn(readout_type)
 
     def forward(self, x, edge_index, batch):
@@ -450,7 +452,8 @@ class ACRConv(gnn.MessagePassing):
         readout = readout[batch] # this give a (nodes, features) tensor
 
         # WARNING: TESTING THIS TEMPORARY
-        readout = (readout - readout.min(0, keepdim=True)[0] + 1e-6) / (readout.max(0, keepdim=True)[0] - readout.min(0, keepdim=True)[0] + 1e-6)        
+        # readout = (readout - readout.min(0, keepdim=True)[0] + 1e-6) / (readout.max(0, keepdim=True)[0] - readout.min(0, keepdim=True)[0] + 1e-6)
+        # readout = self.bn_readout(readout)      
 
         return self.propagate(
             edge_index=edge_index,
@@ -459,7 +462,8 @@ class ACRConv(gnn.MessagePassing):
         )
     
     def message(self, x_i, x_j):
-        if self._fixed_explain:
+        if self._fixed_explain and getattr(self, "_node_mask", None) is None:
+            exit("AIA")
             edge_mask = self._edge_mask
             if self._apply_sigmoid:
                 edge_mask = edge_mask.sigmoid()
