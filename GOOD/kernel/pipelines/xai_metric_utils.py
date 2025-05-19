@@ -6,7 +6,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 import os
 
-from torch_geometric.utils import remove_isolated_nodes, dropout_edge, to_networkx
+from torch_geometric.data import Data
+from torch_geometric.utils import remove_isolated_nodes, dropout_edge, to_networkx, subgraph
 from torch_scatter import scatter_sum, scatter_add
 
 from GOOD.utils.splitting import split_graph
@@ -434,6 +435,43 @@ def expl_acc_super_fast(batch_data, batch_edge_score, reference_intersection):
     union        = scatter_sum(batch_edge_score, batch_data.batch[batch_data.edge_index[0]])
     wiou_super_fast = intersection / (union + 1e-10)
     return torch.round(wiou_super_fast, decimals=3)
+
+def fidelity(graph, type):
+    """
+        Generate the perturbed sample according to Fidelity+ and Fidelity-.
+        I.e., either remove the entire explanation, or the entire complement.
+        Operationally, we keep the node induced subgraph of either relevant or irrelevant nodes.
+    """
+    if graph.node_mask.sum() == 0: # discard empty explanations
+        return None
+    
+    if type == "fidm":
+        # preserve the node induced subgraph of relevant edges
+        nodes_to_keep = graph.node_mask
+    elif type == "fidp":
+        # preserve the node induced subgraph of IRrelevant edges
+        nodes_to_keep = torch.logical_not(graph.node_mask)
+
+    edge_index, edge_attr, edge_mask = subgraph(
+        nodes_to_keep,
+        graph.edge_index,
+        edge_attr=graph.edge_attr if "edge_attr" in graph.keys() else None,
+        return_edge_mask=True,
+        relabel_nodes=True,
+        num_nodes=graph.x.shape[0]
+    )
+    return [
+        Data(
+            x=graph.x[nodes_to_keep],
+            edge_index=edge_index,
+            edge_attr=edge_attr,
+            node_is_spurious=graph.node_is_spurious[nodes_to_keep],
+            y=graph.y,
+            node_expl=graph.node_expl[nodes_to_keep],
+            node_mask=graph.node_mask[nodes_to_keep],
+            edge_mask=graph.edge_mask[edge_mask],
+        )
+    ]
 
 def sample_edges(G_ori, alpha, deconfounded, edge_index_to_remove):
     # keep each spu/inv edge with probability alpha
