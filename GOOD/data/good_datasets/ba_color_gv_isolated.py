@@ -77,10 +77,23 @@ class BAColorGVIsolated(InMemoryDataset):
                     [1., 0., 0., 0.],
                     [1., 0., 0., 0.],
                     [1., 0., 0., 0.],
+                    [1., 0., 0., 0.],
+                    [1., 0., 0., 0.],
+                    [1., 0., 0., 0.],
                     [0., 1., 0., 0.],
                     [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 1., 0., 0.],
+                    [0., 0., 1., 0.],
+                    [0., 0., 0., 1.],
                 ]),
-                edge_index=barabasi_albert_graph(num_nodes=6, num_edges=2),
+                edge_index=barabasi_albert_graph(num_nodes=8, num_edges=2),
                 y=torch.tensor([[0.]]),
                 node_is_spurious=torch.tensor(0).repeat(6)
             )
@@ -139,6 +152,8 @@ class BAColorGVIsolated(InMemoryDataset):
                 node_is_spurious=torch.tensor([1])
             )
             data_list.extend([data1, data2, data3, data4, data5, data6, data7])
+
+
 
         for _ in range(self.num_graphs - len(data_list)):
             # Step 1: Generate a random number of nodes
@@ -238,10 +253,10 @@ class BAColorGVIsolated(InMemoryDataset):
         dataset = BAColorGVIsolated(dataset_root, domain=domain)
         ood1_dataset = BAColorGVIsolated(dataset_root, domain=domain, shift="debug")
         ood2_dataset = BAColorGVIsolated(dataset_root, domain=domain, shift="debug")
-        # ood1_dataset = BAColorGV(dataset_root, domain=domain, shift="size")
-        # ood2_dataset = BAColorGV(dataset_root, domain=domain, shift="ER")
+        # ood1_dataset = BAColorGVIsolated(dataset_root, domain=domain, shift="size")
+        # ood2_dataset = BAColorGVIsolated(dataset_root, domain=domain, shift="ER")
 
-        if"DIR" in model_name:
+        if "DIR" in model_name:
             dataset._data.y = dataset._data.y.squeeze(-1).long()
             ood1_dataset._data.y = ood1_dataset._data.y.squeeze(-1).long()
             ood2_dataset._data.y = ood2_dataset._data.y.squeeze(-1).long()
