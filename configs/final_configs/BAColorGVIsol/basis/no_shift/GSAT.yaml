@@ -15,3 +15,4 @@ train:
 log_file: exp_0
 clean_save: true
 use_norm: none
+mitigation_sampling: default
