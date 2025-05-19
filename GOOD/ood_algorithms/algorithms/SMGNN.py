@@ -117,7 +117,6 @@ class SMGNN(BaseOODAlg):
 
         self.mean_loss = loss.mean()
         self.total_loss = self.mean_loss + self.spec_loss
-
         return self.total_loss
     
     def loss_global_side_channel(self, targets: Tensor, mask: Tensor, config: Union[CommonArgs, Munch]) -> Tensor:
