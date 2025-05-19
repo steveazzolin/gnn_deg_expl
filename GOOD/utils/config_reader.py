@@ -207,15 +207,13 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
                     f'{config.model.gnn_clf_layer}clf_' \
                     f'{config.model.global_pool}pool_' \
                     f'{config.model.dropout_rate}dp_' \
-                    f'mitig_backbone{args.mitigation_backbone}_' \
-                    f'mitig_sampling{args.mitigation_sampling}' \
                     f'norm{config.use_norm}' \
                     f'avgedgeattn{args.average_edge_attn}'
+                    # f'mitig_backboneNone_' \   # IF NEEDED PUT AFTER "dp_"
+                    # f'mitig_sampling{args.mitigation_sampling}' \
     
     if not config.mitigation_readout is None:
-        model_dirname = model_dirname + f'mitig_readout{args.mitigation_readout}'
-    if not config.mitigation_virtual is None:
-        model_dirname = model_dirname + f'mitig_virtual{args.mitigation_virtual}'
+        model_dirname = model_dirname + f'mitig_readout{config.mitigation_readout}'
     if config.mitigation_expl_scores != "default":
         model_dirname = model_dirname + f'mitig_explscores{args.mitigation_expl_scores.lower()}'
         if config.mitigation_expl_scores.lower() == "topk":
@@ -244,8 +242,8 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
         ood_dirname += f'_entr{config.train.entr_coeff}'
 
     
-    config.ood_dirname = ood_dirname # Added by Steve
-    config.complete_dirname = opj(model_dirname, train_dirname, ood_dirname) # Added by Steve
+    config.ood_dirname = ood_dirname
+    config.complete_dirname = opj(model_dirname, train_dirname, ood_dirname)
 
     # --- Log setting ---
     log_dir_root = opj(STORAGE_DIR, 'log', 'round' + str(config.exp_round))
@@ -256,14 +254,14 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
 
     # --- Checkpoint setting ---
     if config.ckpt_root is None:
-        config.ckpt_root = opj(STORAGE_DIR, 'checkpoints') # checkpoints_backup30042024
+        config.ckpt_root = opj(STORAGE_DIR, 'checkpoints')
     if config.ckpt_dir is None:
         config.ckpt_dir = opj(config.ckpt_root, 'round' + str(config.exp_round))
         config.ckpt_dir = opj(config.ckpt_dir, dataset_dirname, model_dirname, train_dirname, ood_dirname)
         if config.save_tag:
             config.ckpt_dir = opj(config.ckpt_dir, config.save_tag)
     config.test_ckpt = opj(config.ckpt_dir, f'best.ckpt')
-    config.id_test_ckpt = opj(config.ckpt_dir, f'id_best.ckpt')
+    config.id_test_ckpt = opj(config.ckpt_dir, f'id_best.ckpt') # pretrain_degenerate | id_best
 
     # --- Other settings ---
     if config.train.max_epoch > 1000:
