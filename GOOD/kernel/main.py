@@ -103,10 +103,10 @@ def main():
 
             # Eval model
             pipeline.task = 'test'
-            test_score, _ = pipeline.load_task(load_param=True, load_split="id")
+            test_score, ckpt = pipeline.load_task(load_param=True, load_split="id")
             test_scores["saved_score"].append(test_score)
             for s in ["id_val", "id_test", "val", "test"]:
-                sa = pipeline.evaluate(s, compute_suff=False)
+                sa = pipeline.evaluate(s, epoch=ckpt["epoch"])
                 test_scores[s].append(sa['score'])
             
             
@@ -116,9 +116,9 @@ def main():
             for s in ["train", "id_val", "id_test", "val", "test"]:
                 sa = pipeline.evaluate(
                     s,
-                    compute_suff=False, 
                     compute_wiou=False,
-                    compute_clf_only_pred=(s == "val")
+                    compute_clf_only_pred=(s == "val"),
+                    epoch=ckpt["epoch"]
                 )
                 test_scores[s].append(sa['score'])
                 test_losses[s].append(sa['loss'].item())
