@@ -80,7 +80,6 @@ def stability_detector_rebuttal(args):
             args.exp_round = seed
             
             config = config_summoner(args)
-            config["mitigation_backbone"] = args.mitigation_backbone
             config["task"] = "test"
             config["load_split"] = load_split
             if l == 0 and i == 0:
@@ -162,7 +161,6 @@ def stability_detector_extended(args):
             args.exp_round = seed
             
             config = config_summoner(args)
-            config["mitigation_backbone"] = args.mitigation_backbone
             config["task"] = "test"
             config["load_split"] = load_split
             if l == 0 and i == 0:
@@ -245,7 +243,6 @@ def plot_explanation_examples(args):
             args.exp_round = seed
             
             config = config_summoner(args)
-            config["mitigation_backbone"] = args.mitigation_backbone
             config["task"] = "test"
             config["load_split"] = load_split
             if l == 0 and i == 0:
@@ -297,7 +294,6 @@ def permute_attention_scores(args):
             args.exp_round = seed
             
             config = config_summoner(args)
-            config["mitigation_backbone"] = args.mitigation_backbone
             config["task"] = "test"
             config["load_split"] = load_split
             if l == 0 and i == 0:
@@ -332,7 +328,6 @@ def generate_panel(args):
             args.exp_round = seed
             
             config = config_summoner(args)
-            config["mitigation_backbone"] = args.mitigation_backbone
             config["task"] = "test"
             config["load_split"] = load_split
             if l == 0 and i == 0:
@@ -363,7 +358,6 @@ def generate_plot_sampling(args):
             args.exp_round = seed
             
             config = config_summoner(args)
-            config["mitigation_backbone"] = args.mitigation_backbone
             config["task"] = "test"
             config["load_split"] = load_split
             if l == 0 and i == 0:
@@ -448,7 +442,7 @@ def generate_plot_sampling(args):
             # plt.savefig(f"./GOOD/kernel/pipelines/plots/metrics/pdfs/small_v2_dev_nec_sampling_{config.ood.ood_alg}_{config.dataset.dataset_name}_{config.dataset.domain}_({SPLIT}).pdf")
             plt.show(); 
 
-def evaluate_metric(args):
+def evaluate_metric_reconsidering(args):
     load_splits = ["id"]
 
     if args.splits != "":
@@ -478,7 +472,6 @@ def evaluate_metric(args):
             args.exp_round = seed
             
             config = config_summoner(args)
-            config["mitigation_backbone"] = args.mitigation_backbone
             config["task"] = "test"
             config["load_split"] = load_split
             expname = f"{load_split}_{config.util_model_dirname}_{config.dataset.dataset_name}{config.dataset.domain}" \
@@ -765,6 +758,178 @@ def print_faith(args):
     for split_metric in split_metrics:
         print(f"{split_metric}: {big_rows[split_metric]}\n\n")
 
+def evaluate_metric(args):
+    if args.splits != "":
+        splits = args.splits.split("/")
+    else:
+        splits = ["id_val"] #"id_val", "val", "test"
+    print("Using splits = ", splits)
+        
+    if args.ratios != "":
+        thrs = [float(r) for r in args.ratios.split("/")]
+    else:
+        thrs = [0.5]
+    print("Using thresholds = ", thrs)
+    
+    startTime = datetime.now()
+    metrics_score = {s: defaultdict(list) for s in splits}
+    for i, seed in enumerate(args.seeds.split("/")):
+        ##
+        # SET UP THE CONFIGURATION AND LOAD MODEL
+        ##
+        seed = int(seed)        
+        args.random_seed = seed
+        args.exp_round = seed
+        
+        config = config_summoner(args)
+        config["task"] = "test"
+        config["load_split"] = ""
+        if i == 0:
+            load_logger(config)
+        
+        model, loader = initialize_model_dataset(config)
+        ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+        pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+        pipeline.load_task(load_param=True, load_split="id")
+        
+        ##
+        # GENERATE BINARY EXPLANATION MASKS
+        ##
+        samples, graphs_nx, avg_graph_size  = pipeline.generate_binary_explanations(
+            is_weight=True, 
+            thrs=thrs,
+            splits=splits,
+            convert_to_nx="interven_suff" in args.metrics,
+            is_node_expl=not config.ood.extra_param[0] # is the learn_edge_att parameter
+        )            
+
+        for metric in args.metrics.split("/"):
+            print(f"\n\nEvaluating {metric.upper()} for seed {seed}\n")
+
+            for split in splits:
+                for thr in thrs:
+                    print(f"\n\n#D#Computing {metric.upper()} over {split} across ratios with thr={thr}")
+                    score, acc_int = pipeline.compute_metric(
+                        metric=metric,
+                        graphs=samples[split][thr],
+                        graphs_nx=graphs_nx[split],
+                        avg_graph_size=avg_graph_size[split],
+                    )
+                    metrics_score[split][metric].append(score)
+                    metrics_score[split][metric + "_acc_int"].append(acc_int)
+
+        exit("spe")
+
+    if config.save_metrics:
+        save_path = f"storage/metric_results/aggregated_id_results_necalpha{config.nec_alpha_1}" \
+                    f"_numsamples{config.numsamples_budget}_randomexpl{config.random_expl}_ratios{args.ratios.replace('/','-')}" \
+                    f"_metrics{args.metrics.replace('/','-')}" \
+                    f"_{config.log_id}.json"
+        if not os.path.exists(save_path):
+            with open(save_path, 'w') as file:
+                file.write("{}")
+        with open(save_path, "r") as jsonFile:
+            results_aggregated = json.load(jsonFile)
+    else:
+        results_aggregated = None
+
+    # print("\n\n", "-"*50, f"\nPrinting evaluation results for load_split {load_split}\n\n")
+    # for split in splits:
+    #     print(f"\nEval split {split}")
+    #     for metric in args.metrics.split("/"):
+    #         print(f"{metric} = {metrics_score[load_split][split][metric]}")
+    # if "acc" in args.metrics.split("/"):
+    #     for split in splits + ["test", "test_R"]:
+    #         print(f"\nEval split {split}")
+    #         for metric in ["acc"]: #, "plaus", "wiou"
+    #             print(f"{metric} = {metrics_score[load_split][split][metric]}")
+
+    # if "plaus" in args.metrics:
+    #     print("\n\n", "-"*50, "\nComputing Plausibility")
+    #     for split in splits:
+    #         print(f"\nEval split {split}")
+    #         for div in ["wiou", "F1"]:
+    #             s = metrics_score[load_split][split][div]
+    #             print_metric(div, s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, div])
+    #     continue
+
+    # print("\n\n", "-"*50, "\nPrinting evaluation averaged per seed")
+    # for split in splits:
+    #     print(f"\nEval split {split}")
+    #     for metric in args.metrics.split("/"):
+    #         if "acc" == metric:
+    #             continue
+    #         for div in ["L1", "KL"]:
+    #             s = [
+    #                 metrics_score[load_split][split][metric][i][f"all_{div}"] for i in range(len(metrics_score[load_split][split][metric]))
+    #             ]
+    #             print_metric(metric + f" class all_{div}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_{div}"])
+    #         print(metrics_score[load_split][split][metric + "_acc_int"])
+    #         print(s)
+    #         print_metric(metric + "_acc_int", metrics_score[load_split][split][metric + "_acc_int"], results_aggregated, key=[config.dataset.dataset_name+" "+config.dataset.domain, config.complete_dirname, split, metric+"_acc_int"])
+            
+    # if "acc" in args.metrics.split("/"):
+    #     for split in splits + ["test", "test_R"]:
+    #         print(f"\nEval split {split}")
+    #         print_metric("acc", metrics_score[load_split][split]["acc"])
+    #         for a in ["plaus", "wiou"]:
+    #             for c in metrics_score[load_split][split][a][0].keys():
+    #                 s = [
+    #                     metrics_score[load_split][split][a][i][c] for i in range(len(metrics_score[load_split][split][a]))
+    #                 ]
+    #                 print_metric(a + f" class {c}", s)
+
+    # print("\n\n", "-"*50, "\nComputing faithfulness")
+    # for split in splits:
+    #     print(f"\nEval split {split}")            
+    #     for div in ["L1", "KL"]:
+    #         if "suff" in args.metrics.split("/") and "nec" in args.metrics.split("/"):                
+    #             suff = get_tensorized_metric(metrics_score[load_split][split]["suff"], f"all_{div}")
+    #             nec = get_tensorized_metric(metrics_score[load_split][split]["nec"], f"all_{div}")[:, :suff.shape[1]]             
+    #             faith_aritm = aritm(suff, nec)
+    #             faith_armonic = armonic(suff, nec)
+    #             faith_gmean = gmean(suff, nec)
+    #             print_metric(f"Faith. Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_aritm_{div}"])
+    #             print_metric(f"Faith. Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_armon_{div}"])
+    #             print_metric(f"Faith. GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_gmean_{div}"])
+
+    #         if "suff++" in args.metrics.split("/") and "nec" in args.metrics.split("/"):
+    #             suff = get_tensorized_metric(metrics_score[load_split][split]["suff++"], f"all_{div}")
+    #             nec = get_tensorized_metric(metrics_score[load_split][split]["nec"], f"all_{div}")[:, :suff.shape[1]]             
+    #             faith_aritm = aritm(suff, nec)
+    #             faith_armonic = armonic(suff, nec)
+    #             faith_gmean = gmean(suff, nec)
+    #             print_metric(f"Faith. Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_aritm_{div}"])
+    #             print_metric(f"Faith. Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_armon_{div}"])
+    #             print_metric(f"Faith. GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_gmean_{div}"])
+            
+    #         if "suff_simple" in args.metrics.split("/") and "nec" in args.metrics.split("/"):
+    #             suff = get_tensorized_metric(metrics_score[load_split][split]["suff_simple"], f"all_{div}")
+    #             nec = get_tensorized_metric(metrics_score[load_split][split]["nec"], f"all_{div}")[:, :suff.shape[1]]             
+    #             faith_aritm = aritm(suff, nec)
+    #             faith_armonic = armonic(suff, nec)
+    #             faith_gmean = gmean(suff, nec)
+    #             print_metric(f"Faith. Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_aritm_{div}"])
+    #             print_metric(f"Faith. Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_armon_{div}"])
+    #             print_metric(f"Faith. GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith_gmean_{div}"])
+
+    #         if "suff" in args.metrics.split("/") and "nec++" in args.metrics.split("/"):
+    #             suff = get_tensorized_metric(metrics_score[load_split][split]["suff"], f"all_{div}")
+    #             necpp = get_tensorized_metric(metrics_score[load_split][split]["nec++"], f"all_{div}")[:, :suff.shape[1]]
+    #             faith_aritm = aritm(suff, necpp)
+    #             faith_armonic = armonic(suff, necpp)
+    #             faith_gmean = gmean(suff, necpp)
+    #             print_metric(f"Faith.++ Aritm ({div})= \t\t", faith_aritm, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith++_aritm_{div}"])
+    #             print_metric(f"Faith.++ Armon ({div})= \t\t", faith_armonic, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith++_gmean_{div}"])
+    #             print_metric(f"Faith.++ GMean ({div})= \t", faith_gmean, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, f"faith++_gmean_{div}"])
+    
+    # if config.save_metrics:
+    #     with open(save_path, "w") as f:
+    #         json.dump(results_aggregated, f)     
+    
+    # print("Completed in ", datetime.now() - startTime, f" for {config.complete_dirname} {config.dataset.dataset_name}/{config.dataset.domain}")
+    # print("\n\n")
+
 def print_r_ge_b_hist(args):
     load_splits = ["id"]
     for l, load_split in enumerate(load_splits):
@@ -878,6 +1043,7 @@ def print_r_ge_b_hist(args):
                     patch_artist=True,
                     labels=["R", "B", "G", "V"],
                     showfliers=False,
+                    showmeans=True
                 )
                 for patch, color in zip(bplot['boxes'], ["red", "blue", "green", "violet"]):
                     patch.set_facecolor(color)
