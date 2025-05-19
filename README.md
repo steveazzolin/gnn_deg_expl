@@ -37,4 +37,36 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds
 # BAColorGVIsolated (DIR - ACR k=0.5 w 1-layer CLF - Pretrain Degenerate)
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.5 --gnn_clf_layer 1 --pretrain_degenerate
 
+
+
+
+
+
+
+
+## Relevant Commands (NEW)
+
+```shell
+
+# BAColorGVIsolated (SMGNN - ACR) (1/2 no deg; 3 deg)
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --l_norm_coeff 0.4
+# BAColorGVIsolated (SMGNN - ACR w less reg)
+# BAColorGVIsolated (SMGNN - ACR w 1-layer CLF)
+# BAColorGVIsolated (SMGNN - ACR w 2-layer CLF)
+# BAColorGVIsolated (SMGNN - GIN)
+
+
+# BAColorGVIsolated (GSAT - ACR)
+# BAColorGVIsolated (GSAT - ACR w 1-layer CLF)
+# BAColorGVIsolated (GSAT - ACR - As per paper with lin. clf. - Pretrain Degenerate)
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1" --task test --pretrain_degenerate
+
+
+# BAColorGVIsolated (DIR - ACR k=0.1)
+# BAColorGVIsolated (DIR - ACR k=0.5)
+# BAColorGVIsolated (DIR - ACR k=0.1 w 1-layer CLF)
+# BAColorGVIsolated (DIR - ACR k=0.5 w 1-layer CLF)
+# BAColorGVIsolated (DIR - ACR k=0.1 w 1-layer CLF - Pretrain Degenerate)
+# BAColorGVIsolated (DIR - ACR k=0.5 w 1-layer CLF - Pretrain Degenerate)
+
 ```
