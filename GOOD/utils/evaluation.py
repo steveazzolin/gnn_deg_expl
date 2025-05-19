@@ -57,7 +57,7 @@ def eval_data_preprocess(y: torch.Tensor,
     return pred, target
 
 
-def eval_score(pred_all: Union[List[np.ndarray], List[List[np.ndarray]]],
+def eval_score(pred_all: Union[List[np.ndarray], List[List[np.ndarray]], torch.Tensor],
                target_all: Union[List[np.ndarray], List[List[np.ndarray]]],
                config: Union[CommonArgs, Munch],
                pos_class: int = None
@@ -78,29 +78,32 @@ def eval_score(pred_all: Union[List[np.ndarray], List[List[np.ndarray]]],
     """
     np.seterr(invalid='ignore')
 
-    assert type(pred_all) is list, 'Wrong prediction input.'
-    if type(pred_all[0]) is list:
-        # multi-task
-        all_task_preds = []
-        all_task_targets = []
-        for task_i in range(len(pred_all[0])):
-            preds = []
-            targets = []
-            for pred, target in zip(pred_all, target_all):
-                preds.append(pred[task_i])
-                targets.append(target[task_i])
-            all_task_preds.append(np.concatenate(preds))
-            all_task_targets.append(np.concatenate(targets))
-
-        scores = []
-        for i in range(len(all_task_preds)):
-            if all_task_targets[i].shape[0] > 0:
-                scores.append(np.nanmean(config.metric.score_func(all_task_targets[i], all_task_preds[i])))
-        score = np.nanmean(scores)
-    else:
-        pred_all = np.concatenate(pred_all)
-        target_all = np.concatenate(target_all)
+    # assert type(pred_all) is list, 'Wrong prediction input.'
+    if torch.is_tensor(pred_all):
         score = np.nanmean(config.metric.score_func(target_all, pred_all, pos_class))
+    else:
+        if type(pred_all[0]) is list:
+            # multi-task
+            all_task_preds = []
+            all_task_targets = []
+            for task_i in range(len(pred_all[0])):
+                preds = []
+                targets = []
+                for pred, target in zip(pred_all, target_all):
+                    preds.append(pred[task_i])
+                    targets.append(target[task_i])
+                all_task_preds.append(np.concatenate(preds))
+                all_task_targets.append(np.concatenate(targets))
+
+            scores = []
+            for i in range(len(all_task_preds)):
+                if all_task_targets[i].shape[0] > 0:
+                    scores.append(np.nanmean(config.metric.score_func(all_task_targets[i], all_task_preds[i])))
+            score = np.nanmean(scores)
+        else:
+            pred_all = np.concatenate(pred_all)
+            target_all = np.concatenate(target_all)
+            score = np.nanmean(config.metric.score_func(target_all, pred_all, pos_class))
     return score
 
 
