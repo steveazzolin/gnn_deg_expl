@@ -189,10 +189,11 @@ class Pipeline:
 
         epoch_train_stat = self.evaluate(
             'eval_train',
-            compute_wiou=False
+            compute_wiou=False,
+            epoch=self.config.train.max_epoch
         )
-        id_val_stat = self.evaluate('id_val')
-        id_test_stat = self.evaluate('id_test')
+        id_val_stat = self.evaluate('id_val', epoch=self.config.train.max_epoch)
+        id_test_stat = self.evaluate('id_test', epoch=self.config.train.max_epoch)
         val_stat = id_val_stat
         test_stat = id_test_stat
         loss_per_batch_dict = {}
@@ -204,7 +205,6 @@ class Pipeline:
             loss_per_batch_dict,
             manual_save="pretrain_degenerate"
         )
-
         return None
 
     def train_batch(self, data: Batch, pbar, epoch:int) -> dict:
@@ -276,9 +276,9 @@ class Pipeline:
         self.ood_algorithm.set_up(self.model, self.config)
 
         print("Before training:")
-        epoch_train_stat = self.evaluate('eval_train')
-        id_val_stat = self.evaluate('id_val')
-        id_test_stat = self.evaluate('id_test')
+        epoch_train_stat = self.evaluate('eval_train', epoch=0)
+        id_val_stat = self.evaluate('id_val', epoch=0)
+        id_test_stat = self.evaluate('id_test', epoch=0)
 
         if self.config.wandb:
             wandb.log({
@@ -347,10 +347,11 @@ class Pipeline:
 
             epoch_train_stat = self.evaluate(
                 'eval_train',
-                compute_wiou=False
+                compute_wiou=False,
+                epoch=epoch
             )
-            id_val_stat = self.evaluate('id_val')
-            id_test_stat = self.evaluate('id_test')
+            id_val_stat = self.evaluate('id_val', epoch=epoch)
+            id_test_stat = self.evaluate('id_test', epoch=epoch)
             
             if self.config.dataset.shift_type == "no_shift":
                 val_stat = id_val_stat
@@ -393,151 +394,8 @@ class Pipeline:
             self.save_epoch(epoch, epoch_train_stat, id_val_stat, id_test_stat, val_stat, test_stat, self.config, loss_per_batch_dict)
 
             # --- scheduler step ---
-            self.ood_algorithm.scheduler.step()
+            self.ood_algorithm.scheduler.step() 
 
-
-    def plot_hist_score(self, data, density=False, log=False, name="noname.png"):        
-        path = f'GOOD/kernel/pipelines/plots/attn_distrib/{self.config.load_split}_{self.config.dataset.dataset_name}_{self.config.dataset.domain}_{self.config.util_model_dirname}_{self.config.random_seed}/'            
-        plt.hist(data, bins=100, density=density, log=log)
-        plt.xlim(0.0,1.1)
-        plt.title(f"distrib. edge_scores (min={round(min(data), 2)}, max={round(max(data), 2)})")
-        plt.savefig(path + name)
-        plt.close()
-    
-
-    @torch.no_grad()
-    def get_subragphs_ratio(self, graphs, ratio, edge_scores, is_weight=False):
-        """
-            Cut graphs based on TopK or value thresholding strategy.
-            If 'is_weight==False', use Top-'ratio'.
-            Otherwise, use a thresholding with value 'ratio'
-        """
-        # # DEBUG OF SPARSE TOPK
-        # i = 1
-        # print("Weights:")
-        # for j, (u,v) in enumerate(graphs[i].edge_index.T):
-        #     if u < v:
-        #         print((u.item(), v.item()), edge_scores[i][j])
-        # print()
-
-        # # case with twice the same graph (separated): Equal result        
-        # print("\nSeparate and independent case (bs=1)\n")
-        # (causal_edge_index, causal_edge_attr, causal_edge_weight), \
-        #     (spu_edge_index, spu_edge_attr, spu_edge_weight) = split_graph(
-        #         graphs[i],
-        #         edge_scores[i],
-        #         ratio
-        #     )
-        # print(causal_edge_index)
-        # (causal_edge_index, causal_edge_attr, causal_edge_weight), \
-        #     (spu_edge_index, spu_edge_attr, spu_edge_weight) = split_graph(
-        #         graphs[i],
-        #         edge_scores[i],
-        #         ratio
-        #     )
-        # print(causal_edge_index)        
-                
-        # # case with twice the same graph (joined in batch): Equal result
-        # print("\nJoined case (bs=3)\n")
-        # data_joined = Batch().from_data_list([graphs[i], graphs[i], graphs[i]])
-
-        # (causal_edge_index, causal_edge_attr, causal_edge_weight, causal_batch), \
-        #     (spu_edge_index, spu_edge_attr, spu_edge_weight) = split_graph(
-        #         data_joined,
-        #         torch.cat((edge_scores[i], edge_scores[i], edge_scores[i]), dim=0),
-        #         ratio,
-        #         return_batch=True
-        #     )
-
-        # causal_edge_index = sort_edge_index(causal_edge_index)
-        # for j, (u,v) in enumerate(causal_edge_index.T):
-        #     num = graphs[i].num_nodes            
-        #     if j % (len(causal_edge_index[0]) / 3) == 0:
-        #         print("-"*20)
-        #     u, v = int(u.item() - num * (j // (len(causal_edge_index[0]) / 3))) , int(v.item() - num * (j // (len(causal_edge_index[0]) / 3)))
-        #     print((u, v), causal_edge_weight[j])
-        # exit()
-        # # END OF DEBUG
-        
-
-        spu_subgraphs, causal_subgraphs, expl_accs, causal_masks = [], [], [], []
-        if "CIGA" in self.config.model.model_name:
-            norm_edge_scores = [e.sigmoid() for e in edge_scores]
-        else:
-            norm_edge_scores = edge_scores
-
-        # spu_subgraphs2, causal_subgraphs2, expl_accs2 = [], [], []
-        # Select relevant subgraph (bs = 1)
-        # for i in range(len(graphs)):
-        #     (causal_edge_index, causal_edge_attr, causal_edge_weight), \
-        #         (spu_edge_index, spu_edge_attr, spu_edge_weight) = split_graph(
-        #             graphs[i],
-        #             edge_scores[i],
-        #             ratio
-        #         )
-        #     causal_subgraphs2.append(causal_edge_index.detach().cpu())
-        #     spu_subgraphs2.append(spu_edge_index.detach().cpu())
-        #     expl_accs2.append(xai_utils.expl_acc(causal_subgraphs2[-1], graphs[i], norm_edge_scores[i]) if hasattr(graphs[i], "edge_gt") else np.nan)
-
-        # Select relevant subgraph (bs = all)
-        big_data = Batch().from_data_list(graphs)        
-        (causal_edge_index, causal_edge_attr, causal_edge_weight, causal_batch), \
-            (spu_edge_index, spu_edge_attr, spu_edge_weight), mask = split_graph(
-                big_data,
-                torch.cat(edge_scores, dim=0),
-                ratio,
-                return_batch=True,
-                is_weight=is_weight
-            )
-        
-        cumnum = torch.tensor([g.num_nodes for g in graphs]).cumsum(0)
-        cumnum[-1] = 0
-        for j in range(causal_batch.max() + 1):
-            causal_subgraphs.append(causal_edge_index[:, big_data.batch[causal_edge_index[0]] == j] - cumnum[j-1])
-            spu_subgraphs.append(spu_edge_index[:, big_data.batch[spu_edge_index[0]] == j] - cumnum[j-1])
-            expl_accs.append(xai_utils.expl_acc(causal_subgraphs[-1], graphs[j], norm_edge_scores[j]) if hasattr(graphs[j], "edge_gt") else (np.nan,np.nan))
-            causal_masks.append(mask[big_data.batch[big_data.edge_index[0]] == j])
-
-
-        # assert torch.allclose(torch.tensor(expl_accs), torch.tensor(expl_accs2), atol=1e-5)
-        # for k in range(causal_batch.max()):
-        #     assert torch.all(causal_subgraphs[k] == causal_subgraphs2[k]), f"\n{causal_subgraphs[k]}\n{causal_subgraphs2[k]}"
-        #     assert torch.all(spu_subgraphs[k] == spu_subgraphs2[k]), f"\n{spu_subgraphs[k]}\n{spu_subgraphs2[k]}"
-
-        # big_data = Batch().from_data_list(graphs[:10])        
-        # (causal_edge_index2, causal_edge_attr, causal_edge_weight, causal_batch2), \
-        #     (spu_edge_index, spu_edge_attr, spu_edge_weight) = split_graph(
-        #         big_data,
-        #         torch.cat(edge_scores[:10], dim=0),
-        #         ratio,
-        #         return_batch=True
-        #     )            
-        # print(edge_scores[0].dtype)
-        # for k in range(5):
-        #     print(sort_edge_index(causal_subgraphs[k]))
-        #     print(sort_edge_index(causal_edge_index[:, causal_batch == k]) - sum([graphs[j].num_nodes for j in range(k)]))
-        #     print(sort_edge_index(causal_edge_index2[:, causal_batch2 == k]) - sum([graphs[j].num_nodes for j in range(k)]))
-        #     print("-"*20)
-        # exit()
-        
-        return causal_subgraphs, spu_subgraphs, expl_accs, causal_masks
-    
-    @torch.no_grad()
-    def get_subragphs_weight(self, graphs, weight, edge_scores):
-        spu_subgraphs, causal_subgraphs, cau_idxs, spu_idxs = [], [], [], []
-        expl_accs = []
-        # Select relevant subgraph
-        for i in range(len(graphs)):
-            cau_idxs.append(edge_scores[i] >= weight)
-            spu_idxs.append(edge_scores[i] < weight)
-
-            spu = (graphs[i].edge_index.T[spu_idxs[-1]]).T
-            cau = (graphs[i].edge_index.T[cau_idxs[-1]]).T
-
-            causal_subgraphs.append(cau)
-            spu_subgraphs.append(spu)
-            expl_accs.append(xai_utils.expl_acc(cau, graphs[i]) if hasattr(graphs[i], "edge_gt") else np.nan)
-        return causal_subgraphs, spu_subgraphs, expl_accs, cau_idxs, spu_idxs
 
     @torch.no_grad()
     def evaluate_graphs(self, loader, log=False, **kwargs):
@@ -962,7 +820,7 @@ class Pipeline:
         return dataset
 
     @torch.no_grad()
-    def evaluate(self, split: str, compute_suff=False, compute_wiou=False, compute_clf_only_pred=False):
+    def evaluate(self, split: str, epoch:int, compute_wiou=False, compute_clf_only_pred=False):
         r"""
         This function is design to collect data results and calculate scores and loss given a dataset subset.
         (For project use only)
@@ -996,26 +854,32 @@ class Pipeline:
         wious_all = []
         pbar = tqdm(self.loader[split], desc=f'Eval {split.capitalize()}', total=len(self.loader[split]),
                     **pbar_setting)
-        c = 0
         for data in pbar:
-            data: Batch = data.to(self.config.device)
+            data: Batch = data.to(self.config.device)            
 
-            # c += 1
-            # if c < 2:
-            #     continue
-            
-
-            mask, targets = nan2zero_get_mask(data, split, self.config)
+            mask, targets = nan2zero_get_mask(data, split, self.config)            
             if mask is None:
                 return stat
-            node_norm = torch.ones((data.num_nodes,),
-                                   device=self.config.device) if self.config.model.model_level == 'node' else None
-            data, targets, mask, node_norm = self.ood_algorithm.input_preprocess(data, targets, mask, node_norm,
-                                                                                 self.model.training,
-                                                                                 self.config)
-            model_output = self.model(data=data, edge_weight=None, ood_algorithm=self.ood_algorithm)
-            raw_preds = self.ood_algorithm.output_postprocess(model_output)
+            
+            # node_norm = torch.ones((data.num_nodes,),
+                                #    device=self.config.device) if self.config.model.model_level == 'node' else None
+            node_norm = data.get('node_norm') if self.config.model.model_level == 'node' else None
 
+            data, targets, mask, node_norm = self.ood_algorithm.input_preprocess(
+                data,
+                targets,
+                mask,
+                node_norm,
+                self.model.training,
+                self.config
+            )
+            
+            model_output = self.model(
+                data=data,
+                edge_weight=None,
+                ood_algorithm=self.ood_algorithm
+            )
+            
             if compute_clf_only_pred:
                 clf_only_output = self.model.predict_from_subgraph(
                     data=data,
@@ -1025,9 +889,12 @@ class Pipeline:
                 pred_clf_only_all.append(clf_only_output.cpu().numpy())
 
             # --------------- Loss collection ------------------
-            loss: torch.tensor = self.config.metric.loss_func(raw_preds, targets, reduction='none') * mask
+            raw_preds = self.ood_algorithm.output_postprocess(model_output)
+            loss = self.ood_algorithm.loss_calculate(raw_preds, targets, mask, node_norm, self.config, batch=data.batch)
+            loss = self.ood_algorithm.loss_postprocess(loss, data, mask, self.config, epoch)
+
             mask_all.append(mask)
-            loss_all.append(loss)
+            loss_all.append(loss.item())
 
             # ------------- Likelihood data collection ------------------
             if raw_preds.shape[-1] > 1:
@@ -1054,10 +921,10 @@ class Pipeline:
                 )
 
         # ------- Loss calculate -------
-        loss_all = torch.cat(loss_all)
+        loss_all = torch.tensor(loss_all)
         mask_all = torch.cat(mask_all)
         likelihoods_all = torch.cat(likelihoods_all)
-        stat['loss'] = loss_all.sum() / mask_all.sum()
+        stat['loss'] = loss_all.mean()
         stat['likelihood_avg'] = likelihoods_all.mean()
         stat['likelihood_prod'] = torch.prod(likelihoods_all)
         stat['likelihood_logprod'] = torch.sum(likelihoods_all.log())
@@ -1162,7 +1029,6 @@ class Pipeline:
 
                 print(f'#IN#ChartInfo {id_ckpt["id_test_score"]:.4f} {id_ckpt["test_score"]:.4f} '
                       f'{ckpt["id_test_score"]:.4f} {ckpt["test_score"]:.4f} {ckpt["id_val_score"]:.4f} {ckpt["val_score"]:.4f}', end='')
-
             else:
                 print(f'#IN#No In-Domain checkpoint.')
                 # model.load_state_dict(ckpt['state_dict'])
@@ -1189,110 +1055,6 @@ class Pipeline:
                     self.model.gnn.load_state_dict(ckpt['state_dict'])
             return ckpt["test_score"], id_ckpt
 
-    # @torch.no_grad()
-    # def save_epoch(self, epoch: int, train_stat: dir, id_val_stat: dir, id_test_stat: dir, val_stat: dir,
-    #                test_stat: dir, config: Union[CommonArgs, Munch]):
-    #     r"""
-    #     Training util for checkpoint saving.
-
-    #     Args:
-    #         epoch (int): epoch number
-    #         train_stat (dir): train statistics
-    #         id_val_stat (dir): in-domain validation statistics
-    #         id_test_stat (dir): in-domain test statistics
-    #         val_stat (dir): ood validation statistics
-    #         test_stat (dir): ood test statistics
-    #         config (Union[CommonArgs, Munch]): munchified dictionary of args (:obj:`config.ckpt_dir`, :obj:`config.dataset`, :obj:`config.train`, :obj:`config.model`, :obj:`config.metric`, :obj:`config.log_path`, :obj:`config.ood`)
-
-    #     Returns:
-    #         None
-
-    #     """
-    #     if epoch < config.train.pre_train:
-    #         return
-
-    #     if not (config.metric.best_stat['score'] is None or config.metric.lower_better * val_stat[
-    #         'score'] < config.metric.lower_better *
-    #             config.metric.best_stat['score']
-    #             or (id_val_stat.get('score') and (
-    #                     config.metric.id_best_stat['score'] is None or config.metric.lower_better * id_val_stat[
-    #                 'score'] < config.metric.lower_better * config.metric.id_best_stat['score']))
-    #             or epoch % config.train.save_gap == 0):
-    #         return
-        
-    #     state_dict = self.model.state_dict() if config.ood.ood_alg != 'EERM' else self.model.gnn.state_dict()
-    #     ckpt = {
-    #         'state_dict': state_dict,
-    #         'train_score': train_stat['score'],
-    #         'train_loss': train_stat['loss'],
-    #         'id_val_score': id_val_stat['score'],
-    #         'id_val_loss': id_val_stat['loss'],
-    #         'id_test_score': id_test_stat['score'],
-    #         'id_test_loss': id_test_stat['loss'],
-    #         'val_score': val_stat['score'],
-    #         'val_loss': val_stat['loss'],
-    #         'test_score': test_stat['score'],
-    #         'test_loss': test_stat['loss'],
-    #         'time': datetime.datetime.now().strftime('%b%d %Hh %M:%S'),
-    #         'model': {
-    #             'model name': f'{config.model.model_name} {config.model.model_level} layers',
-    #             'dim_hidden': config.model.dim_hidden,
-    #             'dim_ffn': config.model.dim_ffn,
-    #             'global pooling': config.model.global_pool
-    #         },
-    #         'dataset': config.dataset.dataset_name,
-    #         'train': {
-    #             'weight_decay': config.train.weight_decay,
-    #             'learning_rate': config.train.lr,
-    #             'mile stone': config.train.mile_stones,
-    #             'shift_type': config.dataset.shift_type,
-    #             'Batch size': f'{config.train.train_bs}, {config.train.val_bs}, {config.train.test_bs}'
-    #         },
-    #         'OOD': {
-    #             'OOD alg': config.ood.ood_alg,
-    #             'OOD param': config.ood.ood_param,
-    #             'number of environments': config.dataset.num_envs
-    #         },
-    #         'log file': config.log_path,
-    #         'epoch': epoch,
-    #         'max epoch': config.train.max_epoch
-    #     }
-
-    #     if not os.path.exists(config.ckpt_dir):
-    #         os.makedirs(config.ckpt_dir)
-    #         print(f'#W#Directory does not exists. Have built it automatically.\n'
-    #               f'{os.path.abspath(config.ckpt_dir)}')
-
-    #     saved_file = os.path.join(config.ckpt_dir, f'last.ckpt')
-    #     torch.save(ckpt, saved_file)
-
-    #     if not config.clean_save:
-    #         # WARNING: Original code was saving every epoch and then if 'clean_save' delete checkpoint
-    #         shutil.copy(saved_file, os.path.join(config.ckpt_dir, f'{epoch}.ckpt'))
-
-    #     # --- In-Domain checkpoint ---
-    #     # WARNING: Original code saves if 'score' is not None AND if valiation score is grater than best validation score
-    #     # if id_val_stat.get('score') and (
-    #     #         config.metric.id_best_stat['score'] is None or config.metric.lower_better * id_val_stat[
-    #     #     'score'] < config.metric.lower_better * config.metric.id_best_stat['score']):
-    #     if id_val_stat.get('loss') and (
-    #             config.metric.id_best_stat['loss'] is None or id_val_stat['loss'] < config.metric.id_best_stat['loss']):            
-    #         config.metric.id_best_stat['score'] = id_val_stat['score']
-    #         config.metric.id_best_stat['loss'] = id_val_stat['loss']
-    #         shutil.copy(saved_file, os.path.join(config.ckpt_dir, f'id_best.ckpt'))
-    #         print('#IM#Saved a new best In-Domain checkpoint based on validation loss.')
-
-    #     # --- Out-Of-Domain checkpoint ---
-    #     # if id_val_stat.get('score'):
-    #     #     if not (config.metric.lower_better * id_val_stat['score'] < config.metric.lower_better * val_stat['score']):
-    #     #         return
-    #     if val_stat.get('loss') and (
-    #             config.metric.best_stat['loss'] is None or val_stat['loss'] < config.metric.best_stat['loss']):
-            
-    #         config.metric.best_stat['score'] = val_stat['score']
-    #         config.metric.best_stat['loss'] = val_stat['loss']
-    #         shutil.copy(saved_file, os.path.join(config.ckpt_dir, f'best.ckpt'))
-    #         print('#IM#Saved a new best OOD checkpoint based on validation loss.')
 
     def save_epoch(self, epoch: int, train_stat: dir, id_val_stat: dir, id_test_stat: dir, val_stat: dir,
                    test_stat: dir, config: Union[CommonArgs, Munch], loss_per_batch_dict: dict, manual_save:str=None):
