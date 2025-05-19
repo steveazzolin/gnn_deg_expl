@@ -76,7 +76,6 @@ def main():
         args.exp_round = seed
         
         config = config_summoner(args)
-        config["mitigation_backbone"] = args.mitigation_backbone
         print(config.random_seed, config.exp_round)
         print(args)
         if i == 0:
