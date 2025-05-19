@@ -22,7 +22,7 @@ class Classifier(torch.nn.Module):
         super(Classifier, self).__init__()
         
 
-        if config.model.gnn_clf_layer == 0:
+        if config.model.gnn_clf_layer == 0 and config.mitigation_sampling == "raw":
             hidden_dim = config.dataset.dim_node
         else:
             hidden_dim = config.model.dim_hidden
