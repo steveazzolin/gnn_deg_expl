@@ -34,10 +34,6 @@ class TrainArgs(Tap):
     channel_int: float = None  #: Scaling coefficient for integrating local and global channels.
     l_norm_coeff: float = None # Added by Steve
     entr_coeff: float = None # Added by Steve
-    channel_weight_decay: float = 0.001 # Added by Steve
-    combinator_weight_decay: float = 0.0 # Added by Steve
-    end_temp: float = 0.3 # Added by Steve
-    combinator_temp: float = None # Added by Steve
 
     pretrain_degenerate: bool = None  #: Whether to do a pretrain inducing a degenerate-like behaviour
 
@@ -119,7 +115,6 @@ class CommonArgs(Tap):
     exp_round: int = None  #: Current experiment round.
 
     seeds: str = None # Added by Steve
-    mitigation_backbone: str = None # Added by Steve
     mitigation_sampling: str = None # Added by Steve
     mitigation_readout: str = None # Added by Steve
     mitigation_virtual: str = None # Added by Steve
