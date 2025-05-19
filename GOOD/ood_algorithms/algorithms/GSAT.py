@@ -105,6 +105,7 @@ class GSAT(BaseOODAlg):
         # info_loss = scatter_sum(-attn_norm_per_batch * logattn, data.batch[data.edge_index[0]]).mean()
 
         if self.model.entropy_reg:
+          exit("disable")
           attn = att.squeeze(1)
           self.entr_loss = self.config.train.entr_coeff * torch.mean(-attn * torch.log(attn + 1e-6) - (1 - attn) * torch.log(1 - attn + 1e-6))  
           self.spec_loss += self.entr_loss
