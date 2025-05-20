@@ -44,7 +44,7 @@ class GSAT(GNNBasic):
         else:
             self.gnn_clf = None
 
-        self.classifierS = Classifier(config, is_linear=True)
+        self.classifierS = Classifier(config, is_linear=False)
         
         self.learn_edge_att = config.ood.extra_param[0]
         self.config = config
