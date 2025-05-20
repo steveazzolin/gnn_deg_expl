@@ -35,8 +35,8 @@ class BaseOODAlg(ABC):
         self.stage = 0
 
         # Placeholder variables
-        self.l_norm_loss = torch.tensor(0)
-        self.entr_loss = torch.tensor(0)
+        self.l_norm_loss = torch.nan #torch.tensor(0)
+        self.entr_loss = torch.nan #torch.tensor(0)
 
     def stage_control(self, config):
         r"""
