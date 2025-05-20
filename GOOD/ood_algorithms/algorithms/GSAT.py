@@ -60,10 +60,7 @@ class GSAT(BaseOODAlg):
             model raw predictions.
 
         """
-        if self.config.global_side_channel:
-            raw_out, self.att, self.edge_att, self.global_filter_attn, (self.logit_gnn, self.logit_global) = model_output
-        else:
-            raw_out, self.att, self.edge_att = model_output
+        raw_out, self.att, self.edge_att = model_output
         return raw_out
 
     def loss_postprocess(self, loss: Tensor, data: Batch, mask: Tensor, config: Union[CommonArgs, Munch], epoch:int,
@@ -93,7 +90,7 @@ class GSAT(BaseOODAlg):
         eps = 1e-6
         
         # Original GSAT spec_loss
-        r = self.get_r(self.decay_interval, self.decay_r, config.train.epoch, final_r=self.final_r)
+        r = self.get_r(self.decay_interval, self.decay_r, config.train.epoch or epoch, final_r=self.final_r)
         info_loss = (att * torch.log(att / r + eps) +
                      (1 - att) * torch.log((1 - att) / (1 - r + eps) + eps)).mean()
         self.spec_loss = config.ood.ood_param * info_loss
