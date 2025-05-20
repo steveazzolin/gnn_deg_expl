@@ -87,22 +87,20 @@ class Pipeline:
         self.ood_algorithm: BaseOODAlg = ood_algorithm
         self.config: Union[CommonArgs, Munch] = config
 
-    def pretrain_batch_degenerate(self, loader: DataLoader, config: Union[CommonArgs, Munch]) -> dict:
-        f1_pos_epoch, f1_neg_epoch, acc_epoch = 0, 0, 0
+    def pretrain_model(self, loader: DataLoader) -> dict:
+        performance_bar = 0.95 if self.config.train.pretrain == "suff" else 0.99
+        f1_pos_epoch, f1_neg_epoch, acc_epoch, loss_epoch = 0, 0, 0, 10
         epoch = -1
-        while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < 0.99:
+        while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or loss_epoch > 0.01:
             epoch += 1
             self.config.train.epoch = epoch
             print(f'\nEpoch {epoch}:')
 
             per_batch_metrics = defaultdict(list)
             pbar = tqdm(enumerate(loader), total=len(loader), **pbar_setting)
-            for index, data in pbar:
-                
-                # train a batch
+            for index, data in pbar:                
                 self.ood_algorithm.optimizer.zero_grad()
                 data = data.to(self.config.device)
-
                 mask, targets = nan2zero_get_mask(data, 'train', self.config)
                 node_norm = data.get('node_norm') if self.config.model.model_level == 'node' else None
                 data, _, mask, _ = self.ood_algorithm.input_preprocess(
@@ -123,62 +121,110 @@ class Pipeline:
                     pretrain=True
                 )
 
-                # Train the classifier
+                # Train the classifier                
                 raw_pred = self.ood_algorithm.output_postprocess(model_output)       
                 clf_loss = self.ood_algorithm.loss_calculate(raw_pred, targets, mask, node_norm, self.config, batch=data.batch).sum() / mask.sum()
 
-                node_att = self.ood_algorithm.edge_att
+                node_att = self.ood_algorithm.att.sigmoid()
 
                 if len(data.y.shape) > 1:
                     graph_label_per_node = data.y.view(-1)[data.batch] # contains for each node the label of the graph it belongs to
                 else:
                     graph_label_per_node = data.y[data.batch]
-
-                targets = torch.zeros_like(data.node_is_spurious, dtype=torch.float, device=data.x.device)
-
-                # blue_nodes_for_negative = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 0).float()
-                # red_nodes_for_positive = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 1).float()
-                # targets += blue_nodes_for_negative + red_nodes_for_positive
-
-                # G iff R>=B; V iff R<B
-                violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 0).float()
-                green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
-                targets += green_nodes_for_positive + violet_nodes_for_negative
-
-                # G+V iff R>=B; \emptyset iff R<B
-                # violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 1).float()
-                # green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
-                # targets += green_nodes_for_positive + violet_nodes_for_negative
                 
+                targets = torch.full_like(
+                    data.node_is_spurious,
+                    fill_value=0.,
+                    dtype=torch.float,
+                    device=data.x.device
+                )
+                if self.config.train.pretrain == "degenerate":
+                    # blue_nodes_for_negative = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 0).float()
+                    # red_nodes_for_positive = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 1).float()
+                    # targets += blue_nodes_for_negative + red_nodes_for_positive
+
+                    # G iff R>=B; V iff R<B
+                    violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 0).float()
+                    green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
+                    targets += green_nodes_for_positive + violet_nodes_for_negative
+
+                    # G+V iff R>=B; \emptyset iff R<B
+                    # violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 1).float()
+                    # green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
+                    # targets += green_nodes_for_positive + violet_nodes_for_negative
+                elif self.config.train.pretrain == "suff":
+                    # Highlight B red nodes for class 0, and R blue nodes for class 1
+                    # node_start = 0
+                    # blue_nodes_for_positive = torch.zeros_like(targets)
+                    # red_nodes_for_negative = torch.zeros_like(targets)
+                    # for j, g in enumerate(data.to_data_list()):
+                    #     if g.y == 0:
+                    #         num_blue = torch.sum(g.x[:, 1] >= 1)
+                    #         red_nodes_in_g = g.x[:, 0] >= 1
+                    #         cumsum_red = torch.cumsum(red_nodes_in_g, dim=0)
+                    #         red_nodes_in_g[cumsum_red > num_blue] = False
+                    #         red_nodes_for_negative[node_start:node_start+g.x.shape[0]] = red_nodes_in_g
+                    #     else:
+                    #         num_red = torch.sum(g.x[:, 0] >= 1)
+                    #         blue_nodes_in_g = g.x[:, 1] >= 1
+                    #         cumsum_blue = torch.cumsum(blue_nodes_in_g, dim=0)
+                    #         blue_nodes_in_g[cumsum_blue > num_red] = False
+                    #         blue_nodes_for_positive[node_start:node_start+g.x.shape[0]] = blue_nodes_in_g
+                    #     node_start += g.x.shape[0]
+
+                    # Highlight all red nodes for class 0, and all blue nodes for class 1. Easy, but suboptimal
+                    blue_nodes_for_positive = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 1).float()
+                    red_nodes_for_negative = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 0).float()
+                    targets += blue_nodes_for_positive + red_nodes_for_negative
+                else:
+                    assert False
+
+                uninformative_value = 0 #self.config.ood.extra_param[2] if "GSAT" in self.config.model.model_name else 0.
+                targets[targets == 0] = uninformative_value                
+                
+                # Weighted Cross-Entropy Loss
                 loss_weight = targets.clone()
                 loss_weight[targets == 0] = 1
                 loss_weight[targets == 1] = 10
-                loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
-                self.ood_algorithm.backward(loss + clf_loss)
+                detector_loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
+
+                # L2 distance
+                # detector_loss = ((node_att.squeeze(1) - targets) ** 2).mean()
+
+                self.ood_algorithm.backward(detector_loss + clf_loss)
                 
                 pred, target = eval_data_preprocess(data.y, raw_pred, mask, self.config)
                 task_score = eval_score([pred], [target], self.config, pos_class=self.loader["train"].dataset.minority_class)
                 f1_pos = f1_score(
-                    targets.cpu().numpy(),
-                    (node_att.squeeze(1) > 0.8).cpu().numpy(),
+                    (targets > uninformative_value).cpu().numpy(),
+                    (node_att.squeeze(1) > 0.9).cpu().numpy(),
                     average='binary',
                     pos_label=1
                 )
+                # baseline_relevant_for_negative = uninformative_value + 0.1 if "GSAT" in self.config.model.model_name else 0.2
                 f1_neg = f1_score(
-                    targets.cpu().numpy(),
-                    (node_att.squeeze(1) > 0.2).cpu().numpy(),
+                    (targets > uninformative_value).cpu().numpy(),
+                    (node_att.squeeze(1) > 0.1).cpu().numpy(),
                     average='binary',
                     pos_label=0
                 )
-                per_batch_metrics["loss"].append(loss.item())
+                per_batch_metrics["loss"].append(detector_loss.item())
                 per_batch_metrics["f1_pos"].append(f1_pos)
                 per_batch_metrics["f1_neg"].append(f1_neg)
-                f1_pos_epoch = np.mean(per_batch_metrics['f1_pos'])
-                f1_neg_epoch = np.mean(per_batch_metrics['f1_neg'])
-                acc_epoch = task_score
+                per_batch_metrics["task_score"].append(task_score)
+                per_batch_metrics["clf_loss"].append(clf_loss.item())
+            f1_pos_epoch = np.mean(per_batch_metrics['f1_pos'])
+            f1_neg_epoch = np.mean(per_batch_metrics['f1_neg'])
+            acc_epoch = np.mean(per_batch_metrics['task_score'])
+            loss_epoch = np.mean(per_batch_metrics['clf_loss'])
+            
+            print(node_att.squeeze(1)[targets==1].mean().item(), node_att.squeeze(1)[targets==1].std().item(), node_att.squeeze(1)[targets==1].min().item())
+            print(node_att.squeeze(1)[targets!=1].mean().item(), node_att.squeeze(1)[targets!=1].std().item(), node_att.squeeze(1)[targets!=1].max().item())
+            print(max(per_batch_metrics["loss"]))
             
             print(
-                f"Degenerate Loss: {np.mean(per_batch_metrics['loss']):.4f} " +
+                f"Detector Loss: {np.mean(per_batch_metrics['loss']):.4f} " +
+                f"Clf Loss: {np.mean(per_batch_metrics['clf_loss']):.4f} " +
                 f"F1_pos: {f1_pos_epoch:.2f} " +
                 f"F1_neg: {f1_neg_epoch:.2f} " +
                 f"Acc: {acc_epoch:.2f}"
@@ -199,11 +245,11 @@ class Pipeline:
         loss_per_batch_dict = {}
         
         self.save_epoch(
-            epoch,
+            self.config.train.max_epoch,
             epoch_train_stat, id_val_stat, id_test_stat, val_stat, test_stat,
             self.config,
             loss_per_batch_dict,
-            manual_save="pretrain_degenerate"
+            # manual_save="pretrain_degenerate"
         )
         return None
 
@@ -294,19 +340,14 @@ class Pipeline:
                 step=0
             )
 
-        if self.config.train.pretrain_degenerate:
+        if self.config.train.pretrain:
             # for param in self.model.classifierS.parameters():
             #     param.requires_grad = False
 
             print("#IM#Pretraining model for degenerate explanations")
-            self.pretrain_batch_degenerate(self.loader['train'], self.config)
+            self.pretrain_model(self.loader['train'])
             print("#IM#End of pretraining")
-            
-            # for param in self.model.parameters():
-            #     param.requires_grad = False
-            
-            # for param in self.model.classifierS.parameters():
-            #     param.requires_grad = True
+            return
 
         # train the model
         counter = 1
@@ -845,7 +886,8 @@ class Pipeline:
         #     conv.mlp.train()
         # self.model.gnn.eval()
 
-        loss_all = []
+        # loss_all = []
+        loss_per_batch_dict = defaultdict(list)
         mask_all = []
         pred_all = []
         pred_clf_only_all = []
@@ -893,8 +935,15 @@ class Pipeline:
             loss = self.ood_algorithm.loss_calculate(raw_preds, targets, mask, node_norm, self.config, batch=data.batch)
             loss = self.ood_algorithm.loss_postprocess(loss, data, mask, self.config, epoch)
 
+            # print(epoch, loss)
+            # print(raw_preds[:15].sigmoid())
+            # exit()
+            # print(loss, self.ood_algorithm.spec_loss, self.ood_algorithm.mean_loss)
+
             mask_all.append(mask)
-            loss_all.append(loss.item())
+            # loss_all.append(loss.item())
+            for l in ("spec_loss", "entr_loss", "l_norm_loss", "clf_loss", "total_loss"):
+                loss_per_batch_dict[l].append(float(getattr(self.ood_algorithm, l, np.nan))) 
 
             # ------------- Likelihood data collection ------------------
             if raw_preds.shape[-1] > 1:
@@ -921,10 +970,14 @@ class Pipeline:
                 )
 
         # ------- Loss calculate -------
-        loss_all = torch.tensor(loss_all)
+        # loss_all = torch.tensor(loss_all)
         mask_all = torch.cat(mask_all)
         likelihoods_all = torch.cat(likelihoods_all)
-        stat['loss'] = loss_all.mean()
+        
+        # stat['loss'] = loss_all.mean()
+        for l in ("spec_loss", "entr_loss", "l_norm_loss", "clf_loss", "total_loss"):
+            loss_per_batch_dict[l] = np.mean(loss_per_batch_dict[l])
+
         stat['likelihood_avg'] = likelihoods_all.mean()
         stat['likelihood_prod'] = torch.prod(likelihoods_all)
         stat['likelihood_logprod'] = torch.sum(likelihoods_all.log())
@@ -935,7 +988,7 @@ class Pipeline:
 
         print(
             f'{split.capitalize()} {self.config.metric.score_name}: {stat["score"]:.4f} \t' + 
-            f'{split.capitalize()} Loss: {stat["loss"]:.4f} \t' + 
+            f'{split.capitalize()} Loss: {loss_per_batch_dict["total_loss"]:.4f} \t' + 
             (f'{split.capitalize()} WIoU: {stat["wiou"]:.3f} \t' if compute_wiou else '')
         )
 
@@ -944,7 +997,8 @@ class Pipeline:
 
         return {
             'score': stat['score'],
-            'loss': stat['loss'],
+            'loss': loss_per_batch_dict['total_loss'],
+            'loss_dict': loss_per_batch_dict,
             'likelihood_avg': stat['likelihood_avg'],
             'likelihood_prod': stat['likelihood_prod'],
             'likelihood_logprod': stat['likelihood_logprod'],
