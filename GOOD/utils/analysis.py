@@ -976,10 +976,10 @@ def print_r_ge_b_hist(args):
                     if ret["id_val"]["samples"][j].y.item() == label:
                         node_colors = list(
                             map( # Convert list of tuples into list of colors
-                                loader["id_val"].dataset.color_map.get,
-                                [tuple(r) for r in ret["id_val"]["samples"][j].x.tolist()] # convert feature matrix into list of tuples [(1., 0.)]
+                                loader["id_val"].dataset.color_map2.get,
+                                [int(r) for r in ret["id_val"]["samples"][j].x.argmax(dim=1)] # convert feature matrix into list of tuples [(1., 0.)]
                             )
-                        )                        
+                        )
                         list_of_colors[label].extend(node_colors)
                         list_of_scores[label].extend(
                             ret["id_val"]["scores"][j]

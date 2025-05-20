@@ -253,13 +253,21 @@ def draw_colored(config, G, name, thrs, node_expl="", edge_expl="", subfolder=""
     for i in range(len(node_attr)):
         if len(node_gt) > 0 and node_gt[i]:
             node_colors.append("orange") # "lightgreen"
-        elif node_attr[i] == [1., 0., 0., 0.]:
+        # elif node_attr[i] == [1., 0., 0., 0.]:
+        #     node_colors.append("red")
+        # elif node_attr[i] == [0., 1., 0., 0.]:
+        #     node_colors.append("blue")
+        # elif node_attr[i] == [0., 0., 1., 0.]:
+        #     node_colors.append("green")
+        # elif node_attr[i] == [0., 0., 0., 1.]:
+        #     node_colors.append("violet")
+        elif np.argmax(node_attr[i]) == 0:
             node_colors.append("red")
-        elif node_attr[i] == [0., 1., 0., 0.]:
+        elif np.argmax(node_attr[i]) == 1:
             node_colors.append("blue")
-        elif node_attr[i] == [0., 0., 1., 0.]:
+        elif np.argmax(node_attr[i]) == 2:
             node_colors.append("green")
-        elif node_attr[i] == [0., 0., 0., 1.]:
+        elif np.argmax(node_attr[i]) == 3:
             node_colors.append("violet")
         else:
             node_colors.append("orange")
