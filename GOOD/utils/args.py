@@ -35,7 +35,7 @@ class TrainArgs(Tap):
     l_norm_coeff: float = None # Added by Steve
     entr_coeff: float = None # Added by Steve
 
-    pretrain_degenerate: bool = None  #: Whether to do a pretrain inducing a degenerate-like behaviour
+    pretrain: str = None  #: Whether to pretrain the model to induce a degenerate-like behaviour or sufficiency
 
     alpha = None  #: A parameter for DANN.
 

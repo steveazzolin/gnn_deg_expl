@@ -219,8 +219,10 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
         if config.mitigation_expl_scores.lower() == "topk":
             assert config.mitigation_expl_scores_topk >= 0
             model_dirname += f'{args.mitigation_expl_scores_topk}'
-    if config.train.pretrain_degenerate:
+    if config.train.pretrain == "degenerate":
         model_dirname += f"_pretdeg"
+    elif config.train.pretrain == "suff":
+        model_dirname += f"_pretsuff"
 
     print("model_dirname=", model_dirname)
     
