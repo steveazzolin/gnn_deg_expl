@@ -66,7 +66,7 @@ def main():
         exit(0)
 
     run = None
-    test_scores, test_losses, ckpt_losses = defaultdict(list), defaultdict(list), defaultdict(list)
+    test_scores, test_losses, ckpt_losses = defaultdict(list), defaultdict(lambda: defaultdict(list)), defaultdict(list)
     test_likelihoods_avg, test_likelihoods_prod, test_likelihoods_logprod, test_wious = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
     for i, seed in enumerate(args.seeds.split("/")):
         seed = int(seed)
@@ -105,11 +105,11 @@ def main():
             pipeline.task = 'test'
             test_score, ckpt = pipeline.load_task(load_param=True, load_split="id")
             test_scores["saved_score"].append(test_score)
-            for s in ["id_val", "id_test", "val", "test"]:
+            for s in ["train", "id_val", "id_test", "val", "test"]:
                 sa = pipeline.evaluate(s, epoch=ckpt["epoch"])
                 test_scores[s].append(sa['score'])
-            
-            
+                for l in ("spec_loss", "entr_loss", "l_norm_loss", "clf_loss", "total_loss"):
+                    test_losses[s][l].append(sa["loss_dict"][l])
         elif config.task == 'test':
             test_score, ckpt = pipeline.load_task(load_param=True, load_split="id")
 
@@ -121,18 +121,20 @@ def main():
                     epoch=ckpt["epoch"]
                 )
                 test_scores[s].append(sa['score'])
-                test_losses[s].append(sa['loss'].item())
+                # test_losses[s].append(sa['loss'].item())
                 test_wious[s].append(sa['wiou'])
                 test_likelihoods_avg[s].append(sa['likelihood_avg'].item())
                 test_likelihoods_prod[s].append(sa['likelihood_prod'].item())
                 test_likelihoods_logprod[s].append(sa['likelihood_logprod'].item())
+                for l in ("spec_loss", "entr_loss", "l_norm_loss", "clf_loss", "total_loss"):
+                    test_losses[s][l].append(sa["loss_dict"][l])
 
                 if s == "val":
                     print("Predictions on VAL: \t", sa['pred'][0])
                     print("CLF Predictions VAL: \t", sa['pred_clf_only'][0])
 
             for loss_name in ckpt.keys():
-                if loss_name in ("mean_loss", "spec_loss", "total_loss", "entr_loss", "l_norm_loss", "clf_loss"):
+                if loss_name in ("spec_loss", "total_loss", "entr_loss", "l_norm_loss", "clf_loss"):
                     ckpt_losses[loss_name].append(ckpt[loss_name])
     
     if config.save_metrics:
@@ -143,7 +145,7 @@ def main():
     for s in test_scores.keys():
         print(f"{s.upper():<10} = {np.mean(test_scores[s]):.3f} +- {np.std(test_scores[s]):.3f}")
 
-    if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated") and config.model.gnn_clf_layer == 0:
+    if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated") and config.model.gnn_clf_layer == 0 and config.mitigation_sampling == "raw":
         print(f"\n\nClassifier weights:")
         print(model.classifierS.classifier[0].weight.detach())
         if "DIR" in config.model.model_name:
@@ -154,14 +156,15 @@ def main():
 
     print("\n\nFinal losses: ")
     for s in test_losses.keys():
-        print(f"{s.upper():<10} = {np.mean(test_losses[s]):.4f} +- {np.std(test_losses[s]):.4f}")
+        string = f"{s.upper():<10}"
+        for l in ("total_loss", "spec_loss", "entr_loss", "l_norm_loss", "clf_loss"):
+            if not np.isnan(np.mean(test_losses[s][l])):
+                string += f"  {l:<8} {np.mean(test_losses[s][l]):.4f} +- {np.std(test_losses[s][l]):.4f}"
+        print(string)
 
     print("\n\nCkpt losses for TRAIN: ")
     for s in ckpt_losses.keys():
         print(f"{s:<12} = {np.mean(ckpt_losses[s]):.4f} +- {np.std(ckpt_losses[s]):.4f}")
-            
-    for s in [""]: #"ood_"
-        print(f"Diff id_val-test {s} = {abs(np.mean(test_losses[s + 'id_val']) - np.mean(test_losses[s + 'test'])):.4f} ")
 
     if config.save_metrics:
         print("Saving metrics to json...")
