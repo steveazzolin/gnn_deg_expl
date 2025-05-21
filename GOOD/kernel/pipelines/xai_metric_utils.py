@@ -481,6 +481,54 @@ def fidelity(graph, type):
         )
     ]
 
+def robust_fidelity(graph, type, p, expval_budget):
+    """
+        Generate the perturbed sample according to Robust Fidelity+ and Robust Fidelity-.
+        I.e., remove random edges in a IID fashion.
+        Partially inspired from https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/utils/dropout.html#dropout_edge
+    """
+    if graph.node_mask.sum() == 0: # discard empty explanations
+        return None
+    
+    if type == "rfidm":
+        # sample IID for each edge, then force edges inside of R to remain
+        nodes_to_keep = graph.node_mask
+    elif type == "rfidp":
+        # sample IID from the complement
+        nodes_to_keep = torch.logical_not(graph.node_mask)
+        exit("spetta")
+
+    row, col = graph.edge_index
+    _, _, force_to_keep = subgraph(
+        nodes_to_keep,
+        graph.edge_index,
+        return_edge_mask=True,
+        relabel_nodes=True,
+        num_nodes=graph.x.shape[0]
+    )   
+
+    ret = []
+    for _ in range(expval_budget):
+        edge_mask = torch.rand(row.size(0), device=graph.edge_index.device) >= p
+        edge_mask[force_to_keep] = True # force to keep edges inside R        
+        edge_mask[row > col] = False  # force undirected
+        edge_index = graph.edge_index[:, edge_mask]
+        edge_index = torch.cat([edge_index, edge_index.flip(0)], dim=1)
+        idx_kept_edges = edge_mask.nonzero().repeat((2, 1)).squeeze()
+        ret.append(
+                Data(
+                x=graph.x,
+                edge_index=edge_index,
+                edge_attr=graph.edge_attr[idx_kept_edges] if "edge_attr" in graph.keys() else None,
+                node_is_spurious=graph.node_is_spurious,
+                y=graph.y,
+                node_expl=graph.node_expl,
+                node_mask=graph.node_mask,
+                edge_mask=graph.edge_mask[idx_kept_edges],
+            )
+        )
+    return ret
+
 def sample_edges(G_ori, alpha, deconfounded, edge_index_to_remove):
     # keep each spu/inv edge with probability alpha
     G = G_ori.copy()
