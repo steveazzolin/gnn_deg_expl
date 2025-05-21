@@ -507,26 +507,39 @@ def robust_fidelity(graph, type, p, expval_budget):
         num_nodes=graph.x.shape[0]
     )   
 
-    ret = []
-    for _ in range(expval_budget):
-        edge_mask = torch.rand(row.size(0), device=graph.edge_index.device) >= p
-        edge_mask[force_to_keep] = True # force to keep edges inside R        
-        edge_mask[row > col] = False  # force undirected
-        edge_index = graph.edge_index[:, edge_mask]
-        edge_index = torch.cat([edge_index, edge_index.flip(0)], dim=1)
-        idx_kept_edges = edge_mask.nonzero().repeat((2, 1)).squeeze()
-        ret.append(
-                Data(
+    ret = [
+            Data(
                 x=graph.x,
-                edge_index=edge_index,
-                edge_attr=graph.edge_attr[idx_kept_edges] if "edge_attr" in graph.keys() else None,
+                # edge_index=edge_index,
+                edge_attr=None, #graph.edge_attr[idx_kept_edges] if has_edge_attr else None,
                 node_is_spurious=graph.node_is_spurious,
                 y=graph.y,
                 node_expl=graph.node_expl,
                 node_mask=graph.node_mask,
-                edge_mask=graph.edge_mask[idx_kept_edges],
-            )
+                # edge_mask=graph.edge_mask[idx_kept_edges],
         )
+        for _ in range(expval_budget)
+    ] 
+    has_edge_attr= "edge_attr" in graph.keys()
+    edge_masks = torch.rand((expval_budget, row.size(0)), device=graph.edge_index.device) >= p
+    edge_masks[:, force_to_keep] = True # force to keep edges inside R
+    edge_masks[:, row > col] = False  # force undirected
+    all_nonzero = edge_masks.nonzero()
+    for j in range(expval_budget):
+        edge_mask = edge_masks[j]
+        edge_index = graph.edge_index[:, edge_mask]
+        edge_index = torch.cat([edge_index, edge_index.flip(0)], dim=1)
+        
+        # idx_kept_edges = edge_mask.nonzero().repeat((2, 1)).squeeze()
+        # assert torch.all(edge_mask.nonzero() == all_nonzero[all_nonzero[:, 0] == j][:, 1].reshape(-1, 1))
+        # idx_kept_edges_old = all_nonzero[all_nonzero[:, 0] == j][:, 1].reshape(-1, 1).repeat((2, 1)).squeeze()     
+
+        idx_kept_edges = all_nonzero[all_nonzero[:, 0] == j][:, 1].repeat(2).squeeze()     
+        
+        ret[j].edge_index=edge_index
+        ret[j].edge_mask=graph.edge_mask[idx_kept_edges]
+        if has_edge_attr:
+            ret[j].edge_attr=graph.edge_attr[idx_kept_edges]
     return ret
 
 def sample_edges(G_ori, alpha, deconfounded, edge_index_to_remove):
