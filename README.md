@@ -58,8 +58,9 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --see
 
 # BAColorGVIsolated (GSAT - ACR)
 # BAColorGVIsolated (GSAT - ACR w 1-layer CLF)
-# BAColorGVIsolated (GSAT - ACR - As per paper with lin. clf. - Pretrain Degenerate)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1" --task test --pretrain_degenerate
+# BAColorGVIsolated (GSAT - ACR - As per paper with lin. clf. - Pretrain Degenerate/Suff)
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain suff
 
 
 # BAColorGVIsolated (DIR - ACR k=0.1)
