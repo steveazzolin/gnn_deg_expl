@@ -146,7 +146,7 @@ class Pipeline:
                     # red_nodes_for_positive = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 1).float()
                     # targets += blue_nodes_for_negative + red_nodes_for_positive
 
-                    # G iff R>=B; V iff R<B
+                    # G iff R<B; V iff R>=B
                     violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 0).float()
                     green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
                     targets += green_nodes_for_positive + violet_nodes_for_negative
