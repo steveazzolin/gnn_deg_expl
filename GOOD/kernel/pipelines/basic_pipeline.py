@@ -125,6 +125,9 @@ class Pipeline:
                 raw_pred = self.ood_algorithm.output_postprocess(model_output)       
                 clf_loss = self.ood_algorithm.loss_calculate(raw_pred, targets, mask, node_norm, self.config, batch=data.batch).sum() / mask.sum()
 
+                # if min(f1_pos_epoch, f1_neg_epoch) < 0.99:
+                #     clf_loss = torch.tensor(0, device=self.config.device)
+
                 node_att = self.ood_algorithm.att.sigmoid()
 
                 if len(data.y.shape) > 1:
@@ -298,11 +301,11 @@ class Pipeline:
             'loss': loss.detach(),
             'score': eval_score([pred], [target], self.config, pos_class=self.loader["train"].dataset.minority_class), 
             'clf_loss': self.ood_algorithm.clf_loss,
-            'l_norm_loss': self.ood_algorithm.l_norm_loss.item(),
-            'entr_loss': self.ood_algorithm.entr_loss.item(),
-            'spec_loss': self.ood_algorithm.spec_loss.item(),
-            'mean_loss': self.ood_algorithm.mean_loss.item(),
-            'total_loss': self.ood_algorithm.total_loss.item(),
+            'l_norm_loss': float(self.ood_algorithm.l_norm_loss),
+            'entr_loss': float(self.ood_algorithm.entr_loss),
+            'spec_loss': float(self.ood_algorithm.spec_loss),
+            'mean_loss': float(self.ood_algorithm.mean_loss),
+            'total_loss': float(self.ood_algorithm.total_loss),
         }
 
 
@@ -577,7 +580,7 @@ class Pipeline:
         graphs_nx,
         avg_graph_size,
     ):
-        assert metric in ["suff", "fidm", "nec", "nec++", "fidp", "suff++", "suff_simple", "interven_suff"]
+        # assert metric in ["suff", "fidm", "nec", "nec++", "fidp", "suff++", "suff_simple", "interven_suff"]
 
         print(f"\n\n", "-"*50)
         reset_random_seed(self.config)
@@ -663,6 +666,25 @@ class Pipeline:
                     graphs[i],
                     type=metric
                 )
+            elif metric == "rfidm" or metric == "rfidp":
+                intervened_graphs = xai_utils.robust_fidelity(
+                    graphs[i],
+                    type=metric,
+                    p=self.config.rfid_alpha_1 if metric == "rfidp" else self.config.rfid_alpha_2,
+                    expval_budget=self.config.expval_budget
+                )
+
+                # if graphs[i].x.shape[0] <= 12:
+                #     print(graphs[i])
+                #     print(intervened_graphs[0])
+                #     print(intervened_graphs[1])
+                #     print(intervened_graphs[2])
+
+                #     print(graphs[i].edge_index)
+                #     print(intervened_graphs[0].edge_index)
+                #     exit("vediamo")
+            else:
+                raise ValueError(f"Metric {metric} not supported")
 
             if intervened_graphs is not None:
                 eval_samples.append(graphs[i])
@@ -745,35 +767,35 @@ class Pipeline:
         #         eval_samples[reference[idx]+1].x.sum(0),
         #         self.model.probs(data=Batch.from_data_list([eval_samples[reference[idx]+1]]), edge_weight=None, ood_algorithm=self.ood_algorithm).item()
         #     )
-            # Print new explanation scores
-            # if idx in [267, 268]:
-            #     edge_scores, node_scores, logits = self.model.get_subgraph(
-            #         data=Batch.from_data_list([eval_samples[reference[idx]+1]]),
-            #         edge_weight=None,
-            #         ood_algorithm=self.ood_algorithm,
-            #         do_relabel=False,
-            #         return_attn=False,
-            #         ratio=None
-            #     )
-            #     print("Explanation on pertub sample: ", node_scores.view(-1), node_scores.view(-1).max().item(), node_scores.view(-1).mean().item())
-            #     print(logits)
-            # Plot explanations
-            # if idx in [154, 130, 161]:
-            #     print(eval_samples[reference[idx]+1].edge_index)
-            #     g = eval_samples[reference[idx]+1]
-            #     G = to_networkx(g, node_attrs=["x", "node_expl"], to_undirected=True)
-            #     xai_utils.draw_colored(
-            #         self.config,
-            #         G,
-            #         node_expl=g.node_expl,
-            #         subfolder=f"debug_metrics/{self.config.ood_dirname}/{self.config.dataset.dataset_name}_{self.config.dataset.domain}",
-            #         name=f"debug_fid_{idx}",
-            #         thrs=0.5,
-            #         title=f"Idx: {i} Class={int(g.y.item())} Pred={preds_perturbed_graphs[idx].item():.2f}",
-            #         with_labels=False,
-            #         figsize=(6.4, 4.8)
-            #     )
-            # print()
+        #     ## Print new explanation scores
+        #     if idx in [267, 268]:
+        #         edge_scores, node_scores, logits = self.model.get_subgraph(
+        #             data=Batch.from_data_list([eval_samples[reference[idx]+1]]),
+        #             edge_weight=None,
+        #             ood_algorithm=self.ood_algorithm,
+        #             do_relabel=False,
+        #             return_attn=False,
+        #             ratio=None
+        #         )
+        #         print("Explanation on pertub sample: ", node_scores.view(-1), node_scores.view(-1).max().item(), node_scores.view(-1).mean().item())
+        #         print(logits)
+        #     ## Plot explanations
+        #     # if idx in [154, 130, 161]:
+        #     #     print(eval_samples[reference[idx]+1].edge_index)
+        #     #     g = eval_samples[reference[idx]+1]
+        #     #     G = to_networkx(g, node_attrs=["x", "node_expl"], to_undirected=True)
+        #     #     xai_utils.draw_colored(
+        #     #         self.config,
+        #     #         G,
+        #     #         node_expl=g.node_expl,
+        #     #         subfolder=f"debug_metrics/{self.config.ood_dirname}/{self.config.dataset.dataset_name}_{self.config.dataset.domain}",
+        #     #         name=f"debug_fid_{idx}",
+        #     #         thrs=0.5,
+        #     #         title=f"Idx: {i} Class={int(g.y.item())} Pred={preds_perturbed_graphs[idx].item():.2f}",
+        #     #         with_labels=False,
+        #     #         figsize=(6.4, 4.8)
+        #     #     )
+        #     print()
 
         ##
         # Compute metric values
@@ -789,7 +811,7 @@ class Pipeline:
         # Store and print metric values
         ##
         for m in ["TV", "predicted"]:
-            for c in labels_ori.unique():
+            for c in labels_ori.long().unique():
                 idx_class = np.arange(labels_ori.shape[0])[(labels_ori == c).numpy()]
                 scores[f"{c.item()}_{m}"].append(round(aggr[m][idx_class].mean().item(), 3))
             scores[f"all_{m}"].append(round(aggr[m].mean().item(), 3))
@@ -804,7 +826,7 @@ class Pipeline:
         print(f"Acc interven", round(acc_interven.item(), 3))
         print(f"len(reference) = {len(reference)}")
         for m in ["TV", "predicted"]:
-            for c in labels_ori.unique().numpy().tolist():
+            for c in labels_ori.long().unique().numpy().tolist():
                 print(f"{metric.upper()} for class {c}_{m} = {scores[str(c)+'_'+m][-1]} +- {aggr['predicted'].std():.3f} (in-sample avg dev_std = {(aggr['std_predicted']**2).mean().sqrt():.3f})")
             print(f"{metric.upper()} all_classes {m} = {scores[f'all_{m}'][-1]} +- {aggr[f'{m}'].std():.3f} (in-sample avg dev_std =", torch.round((aggr[f"std_{m}"]**2).mean().sqrt(), decimals=3).item())
         return scores, acc_ints
