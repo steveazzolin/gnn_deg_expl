@@ -15,13 +15,12 @@ mitigation_readout: null
 mitigation_virtual: null
 mitigation_expl_scores: default
 mitigation_expl_scores_topk: -1
-expval_budget: 8 # Added by Steve
-numsamples_budget: 800 # Added by Steve
-fidelity_alpha_2: 0.9 # Added by Steve
-nec_alpha_1: 0.05 # Added by Steve
-feat_int_alpha: 0.2 # Added by Steve
-average_edge_attn: default # Added by Steve
-save_metrics: False # Added by Steve
+expval_budget: 20
+numsamples_budget: 1000
+rfid_alpha_2: 0.9
+rfid_alpha_1: 0.1
+average_edge_attn: default
+save_metrics: False
 intervention_distrib: model_dependent # Added by Steve
 acc_givenR: False # Added by Steve
 mask: False # Added by Steve
@@ -40,14 +39,14 @@ train:
   weight_decay: 0.
   save_gap: 10
   tr_ctn: False
-  epoch: 0
+  epoch: null
   ctn_epoch: 0
   alpha: 0.2  # parameter for DANN
   stage_stones: []
   pre_train: 0
   l_norm_coeff: 1
   entr_coeff: 0.8
-  pretrain_degenerate: false
+  pretrain: null
 model:
   dim_hidden: 300
   dim_ffn: 300

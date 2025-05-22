@@ -496,7 +496,6 @@ def robust_fidelity(graph, type, p, expval_budget):
     elif type == "rfidp":
         # sample IID from the complement
         nodes_to_keep = torch.logical_not(graph.node_mask)
-        exit("spetta")
 
     row, col = graph.edge_index
     _, _, force_to_keep = subgraph(

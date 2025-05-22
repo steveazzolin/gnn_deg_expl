@@ -122,9 +122,8 @@ class CommonArgs(Tap):
     mitigation_expl_scores_topk: float = -1 # Added by Steve
     expval_budget: int = None # Added by Steve
     numsamples_budget: int = None # Added by Steve
-    fidelity_alpha_2: float = None # Added by Steve
-    nec_alpha_1: float = None # Added by Steve
-    feat_int_alpha: float = None # Added by Steve
+    rfid_alpha_2: float = None # Added by Steve
+    rfid_alpha_1: float = None # Added by Steve
     average_edge_attn: str = None # Added by Steve
     save_metrics: bool = False # Added by Steve
     intervention_distrib:str = "model_dependent" # Added by Steve
