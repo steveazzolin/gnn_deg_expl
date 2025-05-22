@@ -35,7 +35,7 @@ def gstd(a):
 def print_metric(name, data, results_aggregated=None, key=None):
     avg = np.nanmean(data, axis=0)
     std = np.nanstd(data, axis=0)
-    print(name, " = ", ", ".join([f"{avg[i]:.3f} +- {std[i]:.3f}" for i in range(len(avg))]))
+    print(f"{name:<25}", " = ", ", ".join([f"{avg[i]:.3f} +- {std[i]:.3f}" for i in range(len(avg))]))
     if not results_aggregated is None:
         assign_dict(
             results_aggregated,
@@ -818,7 +818,6 @@ def evaluate_metric(args):
                     metrics_score[split][metric].append(score)
                     metrics_score[split][metric + "_acc_int"].append(acc_int)
 
-        exit("spe")
 
     if config.save_metrics:
         save_path = f"storage/metric_results/aggregated_id_results_necalpha{config.nec_alpha_1}" \
@@ -833,51 +832,30 @@ def evaluate_metric(args):
     else:
         results_aggregated = None
 
-    # print("\n\n", "-"*50, f"\nPrinting evaluation results for load_split {load_split}\n\n")
-    # for split in splits:
-    #     print(f"\nEval split {split}")
-    #     for metric in args.metrics.split("/"):
-    #         print(f"{metric} = {metrics_score[load_split][split][metric]}")
-    # if "acc" in args.metrics.split("/"):
-    #     for split in splits + ["test", "test_R"]:
-    #         print(f"\nEval split {split}")
-    #         for metric in ["acc"]: #, "plaus", "wiou"
-    #             print(f"{metric} = {metrics_score[load_split][split][metric]}")
+    print("\n\n", "-"*50, f"\nPrinting evaluation results\n\n")
+    for split in splits:
+        print(f"\nEval split {split.upper()}")
+        for metric in args.metrics.split("/"):
+            print(f"{metric} = {metrics_score[split][metric]}")
 
-    # if "plaus" in args.metrics:
-    #     print("\n\n", "-"*50, "\nComputing Plausibility")
-    #     for split in splits:
-    #         print(f"\nEval split {split}")
-    #         for div in ["wiou", "F1"]:
-    #             s = metrics_score[load_split][split][div]
-    #             print_metric(div, s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, div])
-    #     continue
-
-    # print("\n\n", "-"*50, "\nPrinting evaluation averaged per seed")
-    # for split in splits:
-    #     print(f"\nEval split {split}")
-    #     for metric in args.metrics.split("/"):
-    #         if "acc" == metric:
-    #             continue
-    #         for div in ["L1", "KL"]:
-    #             s = [
-    #                 metrics_score[load_split][split][metric][i][f"all_{div}"] for i in range(len(metrics_score[load_split][split][metric]))
-    #             ]
-    #             print_metric(metric + f" class all_{div}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_{div}"])
-    #         print(metrics_score[load_split][split][metric + "_acc_int"])
-    #         print(s)
-    #         print_metric(metric + "_acc_int", metrics_score[load_split][split][metric + "_acc_int"], results_aggregated, key=[config.dataset.dataset_name+" "+config.dataset.domain, config.complete_dirname, split, metric+"_acc_int"])
-            
-    # if "acc" in args.metrics.split("/"):
-    #     for split in splits + ["test", "test_R"]:
-    #         print(f"\nEval split {split}")
-    #         print_metric("acc", metrics_score[load_split][split]["acc"])
-    #         for a in ["plaus", "wiou"]:
-    #             for c in metrics_score[load_split][split][a][0].keys():
-    #                 s = [
-    #                     metrics_score[load_split][split][a][i][c] for i in range(len(metrics_score[load_split][split][a]))
-    #                 ]
-    #                 print_metric(a + f" class {c}", s)
+    print("\n\n", "-"*50, "\nPrinting evaluation averaged per seed")
+    for split in splits:
+        print(f"\nEval split {split.upper()}")
+        for metric in args.metrics.split("/"):
+            for div in ["TV", "predicted"]:
+                for c in range(3):
+                    if f"{c}_{div}" not in metrics_score[split][metric][i].keys():
+                        continue
+                    # take values acorss seed, then print them
+                    s = [
+                        metrics_score[split][metric][i][f"{c}_{div}"] for i in range(len(metrics_score[split][metric]))
+                    ]
+                    print_metric(metric + f" class {c}_{div}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_{div}"])    
+                s = [
+                    metrics_score[split][metric][i][f"all_{div}"] for i in range(len(metrics_score[split][metric]))
+                ]
+                print_metric(metric + f" class all_{div}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_{div}"])
+            print_metric(metric + "_acc_int", metrics_score[split][metric + "_acc_int"], results_aggregated, key=[config.dataset.dataset_name+" "+config.dataset.domain, config.complete_dirname, split, metric+"_acc_int"])
 
     # print("\n\n", "-"*50, "\nComputing faithfulness")
     # for split in splits:
@@ -927,8 +905,8 @@ def evaluate_metric(args):
     #     with open(save_path, "w") as f:
     #         json.dump(results_aggregated, f)     
     
-    # print("Completed in ", datetime.now() - startTime, f" for {config.complete_dirname} {config.dataset.dataset_name}/{config.dataset.domain}")
-    # print("\n\n")
+    print("\nCompleted in ", datetime.now() - startTime, f" for {config.complete_dirname} {config.dataset.dataset_name}/{config.dataset.domain}")
+    print("\n\n")
 
 def print_r_ge_b_hist(args):
     load_splits = ["id"]
