@@ -19,6 +19,7 @@ expval_budget: 20
 numsamples_budget: 1000
 rfid_alpha_2: 0.9
 rfid_alpha_1: 0.1
+nec_budget: 0.1
 average_edge_attn: default
 save_metrics: False
 intervention_distrib: model_dependent # Added by Steve

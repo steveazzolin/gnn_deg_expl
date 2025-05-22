@@ -494,7 +494,7 @@ def robust_fidelity(graph, type, p, expval_budget):
         # sample IID for each edge, then force edges inside of R to remain
         nodes_to_keep = graph.node_mask
     elif type == "rfidp":
-        # sample IID from the complement
+        # sample IID from the explanation, so get the subgraph induced by the complement
         nodes_to_keep = torch.logical_not(graph.node_mask)
 
     row, col = graph.edge_index
@@ -540,6 +540,68 @@ def robust_fidelity(graph, type, p, expval_budget):
         if has_edge_attr:
             ret[j].edge_attr=graph.edge_attr[idx_kept_edges]
     return ret
+
+def nec_budget(graph, avg_graph_size, p, expval_budget):
+    """
+        Modification of RFID+ to account for irrelevant edges in the explanation.
+        From 'https://openreview.net/pdf?id=kiOxNsrpQy'
+        Instead of sampling edges IID, sample a fixed budget proportional to the average size of graphs.
+    """
+    if graph.node_mask.sum() == 0: # discard empty explanations
+        return None
+
+    row, col = graph.edge_index
+    complement_edge_index, _, force_to_keep_complement = subgraph(
+        torch.logical_not(graph.node_mask), # perturb the complement
+        graph.edge_index,
+        return_edge_mask=True,
+        relabel_nodes=True,
+        num_nodes=graph.x.shape[0]
+    )   
+
+    ret = [
+            Data(
+                x=graph.x,
+                # edge_index=edge_index,
+                edge_attr=None, #graph.edge_attr[idx_kept_edges] if has_edge_attr else None,
+                node_is_spurious=graph.node_is_spurious,
+                y=graph.y,
+                node_expl=graph.node_expl,
+                node_mask=graph.node_mask,
+                # edge_mask=graph.edge_mask[idx_kept_edges],
+        )
+        for _ in range(expval_budget)
+    ] 
+    has_edge_attr= "edge_attr" in graph.keys()
+    
+    # set to False (hence remove) the B edges with highest random weight
+    B = min(int(p * avg_graph_size), (graph.edge_index.shape[1] - complement_edge_index.shape[1]))
+    
+    edge_weights = torch.rand((expval_budget, row.size(0)), device=graph.edge_index.device)
+    edge_weights[:, force_to_keep_complement] = -torch.inf # make sure edges in C cannot be chosen
+    edge_weights[:, row > col] = -torch.inf # force undirected while ensuring that exactly B edges are removed
+    edges_to_remove = torch.topk(edge_weights, k=B, dim=1).indices # B edges with highest value are chosen to be removed
+
+    edges_to_keep = torch.ones_like(edge_weights, device=graph.edge_index.device)
+    edges_to_keep.scatter_(index=edges_to_remove, dim=1, value=False)
+    edges_to_keep[:, row > col] = False  # force undirected
+    edges_to_keep = edges_to_keep.bool()
+    
+    all_nonzero = edges_to_keep.nonzero()
+    for j in range(expval_budget):
+        edge_mask = edges_to_keep[j]
+
+        edge_index = graph.edge_index[:, edge_mask]
+        edge_index = torch.cat([edge_index, edge_index.flip(0)], dim=1)
+
+        idx_kept_edges = all_nonzero[all_nonzero[:, 0] == j][:, 1].repeat(2).squeeze()
+        
+        ret[j].edge_index=edge_index
+        ret[j].edge_mask=graph.edge_mask[idx_kept_edges]
+        if has_edge_attr:
+            ret[j].edge_attr=graph.edge_attr[idx_kept_edges]
+    return ret
+
 
 def sample_edges(G_ori, alpha, deconfounded, edge_index_to_remove):
     # keep each spu/inv edge with probability alpha

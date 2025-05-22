@@ -673,15 +673,23 @@ class Pipeline:
                     p=self.config.rfid_alpha_1 if metric == "rfidp" else self.config.rfid_alpha_2,
                     expval_budget=self.config.expval_budget
                 )
+            elif metric == "nec":
+                intervened_graphs = xai_utils.nec_budget(
+                    graphs[i],
+                    avg_graph_size=avg_graph_size,
+                    p=self.config.nec_budget,
+                    expval_budget=self.config.expval_budget
+                )
 
                 # if graphs[i].x.shape[0] <= 12:
-                #     print(graphs[i])
+                #     print(i, graphs[i])
                 #     print(intervened_graphs[0])
                 #     print(intervened_graphs[1])
                 #     print(intervened_graphs[2])
 
                 #     print(graphs[i].edge_index)
                 #     print(intervened_graphs[0].edge_index)
+                #     print(intervened_graphs[0].edge_mask)
                 #     exit("vediamo")
             else:
                 raise ValueError(f"Metric {metric} not supported")
@@ -694,13 +702,13 @@ class Pipeline:
                 belonging.extend([i] * len(intervened_graphs))
                 eval_samples.extend(intervened_graphs)
 
-                # idx = 322
-                # if reference[-1] == idx:
+                # idx = 15
+                # if i == 15: #reference[-1] == idx:
                 #     print(graphs[i])
                 #     print(graphs[i].edge_index)
                 #     print(intervened_graphs[0].edge_index)
 
-                #     for name, g in zip(["ori", "pertb"], [graphs[i], intervened_graphs[0]]):
+                #     for name, g in zip(["ori", "pertb1", "pertb2", "pertb3"], [graphs[i], intervened_graphs[0], intervened_graphs[1], intervened_graphs[2]]):
                 #         G = to_networkx(g, node_attrs=["x", "node_expl"], to_undirected=True)
                 #         xai_utils.draw_colored(
                 #             self.config,
