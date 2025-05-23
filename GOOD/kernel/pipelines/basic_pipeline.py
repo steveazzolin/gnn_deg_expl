@@ -460,42 +460,6 @@ class Pipeline:
         belonging = torch.tensor(belonging, dtype=int)
         return preds_eval, belonging
 
-    # def get_intervened_graph(self, metric, graph, empty_idx=None, causal=None, spu=None, source=None, debug=None, idx=None, bank=None, feature_intervention=False, feature_bank=None):
-    #     i, j, c = idx
-    #     if metric == "fidm" or (metric == "suff" and causal is None):
-    #         return xai_utils.sample_edges(graph, "spu", self.config.fidelity_alpha_2, spu)
-    #     elif metric in ("nec", "nec++", "fidp"):
-    #         if metric == "nec++":
-    #             alpha = max(self.config.nec_alpha_1 - 0.1 * (j // 3), 0.1)
-    #         else:
-    #             alpha = self.config.nec_alpha_1
-    #         return xai_utils.sample_edges(graph, alpha, deconfounded=True, edge_index_to_remove=causal)
-    #     else:
-    #         G_t = graph.copy()
-    #         # xai_utils.mark_edges(G_t, causal, spu)
-    #         G_t_filt = xai_utils.remove_from_graph(G_t, edge_index_to_remove=causal)
-    #         num_elem = xai_utils.mark_frontier(G_t, G_t_filt)
-
-    #         if len(G_t_filt) == 0:
-    #             empty_idx.add(j)
-    #             return None
-
-    #         if feature_intervention:
-    #             if i == 0 and j == 0:
-    #                 print(f"Applying feature interventions with alpha = {self.config.feat_int_alpha}")
-    #             G_t_filt = xai_utils.feature_intervention(G_t_filt, feature_bank, self.config.feat_int_alpha)
-
-    #         G_union = xai_utils.random_attach_no_target_frontier(source, G_t_filt)
-    #         if debug:
-    #             if c <= 3 and i < 3:
-    #                 xai_utils.draw(self.config, source, subfolder="plots_of_suff_scores", name=f"graph_{i}")
-    #                 pos = xai_utils.draw(self.config, G_t, subfolder="plots_of_suff_scores", name=f"graph_{j}")
-    #                 xai_utils.draw(self.config, G_t_filt, subfolder="plots_of_suff_scores", name=f"spu_graph_{j}", pos=pos)
-    #                 xai_utils.draw(self.config, G_union, subfolder="plots_of_suff_scores", name=f"joined_graph_{i}_{j}")
-    #             else:
-    #                 exit()
-    #     return G_union
-
     def get_indices_dataset(self, dataset, extract_all=False):
         if self.config.numsamples_budget == "all" or self.config.numsamples_budget >= len(dataset) or extract_all:
             idx = np.arange(len(dataset))        
@@ -623,6 +587,11 @@ class Pipeline:
                 )
             elif metric == "counter_fid":
                 intervened_graphs = xai_utils.counter_fid(
+                    graphs[i],
+                    expval_budget=self.config.expval_budget
+                )
+            elif metric == "suff_cause":
+                intervened_graphs = xai_utils.suff_cause(
                     graphs[i],
                     expval_budget=self.config.expval_budget
                 )
@@ -806,7 +775,6 @@ class Pipeline:
         belonging = torch.tensor(self.normalize_belonging(belonging))
 
         div_TV = torch.abs(preds_clean - preds_perturb).sum(-1)
-        ret["TV"] = scatter_mean(div_TV, belonging, dim=0) # average across perturbations
         if preds_clean.shape[1] == 1:
             div_predicted = torch.abs(preds_clean - preds_perturb)
         else:
@@ -816,7 +784,14 @@ class Pipeline:
                 preds_clean.gather(1, pred_class) - preds_perturb.gather(1, pred_class)
             )
 
-        ret["predicted"] = scatter_mean(div_predicted, belonging, dim=0) # average across perturbations
+        # average across expval_budget
+        if metric in ["suff_cause"]:
+            ret["TV"], _ = scatter_max(div_TV, belonging, dim=0)
+            ret["predicted"], _ = scatter_max(div_predicted, belonging, dim=0)
+        else:
+            ret["TV"] = scatter_mean(div_TV, belonging, dim=0)
+            ret["predicted"] = scatter_mean(div_predicted, belonging, dim=0)
+        
         ret["std_TV"] = scatter_std(div_TV, belonging, dim=0)
         ret["std_predicted"] = scatter_std(div_predicted, belonging, dim=0)
         return ret

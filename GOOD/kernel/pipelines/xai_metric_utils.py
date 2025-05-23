@@ -783,29 +783,57 @@ def counter_fid(graph, expval_budget):
         ret[-1].node_expl = normal_dist.sample((graph.node_expl.size(0),)).to(graph.node_expl.device).sigmoid()
     return ret
 
-def sample_edges(G_ori, alpha, deconfounded, edge_index_to_remove):
-    # keep each spu/inv edge with probability alpha
-    G = G_ori.copy()
-    if not deconfounded:
-        # bernoulli sampling
-        edges = set()
-        for (u,v), val in nx.get_edge_attributes(G, 'origin').items():
-            pass
-            # if val == where_to_sample:
-            #     edges.add((u,v))                
-                # if where_to_sample == "spu" and np.random.binomial(1, alpha, 1)[0] == 0:
-                #     edge_remove.append((u,v))
-        edges = list(edges)
-    else:
-        edges = [(u.item(), v.item()) for u, v in edge_index_to_remove.T]    
+
+def suff_cause(graph, expval_budget):
+    """
+        Our proposed SUFF.
+        Remove both nodes and edges, at random.
+        First subsample nodes at random. Then, remove edges at random by relying on RFID-.
+    """
+    if graph.node_mask.sum() == 0: # discard empty explanations
+        return None
     
-    shuffle(edges)
-    # edge_remove = edges[:int(len(G.edges()) * (1-alpha))] #remove the 1-alpha% of the undirected edges
-    edge_remove = edges[:1]
-    G.remove_edges_from(edge_remove)
-    G.remove_edges_from([(v,u) for v,u in G.edges() if not G.has_edge(u,v)])
-    G.remove_nodes_from(list(nx.isolates(G)))
-    return G
+    ret = []
+    for _ in range(expval_budget):
+        rnd_weights = torch.rand(graph.x.shape[0], device=graph.x.device)
+        rnd_weights[graph.node_mask] = 1.0 # always keep nodes in R
+        nodes_to_keep_mask = rnd_weights >= 0.5 # keep nodes with a score >= 0.5 (thus R + other random nodes)
+        nodes_to_keep = torch.arange(graph.x.shape[0])[nodes_to_keep_mask]
+
+        edge_index, edge_attr, edge_mask = subgraph(
+            nodes_to_keep,
+            graph.edge_index,
+            edge_attr=graph.edge_attr if "edge_attr" in graph.keys() else None,
+            return_edge_mask=True,
+            relabel_nodes=True,
+            num_nodes=graph.x.shape[0]
+        )
+
+        # print(torch.arange(graph.x.shape[0]))
+        # print(graph.node_mask)
+        # print(graph.node_mask[nodes_to_keep])
+        # print(torch.arange(graph.x.shape[0])[nodes_to_keep])
+        # exit()
+
+        graph_node_sampled = Data(
+            x=graph.x[nodes_to_keep],
+            edge_index=edge_index,
+            edge_attr=edge_attr,
+            node_is_spurious=graph.node_is_spurious[nodes_to_keep],
+            y=graph.y,
+            node_expl=graph.node_expl[nodes_to_keep],
+            node_mask=graph.node_mask[nodes_to_keep],
+            edge_mask=graph.edge_mask[edge_mask],
+        )
+        graph_node_edge_sampled = robust_fidelity(
+            graph_node_sampled,
+            type="rfidm",
+            p=0.5,
+            expval_budget=1
+        )[0]
+        ret.append(graph_node_edge_sampled)
+    return ret
+
 
 def sample_edges_tensorized(data, nec_number_samples, sampling_type, nec_alpha_1, avg_graph_size, edge_index_to_remove=None, force_undirected=True):
     if sampling_type == "bernoulli":
