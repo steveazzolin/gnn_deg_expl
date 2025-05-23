@@ -50,6 +50,7 @@ class GlobalMeanPool(GNNPool):
             batch_size = batch[-1].item() + 1
         if self.mitigation_readout == "weighted" and (node_mask is not None or edge_mask is not None):
             if node_mask is None:
+                exit("AIA")
                 node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0]).unsqueeze(1)
             x = x * node_mask
         return gnn.global_mean_pool(x, batch, batch_size)
@@ -88,6 +89,7 @@ class GlobalAddPool(GNNPool):
             batch_size = batch[-1].item() + 1
         if self.mitigation_readout == "weighted" and (node_mask is not None or edge_mask is not None):
             if node_mask is None:
+                exit("AIA")
                 node_mask = scatter_mean(edge_mask, edge_index[0], dim_size=x.shape[0]).unsqueeze(1)
             x = x * node_mask
         return gnn.global_add_pool(x, batch, batch_size)
