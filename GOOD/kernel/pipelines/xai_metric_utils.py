@@ -557,7 +557,7 @@ def nec_budget(graph, avg_graph_size, p, expval_budget):
         return_edge_mask=True,
         relabel_nodes=True,
         num_nodes=graph.x.shape[0]
-    )   
+    )
 
     ret = [
             Data(
@@ -602,6 +602,186 @@ def nec_budget(graph, avg_graph_size, p, expval_budget):
             ret[j].edge_attr=graph.edge_attr[idx_kept_edges]
     return ret
 
+
+def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
+    """
+        Interventional SUFF from 'https://openreview.net/pdf?id=kiOxNsrpQy'.
+        Randomy attach R from G with C' of a random G'.
+        The number of new random edges is the same as the number of edges that 
+        were removed from G to R (preserve number of edges, but randomly connect R with C').
+    """
+    def merge_graphs_randomly(data1: Data, data2: Data, num_random_edges=0) -> Data:
+        num_nodes_1 = data1.num_nodes
+        num_nodes_2 = data2.num_nodes
+
+        # Offset the edge index of the second graph
+        edge_index2 = data2.edge_index + num_nodes_1
+
+        # Concatenate edge indices
+        merged_edge_index = torch.cat([data1.edge_index, edge_index2], dim=1)
+
+        # Concatenate X
+        merged_x = torch.cat([data1.x, data2.x], dim=0)        
+
+        # Concatenate edge features (if available)
+        if hasattr(data1, 'edge_attr') and data1.edge_attr is not None:
+            merged_edge_attr = torch.cat([data1.edge_attr, data2.edge_attr], dim=0)
+        else:
+            merged_edge_attr = None
+
+        # Add random edges between the two graphs (avoiding duplicates)
+        if num_random_edges > 0:
+            all_possible_edges = torch.cartesian_prod(
+                torch.arange(num_nodes_1),
+                torch.arange(start=num_nodes_1, end=num_nodes_1+num_nodes_2)
+            ).to(data1.y.device)
+            all_possible_edges_is_spurious = torch.cartesian_prod(
+                data1.node_is_spurious,
+                data2.node_is_spurious
+            ).to(data1.y.device)
+            all_possible_edges = all_possible_edges[all_possible_edges_is_spurious.sum(1) == 0,:] # remove edges connecting G/V
+            random_edges_idxs = torch.randperm(all_possible_edges.shape[0])[:num_random_edges]
+            random_edges = all_possible_edges[random_edges_idxs, :].T # size: 2xnum_random_edges
+
+            # Make bidirectional
+            bidir_edges = torch.cat([random_edges, random_edges[[1, 0]]], dim=1)
+            merged_edge_index = torch.cat([merged_edge_index, bidir_edges], dim=1)
+
+            if merged_edge_attr is not None:
+                rand_edge_attr = torch.zeros((bidir_edges.size(1), merged_edge_attr.size(1)), device=data1.y.device)
+                # rand_edge_mask = torch.zeros((bidir_edges.size(1), merged_edge_attr.size(1)), device=data1.y.device) # CHECK IF IT IS NEEDED
+                merged_edge_attr = torch.cat([merged_edge_attr, rand_edge_attr], dim=0)
+
+        return Data(
+            x=merged_x,
+            edge_index=merged_edge_index,
+            edge_attr=merged_edge_attr,
+            node_is_spurious=torch.cat([data1.node_is_spurious, data2.node_is_spurious], dim=0),
+            y=data1.y, # Watch out! this holds only in the invariance setup
+            node_expl=torch.cat([data1.node_expl, data2.node_expl], dim=0),
+            node_mask=torch.cat([data1.node_mask, data2.node_mask], dim=0),
+            edge_mask=torch.cat([data1.edge_mask, data2.edge_mask], dim=0),
+        )
+    
+    def count_boundary_edges(edge_index: torch.Tensor, subset: torch.Tensor, num_nodes: int) -> int:
+        # Create a mask for nodes in the subset
+        mask = torch.zeros(num_nodes, dtype=torch.bool)
+        mask[subset] = True
+
+        src, dst = edge_index
+
+        # An edge is a boundary edge if one end is in subset and the other is not
+        in_subset = mask[src]
+        in_complement = ~mask[dst]
+
+        # Forward direction: src in subset, dst outside
+        boundary_forward = in_subset & in_complement
+
+        # Reverse direction: dst in subset, src outside (for undirected graphs)
+        in_subset_rev = mask[dst]
+        in_complement_rev = ~mask[src]
+        boundary_backward = in_subset_rev & in_complement_rev
+
+        # Combine both directions
+        boundary_edges = boundary_forward | boundary_backward
+        return boundary_edges.sum().item() // 2 # count only one direction
+    
+    if graph.node_mask.sum() == 0: # discard empty explanations
+        return None
+    
+    # Construct the Data object for R of G
+    edge_index, edge_attr, edge_mask = subgraph(
+        graph.node_mask,
+        graph.edge_index,
+        edge_attr=graph.edge_attr if "edge_attr" in graph.keys() else None,
+        return_edge_mask=True,
+        relabel_nodes=True,
+        num_nodes=graph.x.shape[0]
+    )
+    R = Data(
+        x=graph.x[graph.node_mask],
+        edge_index=edge_index,
+        edge_attr=edge_attr,
+        node_is_spurious=graph.node_is_spurious[graph.node_mask],
+        y=graph.y,
+        node_expl=graph.node_expl[graph.node_mask],
+        node_mask=graph.node_mask[graph.node_mask],
+        edge_mask=graph.edge_mask[edge_mask],
+    )
+
+    ret = []
+    same_class_idx = (graph_database_labels == graph.y.item()).nonzero(as_tuple=True)[0]
+    rnd_idxs = torch.randint(0, len(same_class_idx), (expval_budget,))
+    num_random_edges = count_boundary_edges(edge_index=graph.edge_index, subset=graph.node_mask, num_nodes=graph.x.size(0))
+    for i in range(expval_budget):
+        # Sample G' from ANY class
+        # Suitable only where the subgraph invariance holds
+        # graph_to_merge = graph_database[randint(0, len(graph_database) - 1)]
+
+        # Sample G' from same class as G
+        rand_idx = same_class_idx[rnd_idxs[i].item()]
+        graph_to_merge = graph_database[rand_idx]
+
+        # Construct the Data object for C' of G'
+        edge_index, edge_attr, edge_mask = subgraph(
+            torch.logical_not(graph_to_merge.node_mask),
+            graph_to_merge.edge_index,
+            edge_attr=graph_to_merge.edge_attr if "edge_attr" in graph_to_merge.keys() else None,
+            return_edge_mask=True,
+            relabel_nodes=True,
+            num_nodes=graph_to_merge.x.shape[0]
+        )
+        C_dash = Data(
+            x=graph_to_merge.x[torch.logical_not(graph_to_merge.node_mask)],
+            edge_index=edge_index,
+            edge_attr=edge_attr,
+            node_is_spurious=graph_to_merge.node_is_spurious[torch.logical_not(graph_to_merge.node_mask)],
+            y=graph_to_merge.y,
+            node_expl=graph_to_merge.node_expl[torch.logical_not(graph_to_merge.node_mask)],
+            node_mask=graph_to_merge.node_mask[torch.logical_not(graph_to_merge.node_mask)],
+            edge_mask=graph_to_merge.edge_mask[edge_mask],
+        )
+        # C_dash = Data(
+        #     x=torch.tensor([[0., 0., 0., 9.]], device=graph.y.device),
+        #     edge_index=torch.empty(2, 0, dtype=torch.long, device=graph.y.device),
+        #     node_is_spurious=torch.tensor([1], device=graph.y.device),
+        #     edge_attr=None,
+        #     y=None,
+        #     node_expl=torch.tensor([9], device=graph.y.device),
+        #     node_mask=torch.tensor([9], device=graph.y.device),
+        #     edge_mask=torch.tensor([9], device=graph.y.device),
+        # )
+        
+        # Merge R with C'
+        ret.append(
+            merge_graphs_randomly(R, C_dash, num_random_edges=num_random_edges)
+        )
+    return ret
+
+
+def counter_fid(graph, expval_budget):
+    """
+        Implementation of Counterfacual Fidelity as described in Alg. 1 of 'https://arxiv.org/pdf/2406.07955'.
+        Samples random explanation scores with mean and std as given by the explanatory scores of the input.
+        The perturbed input has altered attention scores, and needs to be forwarded to the CLF only (line 12 of Alg. 1).
+    """
+    if graph.node_mask.sum() == 0: # discard empty explanations
+        return None
+    
+    if "node_expl" in graph.keys() and not "edge_expl" in graph.keys():
+        mean_attn_scores = torch.mean(graph.node_expl)
+        std_attn_scores = torch.std(graph.node_expl)
+    elif "edge_expl" in graph.keys() and not "node_expl" in graph.keys():
+        raise ValueError("edge level explanation not supported")
+    else:
+        raise ValueError("configuration not suported")
+    
+    ret = []
+    normal_dist = torch.distributions.Normal(loc=mean_attn_scores, scale=std_attn_scores)
+    for _ in range(expval_budget):
+        ret.append(graph.clone())
+        ret[-1].node_expl = normal_dist.sample((graph.node_expl.size(0),)).to(graph.node_expl.device).sigmoid()
+    return ret
 
 def sample_edges(G_ori, alpha, deconfounded, edge_index_to_remove):
     # keep each spu/inv edge with probability alpha
