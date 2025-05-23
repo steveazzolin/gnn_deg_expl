@@ -442,15 +442,18 @@ class Pipeline:
 
 
     @torch.no_grad()
-    def evaluate_graphs(self, loader, log=False, **kwargs):
+    def evaluate_graphs(self, loader, clfonly, log=False, **kwargs):
         pbar = tqdm(loader, desc=f'Eval intervened graphs', total=len(loader), **pbar_setting)
         preds_eval, belonging = [], []
         for data in pbar:
             data: Batch = data.to(self.config.device)
-            if log:
-                output = self.model.log_probs(data=data, edge_weight=None, ood_algorithm=self.ood_algorithm, **kwargs)
-            else:
-                output = self.model.probs(data=data, edge_weight=None, ood_algorithm=self.ood_algorithm, **kwargs)
+            if clfonly:
+                output = self.model.predict_from_subgraph(data=data, edge_weight=None, edge_attn=None, node_att=data.node_expl.unsqueeze(1), ood_algorithm=self.ood_algorithm, **kwargs)
+            else:                
+                if log:
+                    output = self.model.log_probs(data=data, edge_weight=None, ood_algorithm=self.ood_algorithm, **kwargs)
+                else:
+                    output = self.model.probs(data=data, edge_weight=None, ood_algorithm=self.ood_algorithm, **kwargs)
             preds_eval.extend(output.detach().cpu().numpy().tolist())
             belonging.extend(data.belonging.detach().cpu().numpy().tolist())
         preds_eval = torch.tensor(preds_eval)
@@ -559,7 +562,7 @@ class Pipeline:
                         else:
                             raise ValueError("only node expl for now")
                         
-                        samples[split][thr].append(new_g)
+                        samples[split][thr].append(new_g.to("cpu"))
             
             avg_graph_size[split] = np.mean([g.edge_index.shape[1] for g in samples[split][thrs[0]]])
 
@@ -580,8 +583,6 @@ class Pipeline:
         graphs_nx,
         avg_graph_size,
     ):
-        # assert metric in ["suff", "fidm", "nec", "nec++", "fidp", "suff++", "suff_simple", "interven_suff"]
-
         print(f"\n\n", "-"*50)
         reset_random_seed(self.config)
         self.model.eval()   
@@ -590,77 +591,10 @@ class Pipeline:
 
         eval_samples, belonging, reference = [], [], []
         preds_ori, labels_ori, expl_acc_ori = [], [], []
-        empty_idx = set()
+        graph_database_labels = torch.tensor([g.y.item() for g in graphs], device=graphs[0].y.device)
 
         pbar = tqdm(range(len(graphs)), desc=f'Creating Intervent. distrib.', total=len(graphs), **pbar_setting)
         for i in pbar:
-            # if metric in ("suff", "suff++"):
-            #     G = graphs_nx[i].copy()
-            #     G_filt = xai_utils.remove_from_graph(G, edge_index_to_remove=spu_subgraphs_r[ratio][i])
-            #     num_elem = xai_utils.mark_frontier(G, G_filt)
-            #     if len(G_filt) == 0 or num_elem == 0:
-            #         continue
-
-            # if metric in ("fidm", "fidp", "nec", "nec++") or len(empty_idx) == len(graphs):
-            #     intervened_graphs = xai_utils.sample_edges_tensorized_batched(
-            #         graphs[i],
-            #         nec_number_samples=self.config.nec_number_samples,
-            #         nec_alpha_1=self.config.nec_alpha_1,
-            #         avg_graph_size=avg_graph_size,
-            #         edge_index_to_remove=causal_masks_r[ratio][i],
-            #         sampling_type=self.config.samplingtype,
-            #         budget=self.config.expval_budget
-            #     )
-            # elif metric == "suff" or metric == "suff++" or metric == "suff_simple":
-            #     if ratio == 1.0:
-            #         eval_samples.extend([graphs[i]]*self.config.expval_budget)
-            #         belonging.extend([i]*self.config.expval_budget)
-            #     else:
-            #         z, c = -1, 0
-            #         idxs = np.random.permutation(np.arange(len(labels))) #pick random from every class
-            #         budget = self.config.expval_budget
-                    
-            #         if metric == "suff++":
-            #             budget = budget // 2
-            #         if metric == "suff_simple":
-            #             budget = 0 # skip interventions and just pick subsamples
-
-            #         while c < budget:
-            #             if z == len(idxs) - 1:
-            #                 break
-            #             z += 1
-            #             j = idxs[z]
-            #             if j in empty_idx:
-            #                 continue
-
-            #             G_union = self.get_intervened_graph(
-            #                 metric,
-            #                 graphs_nx[j],
-            #                 empty_idx,
-            #                 causal_subgraphs_r[ratio][j],
-            #                 spu_subgraphs_r[ratio][j],
-            #                 G_filt,
-            #                 debug,
-            #                 (i, j, c),
-            #                 feature_intervention=False,
-            #                 feature_bank=None
-            #             )
-            #             if G_union is None:
-            #                 continue
-            #             eval_samples.append(G_union)
-            #             belonging.append(i)
-            #             c += 1
-                    
-            #         intervened_graphs = xai_utils.sample_edges_tensorized_batched(
-            #             graphs[i],
-            #             nec_number_samples=self.config.nec_number_samples,
-            #             nec_alpha_1=self.config.nec_alpha_1*2,
-            #             avg_graph_size=avg_graph_size,
-            #             edge_index_to_remove=~causal_masks_r[ratio][i],
-            #             sampling_type=self.config.samplingtype,
-            #             budget=self.config.expval_budget
-            #         )
-
             if metric == "fidm" or metric == "fidp":
                 intervened_graphs = xai_utils.fidelity(
                     graphs[i],
@@ -680,8 +614,20 @@ class Pipeline:
                     p=self.config.nec_budget,
                     expval_budget=self.config.expval_budget
                 )
+            elif metric == "suff":
+                intervened_graphs = xai_utils.suff_intervent(
+                    graphs[i],
+                    graph_database=graphs,
+                    graph_database_labels=graph_database_labels,
+                    expval_budget=self.config.expval_budget
+                )
+            elif metric == "counter_fid":
+                intervened_graphs = xai_utils.counter_fid(
+                    graphs[i],
+                    expval_budget=self.config.expval_budget
+                )
 
-                # if graphs[i].x.shape[0] <= 12:
+                # if i not in [15, 97, 133] and graphs[i].x.shape[0] <= 12:
                 #     print(i, graphs[i])
                 #     print(intervened_graphs[0])
                 #     print(intervened_graphs[1])
@@ -702,13 +648,16 @@ class Pipeline:
                 belonging.extend([i] * len(intervened_graphs))
                 eval_samples.extend(intervened_graphs)
 
-                # idx = 15
-                # if i == 15: #reference[-1] == idx:
+                # idx = 144
+                # if i == 144: #reference[-1] == idx:
                 #     print(graphs[i])
                 #     print(graphs[i].edge_index)
+                #     print(graphs[1])
+                #     print(intervened_graphs[0])
                 #     print(intervened_graphs[0].edge_index)
+                #     print(intervened_graphs[0].edge_mask)
 
-                #     for name, g in zip(["ori", "pertb1", "pertb2", "pertb3"], [graphs[i], intervened_graphs[0], intervened_graphs[1], intervened_graphs[2]]):
+                #     for name, g in zip(["ori", "pertb1", "pertb2", "pertb3"], [graphs[i], graphs[1], intervened_graphs[0], intervened_graphs[0]]):
                 #         G = to_networkx(g, node_attrs=["x", "node_expl"], to_undirected=True)
                 #         xai_utils.draw_colored(
                 #             self.config,
@@ -738,7 +687,7 @@ class Pipeline:
         ##
         int_dataset = CustomDataset(root=None, samples=eval_samples, belonging=belonging)
         loader = DataLoader(int_dataset, batch_size=256, shuffle=False)
-        preds_eval, belonging = self.evaluate_graphs(loader, log=False)
+        preds_eval, belonging = self.evaluate_graphs(loader, log=False, clfonly=metric in ["counter_fid"])
 
         preds_clean_graphs = preds_eval[reference]
         
