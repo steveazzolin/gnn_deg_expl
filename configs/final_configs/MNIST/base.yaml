@@ -1,11 +1,13 @@
 includes:
   - ../base.yaml
 model:
+  backbone: ACR
   model_layer: 3
+  gnn_clf_layer: 0
   global_pool: sum
-  dim_hidden: 100
+  dim_hidden: 300
   dim_ffn: 100
-  dropout_rate: 0.3
+  dropout_rate: 0.0
 train:
   num_steps: 10
   mile_stones: [150]
@@ -14,15 +16,12 @@ train:
   val_bs: 512
   test_bs: 512
   lr: 0.001
-  lr_filternode: 0.001
-  weight_decay: 0.001
-  channel_weight_decay: 0.001
-  combinator_weight_decay: 0.001
-  channel_int: null
-  end_temp: 0.8
-  combinator_temp: 2.0
+  weight_decay: 0.0
 dataset:
   dataset_name: MNIST
   domain: basis
   generate: false
 use_norm: none
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted

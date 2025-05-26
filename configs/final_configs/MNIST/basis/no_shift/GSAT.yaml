@@ -1,12 +1,12 @@
 includes:
   - base.yaml
 model:
-  model_name: GSATGIN
+  model_name: GSAT
 ood:
   ood_alg: GSAT
-  ood_param: 1
+  ood_param: 0.1
   extra_param:
-    - true
+    - false
     - 10
     - 0.7
 train:
@@ -14,3 +14,4 @@ train:
     - 150
 log_file: exp_0
 clean_save: true
+mitigation_sampling: default

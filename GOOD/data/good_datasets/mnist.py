@@ -105,12 +105,14 @@ class MNIST(InMemoryDataset):
             x = None
             if self.use_mean_px:
                 x = mean_px.reshape(N_nodes, -1)
+
             if self.use_coord:
                 coord = coord.reshape(N_nodes, 2)
                 if self.use_mean_px:
                     x = np.concatenate((x, coord), axis=1)
                 else:
                     x = coord
+                    
             if x is None:
                 x = np.ones(N_nodes, 1)  # dummy features
 
@@ -144,7 +146,7 @@ class MNIST(InMemoryDataset):
         torch.save(self.collate(data_list), self.processed_paths[idx])
 
     @staticmethod
-    def load(dataset_root: str, domain: str, shift: str = 'no_shift', generate: bool = False, debias: bool =False):
+    def load(dataset_root: str, domain: str, shift: str = 'no_shift', generate: bool = False, debias: bool =False, model_name:str=None, add_pos_feat=False):
         r"""
         A staticmethod for dataset loading. This method instantiates dataset class, constructing train, id_val, id_test,
         ood_val (val), and ood_test (test) splits. Besides, it collects several dataset meta information for further
@@ -185,10 +187,6 @@ class MNIST(InMemoryDataset):
         train_dataset = train_val[:n_train_data]
         id_val_dataset = train_val[-n_val_data:]
         id_test_dataset = test_set
-
-        print(train_dataset)
-        print(id_val_dataset)
-        print(id_test_dataset)
 
         # index_train, index_val_test = train_test_split(
         #     torch.arange(len(dataset)), 
