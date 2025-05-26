@@ -240,19 +240,8 @@ def mark_frontier(G, G_filt):
 #     plt.close()
 #     return pos
 
-def draw_colored(config, G, name, thrs, node_expl="", edge_expl="", subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None):
-    plt.figure(figsize=figsize)
-
-    if pos is None:
-        pos = nx.kamada_kawai_layout(G)
-
-    node_gt = list(nx.get_node_attributes(G, "node_gt").values())
-    node_attr = list(nx.get_node_attributes(G, "x").values())
-    
-    node_colors = []
-    for i in range(len(node_attr)):
-        if len(node_gt) > 0 and node_gt[i]:
-            node_colors.append("orange") # "lightgreen"
+def get_color_based_on_dataset(config, x):
+    if "BAColorGV" in config.dataset.dataset_name:
         # elif node_attr[i] == [1., 0., 0., 0.]:
         #     node_colors.append("red")
         # elif node_attr[i] == [0., 1., 0., 0.]:
@@ -261,16 +250,38 @@ def draw_colored(config, G, name, thrs, node_expl="", edge_expl="", subfolder=""
         #     node_colors.append("green")
         # elif node_attr[i] == [0., 0., 0., 1.]:
         #     node_colors.append("violet")
-        elif np.argmax(node_attr[i]) == 0:
-            node_colors.append("red")
-        elif np.argmax(node_attr[i]) == 1:
-            node_colors.append("blue")
-        elif np.argmax(node_attr[i]) == 2:
-            node_colors.append("green")
-        elif np.argmax(node_attr[i]) == 3:
-            node_colors.append("violet")
+        if np.argmax(x) == 0:
+            return "red"
+        elif np.argmax(x) == 1:
+            return "blue"
+        elif np.argmax(x) == 2:
+            return "green"
+        elif np.argmax(x) == 3:
+            return "violet"
         else:
-            node_colors.append("orange")
+            return "orange"
+    elif config.dataset.dataset_name == "MNIST":
+        return x[:3]
+
+def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None):
+    plt.figure(figsize=figsize)
+
+    node_gt = list(nx.get_node_attributes(G, "node_gt").values())
+    node_attr = list(nx.get_node_attributes(G, "x").values())
+    
+    if pos is None and config.dataset.dataset_name != "MNIST":
+        pos = nx.kamada_kawai_layout(G)
+    elif config.dataset.dataset_name == "MNIST":
+        pos = [x[3:] for x in node_attr]
+    
+    node_colors = []
+    for i in range(len(node_attr)):
+        if len(node_gt) > 0 and node_gt[i]:
+            node_colors.append("orange") # "lightgreen"
+        elif len(node_gt) > 0 and not node_gt[i]:
+            node_colors.append("blue") # "lightgreen"
+        else:
+            node_colors.append(get_color_based_on_dataset(config, node_attr[i]))
 
     nx.draw(
         G,
@@ -308,6 +319,18 @@ def draw_colored(config, G, name, thrs, node_expl="", edge_expl="", subfolder=""
     #         font_size=6,
     #         alpha=0.8
     #     )
+
+    # Annotate with node scores
+    if node_expl is not None:
+        label_pos = {n: (x, y + 0.02) for n, (x, y) in enumerate(pos)}  # 0.05 is vertical offset
+
+        nx.draw_networkx_labels(
+            G,
+            label_pos,
+            labels={n: f"{v:.2f}" for n, v in enumerate(node_expl)},
+            font_size=6,
+            alpha=0.8
+        )
     
     plt.suptitle(title)
 
