@@ -63,6 +63,7 @@ def main():
         exit(0)
     if args.task == 'hist':
         analysis.print_r_ge_b_hist(args)
+        # analysis.print_hist(args)
         exit(0)
 
     run = None

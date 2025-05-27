@@ -272,7 +272,7 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
     if pos is None and config.dataset.dataset_name != "MNIST":
         pos = nx.kamada_kawai_layout(G)
     elif config.dataset.dataset_name == "MNIST":
-        pos = [x[3:] for x in node_attr]
+        pos = [ (x[4], -x[3])  for x in node_attr]
     
     node_colors = []
     for i in range(len(node_attr)):
@@ -291,7 +291,7 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
         node_size=nodesize,
         node_color=node_colors,
         # edge_color=edge_color,
-        alpha=0.5
+        alpha=0.9 if config.dataset.dataset_name == "MNIST" else 0.5
     )
 
 
@@ -307,7 +307,8 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
         pos,
         node_labels,
         font_size=12,
-        font_color="black"
+        font_color="red" if config.dataset.dataset_name == "MNIST" else "black",
+        alpha=0.6
     )
 
     # Annotate with edge scores
@@ -322,7 +323,7 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
 
     # Annotate with node scores
     if node_expl is not None:
-        label_pos = {n: (x, y + 0.02) for n, (x, y) in enumerate(pos)}  # 0.05 is vertical offset
+        label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,

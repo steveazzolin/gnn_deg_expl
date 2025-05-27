@@ -1171,7 +1171,7 @@ class Pipeline:
         if config.clean_save:
             os.unlink(saved_file)
 
-    def get_node_explanations(self):
+    def get_node_explanations(self, num_samples=None):
         self.model.eval()
         
         # self.model.gnn.encoder.batch_norms.train()
@@ -1189,6 +1189,9 @@ class Pipeline:
                 
         for i, split in enumerate(splits):
             dataset = self.get_local_dataset(split)
+
+            if num_samples:
+                dataset = dataset[:num_samples]
 
             loader = DataLoader(dataset, batch_size=512, shuffle=False, num_workers=2)
             for data in loader:
