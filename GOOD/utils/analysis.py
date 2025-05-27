@@ -1039,6 +1039,81 @@ def print_r_ge_b_hist(args):
             plt.savefig(path + ".png")
             plt.close()
 
+def print_hist(args):
+    load_splits = ["id"]
+    for l, load_split in enumerate(load_splits):
+        print("\n\n" + "-"*50)
+
+        edge_scores_seed = []
+        for i, seed in enumerate(args.seeds.split("/")):
+            print(f"GENERATING PLOT FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
+            seed = int(seed)
+            args.random_seed = seed
+            args.exp_round = seed
+            
+            config = config_summoner(args)
+            config["task"] = "test"
+            config["load_split"] = load_split
+            if l == 0 and i == 0:
+                load_logger(config)
+            
+            model, loader = initialize_model_dataset(config)
+            ood_algorithm = load_ood_alg(config.ood.ood_alg, config)
+            pipeline = load_pipeline(config.pipeline, config.task, model, loader, ood_algorithm, config)
+            pipeline.load_task(load_param=True, load_split=load_split) 
+
+            if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated"):
+                print(f"\n\nClassifier weights:")
+                print(model.classifierS.classifier[0].weight.detach()) #, model.classifier.classifier[0].bias.detach()
+
+            # GET EXPLANATIONS
+            ret = pipeline.get_node_explanations()
+
+            # AGGREGATE INFO BY LABEL
+            list_of_labels = np.array([ret["id_val"]["samples"][i].y.item() for i in range(len(ret["id_val"]["samples"]))])
+            list_of_scores = []
+
+            for j in range(len(ret["id_val"]["samples"])):
+                expl = ret["id_val"]["scores"][j]
+                
+                # if "SMGNN" in config.model.model_name and "MNIST" in config.dataset.dataset_name:
+                #     expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
+                #     expl = expl.tolist()
+
+                list_of_scores.extend(
+                    expl
+                )
+            list_of_scores = np.array(list_of_scores)
+            
+            # PLOT HISTOGRAMS
+            n_row = 1
+            n_col = 1
+            fig, axs = plt.subplots(n_row, n_col, figsize=(12,3.5*n_row))
+
+            axs.hist(
+                list_of_scores, #np.random.normal(0.0, scale=0.005, size=list_of_scores.shape)
+                density=True,
+                log=False,
+                bins=100
+            )
+            if "DIR" in config.model.model_name:
+                axs.set_xlim(-1.1, 1.1)
+            else:
+                axs.set_xlim(-0.1, 1.1)
+            # axs.set_ylim(0.0, 100)                
+
+            fig.supxlabel('explanation relevance scores', fontsize=13)
+            fig.supylabel('density', fontsize=13)
+            fig.suptitle(f'{config.model.model_name} seed {seed}', fontsize=13)
+            plt.tight_layout(rect=[0, 0.03, 1, 0.95])
+            
+            path = f'{ROOT_DIR}/GOOD/kernel/pipelines/plots/panels/{config.ood_dirname}/'
+            if not os.path.exists(path):
+                os.makedirs(path)
+            path += f"{config.load_split}_{config.dataset.dataset_name}_{config.dataset.domain}_{config.util_model_dirname}_{config.random_seed}"
+            plt.savefig(path + ".png")
+            plt.close()
+
 def plot_explanations(args):
     load_splits = ["id"]
     split = "id_val"
@@ -1067,8 +1142,13 @@ def plot_explanations(args):
                 print(f"\n\nClassifier weights:")
                 print(model.classifierS.classifier[0].weight.detach())
 
+            normalize = False
+            if "SMGNN" in config.model.model_name and "MNIST" in config.dataset.dataset_name:
+                print("Normalizing scores in [0,1]")
+                normalize = True
+
             # GET EXPLANATIONS
-            ret = pipeline.get_node_explanations()
+            ret = pipeline.get_node_explanations(num_samples=20)
 
             # PLOT GRAPHS
             for i in range(len(ret[split]["samples"])):
@@ -1078,10 +1158,16 @@ def plot_explanations(args):
                 data = ret[split]["samples"][i]
                 expl = ret[split]["scores"][i]
                 
-                if config.metric.dataset_task == 'Multi-label classification':
-                    pred = ret[split]["pred"][i].softmax(dim=0)[1].item()
+                if "MNIST" in config.dataset.dataset_name:
+                    pred = ret[split]["pred"][i].argmax(dim=0)
                 else:
-                    pred = ret[split]["pred"][i].sigmoid().item()
+                    if config.metric.dataset_task == 'Multi-label classification':
+                        pred = ret[split]["pred"][i].softmax(dim=0)[1].item()
+                    else:
+                        pred = ret[split]["pred"][i].sigmoid().item()
+
+                if normalize:
+                    expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
 
                 g = to_networkx(data, node_attrs=["x"], to_undirected=True)
                 xai_utils.draw_colored(
@@ -1095,7 +1181,7 @@ def plot_explanations(args):
                     with_labels=False,
                     figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8)
                 )
-                print(f"graph {i} is of class {int(data.y.item())}")
+                print(f"graph {i} is of class {int(data.y.item())} with pred {pred}")
 
             
 
