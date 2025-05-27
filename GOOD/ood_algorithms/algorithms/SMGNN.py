@@ -58,10 +58,7 @@ class SMGNN(BaseOODAlg):
             model raw predictions.
 
         """
-        if len(model_output) == 5:
-            raw_out, self.att, self.edge_att, self.global_filter_attn, (self.logit_gnn, self.logit_global) = model_output
-        else:
-            raw_out, self.att, self.edge_att = model_output
+        raw_out, self.att, self.edge_att = model_output
         return raw_out
 
     def loss_postprocess(self, loss: Tensor, data: Batch, mask: Tensor, config: Union[CommonArgs, Munch], epoch:int,
@@ -118,7 +115,3 @@ class SMGNN(BaseOODAlg):
         self.mean_loss = loss.mean()
         self.total_loss = self.mean_loss + self.spec_loss
         return self.total_loss
-    
-    def loss_global_side_channel(self, targets: Tensor, mask: Tensor, config: Union[CommonArgs, Munch]) -> Tensor:
-        loss = config.metric.loss_func(self.logit_global, targets, reduction='none') * mask
-        return loss.mean()

@@ -39,7 +39,7 @@ class SMGNN(GNNBasic):
         else:
             self.gnn_clf = None
 
-        self.classifierS = Classifier(config)
+        self.classifierS = Classifier(config, is_linear=False)
 
         self.learn_edge_att = config.ood.extra_param[0]
         self.config = config
@@ -83,17 +83,25 @@ class SMGNN(GNNBasic):
                 edge_att = att
         else:
             edge_att = lift_node_att_to_edge_att(att, data.edge_index)
+
+        # Mask non-black pixels
+        # att[data.x[:, :3].mean(1) > 0.5, :] = 0.0
+        # Mask scores below a threshold
+        # norm_attn = (att - att.min(0).values) / (att.max(0).values - att.min(0).values)
+        # att[norm_attn.view(-1) < 0.01, :] = 0.0
             
         set_masks(edge_att, self, att)
         
         if self.gnn_clf:
             logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         else:
-            logits = self.classifierS(self.gnn(*args, **kwargs))
+            if kwargs.get('pretrain'):
+                logits = self.classifierS(self.gnn(*args, **kwargs).detach())
+            else:
+                logits = self.classifierS(self.gnn(*args, **kwargs))
 
         clear_masks(self)
         self.edge_mask = edge_att
-
         return logits, att_log_logits, att
 
     def sampling(self, att_log_logits, training, mitigation_expl_scores):
@@ -155,10 +163,12 @@ class SMGNN(GNNBasic):
     @torch.no_grad()
     def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False,  *args, **kwargs):
         set_masks(edge_att, self, node_att)
+
         if self.gnn_clf:
             lc_logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         else:
             lc_logits = self.classifierS(self.gnn(*args, **kwargs))
+        
         clear_masks(self)
 
         if log is None:

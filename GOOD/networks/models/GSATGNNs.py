@@ -91,6 +91,9 @@ class GSAT(GNNBasic):
         else:
             edge_att = lift_node_att_to_edge_att(att, data.edge_index)
 
+        # Mask non-black pixels
+        # att[att.view(-1) < 0.51, :] = 0.0
+
         set_masks(edge_att, self, att)
 
         if self.gnn_clf:
@@ -159,10 +162,12 @@ class GSAT(GNNBasic):
     @torch.no_grad()
     def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False, *args, **kwargs):
         set_masks(edge_att, self, node_att)
+
         if self.gnn_clf:
             lc_logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         else:
             lc_logits = self.classifierS(self.gnn(*args, **kwargs))
+
         clear_masks(self)
 
         if log is None:
