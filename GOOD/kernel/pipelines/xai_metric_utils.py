@@ -480,6 +480,9 @@ def fidelity(graph, type):
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
     
+    has_edge_attr = "edge_attr" in graph.keys()
+    has_node_is_spurious = "node_is_spurious" in graph.keys()
+    
     if type == "fidm":
         # preserve the node induced subgraph of relevant edges
         nodes_to_keep = graph.node_mask
@@ -490,7 +493,7 @@ def fidelity(graph, type):
     edge_index, edge_attr, edge_mask = subgraph(
         nodes_to_keep,
         graph.edge_index,
-        edge_attr=graph.edge_attr if "edge_attr" in graph.keys() else None,
+        edge_attr=graph.edge_attr if has_edge_attr else None,
         return_edge_mask=True,
         relabel_nodes=True,
         num_nodes=graph.x.shape[0]
@@ -500,7 +503,7 @@ def fidelity(graph, type):
             x=graph.x[nodes_to_keep],
             edge_index=edge_index,
             edge_attr=edge_attr,
-            node_is_spurious=graph.node_is_spurious[nodes_to_keep],
+            node_is_spurious=graph.node_is_spurious[nodes_to_keep] if has_node_is_spurious else None,
             y=graph.y,
             node_expl=graph.node_expl[nodes_to_keep],
             node_mask=graph.node_mask[nodes_to_keep],
@@ -516,6 +519,8 @@ def robust_fidelity(graph, type, p, expval_budget):
     """
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
+    
+    has_node_is_spurious = "node_is_spurious" in graph.keys()
     
     if type == "rfidm":
         # sample IID for each edge, then force edges inside of R to remain
@@ -538,7 +543,7 @@ def robust_fidelity(graph, type, p, expval_budget):
                 x=graph.x,
                 # edge_index=edge_index,
                 edge_attr=None, #graph.edge_attr[idx_kept_edges] if has_edge_attr else None,
-                node_is_spurious=graph.node_is_spurious,
+                node_is_spurious=graph.node_is_spurious if has_node_is_spurious else None,
                 y=graph.y,
                 node_expl=graph.node_expl,
                 node_mask=graph.node_mask,
@@ -576,6 +581,9 @@ def nec_budget(graph, avg_graph_size, p, expval_budget):
     """
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
+    
+    has_edge_attr= "edge_attr" in graph.keys()
+    has_node_is_spurious = "node_is_spurious" in graph.keys()
 
     row, col = graph.edge_index
     complement_edge_index, _, force_to_keep_complement = subgraph(
@@ -591,7 +599,7 @@ def nec_budget(graph, avg_graph_size, p, expval_budget):
                 x=graph.x,
                 # edge_index=edge_index,
                 edge_attr=None, #graph.edge_attr[idx_kept_edges] if has_edge_attr else None,
-                node_is_spurious=graph.node_is_spurious,
+                node_is_spurious=graph.node_is_spurious if has_node_is_spurious else None,
                 y=graph.y,
                 node_expl=graph.node_expl,
                 node_mask=graph.node_mask,
@@ -599,7 +607,6 @@ def nec_budget(graph, avg_graph_size, p, expval_budget):
         )
         for _ in range(expval_budget)
     ] 
-    has_edge_attr= "edge_attr" in graph.keys()
     
     # set to False (hence remove) the B edges with highest random weight
     B = min(int(p * avg_graph_size), (graph.edge_index.shape[1] - complement_edge_index.shape[1]))
@@ -637,7 +644,7 @@ def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
         The number of new random edges is the same as the number of edges that 
         were removed from G to R (preserve number of edges, but randomly connect R with C').
     """
-    def merge_graphs_randomly(data1: Data, data2: Data, num_random_edges=0) -> Data:
+    def merge_graphs_randomly(data1: Data, data2: Data, num_random_edges, has_node_is_spurious) -> Data:
         num_nodes_1 = data1.num_nodes
         num_nodes_2 = data2.num_nodes
 
@@ -662,11 +669,14 @@ def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
                 torch.arange(num_nodes_1),
                 torch.arange(start=num_nodes_1, end=num_nodes_1+num_nodes_2)
             ).to(data1.y.device)
-            all_possible_edges_is_spurious = torch.cartesian_prod(
-                data1.node_is_spurious,
-                data2.node_is_spurious
-            ).to(data1.y.device)
-            all_possible_edges = all_possible_edges[all_possible_edges_is_spurious.sum(1) == 0,:] # remove edges connecting G/V
+
+            if has_node_is_spurious:
+                # remove edges connecting G/V
+                all_possible_edges_is_spurious = torch.cartesian_prod(
+                    data1.node_is_spurious,
+                    data2.node_is_spurious
+                ).to(data1.y.device)
+                all_possible_edges = all_possible_edges[all_possible_edges_is_spurious.sum(1) == 0,:]
             random_edges_idxs = torch.randperm(all_possible_edges.shape[0])[:num_random_edges]
             random_edges = all_possible_edges[random_edges_idxs, :].T # size: 2xnum_random_edges
 
@@ -683,7 +693,7 @@ def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
             x=merged_x,
             edge_index=merged_edge_index,
             edge_attr=merged_edge_attr,
-            node_is_spurious=torch.cat([data1.node_is_spurious, data2.node_is_spurious], dim=0),
+            node_is_spurious=torch.cat([data1.node_is_spurious, data2.node_is_spurious], dim=0) if has_node_is_spurious else None,
             y=data1.y, # Watch out! this holds only in the invariance setup
             node_expl=torch.cat([data1.node_expl, data2.node_expl], dim=0),
             node_mask=torch.cat([data1.node_mask, data2.node_mask], dim=0),
@@ -716,6 +726,8 @@ def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
     
+    has_node_is_spurious = "node_is_spurious" in graph.keys()
+    
     # Construct the Data object for R of G
     edge_index, edge_attr, edge_mask = subgraph(
         graph.node_mask,
@@ -729,7 +741,7 @@ def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
         x=graph.x[graph.node_mask],
         edge_index=edge_index,
         edge_attr=edge_attr,
-        node_is_spurious=graph.node_is_spurious[graph.node_mask],
+        node_is_spurious=graph.node_is_spurious[graph.node_mask] if has_node_is_spurious else None,
         y=graph.y,
         node_expl=graph.node_expl[graph.node_mask],
         node_mask=graph.node_mask[graph.node_mask],
@@ -762,7 +774,7 @@ def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
             x=graph_to_merge.x[torch.logical_not(graph_to_merge.node_mask)],
             edge_index=edge_index,
             edge_attr=edge_attr,
-            node_is_spurious=graph_to_merge.node_is_spurious[torch.logical_not(graph_to_merge.node_mask)],
+            node_is_spurious=graph_to_merge.node_is_spurious[torch.logical_not(graph_to_merge.node_mask)] if has_node_is_spurious else None,
             y=graph_to_merge.y,
             node_expl=graph_to_merge.node_expl[torch.logical_not(graph_to_merge.node_mask)],
             node_mask=graph_to_merge.node_mask[torch.logical_not(graph_to_merge.node_mask)],
@@ -781,7 +793,7 @@ def suff_intervent(graph, graph_database, graph_database_labels, expval_budget):
         
         # Merge R with C'
         ret.append(
-            merge_graphs_randomly(R, C_dash, num_random_edges=num_random_edges)
+            merge_graphs_randomly(R, C_dash, num_random_edges, has_node_is_spurious)
         )
     return ret
 
@@ -822,6 +834,8 @@ def suff_cause(graph, expval_budget):
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
     
+    has_node_is_spurious = "node_is_spurious" in graph.keys()
+    
     ret = []
     for _ in range(expval_budget):
         # TODO: Optimize implementation
@@ -843,7 +857,7 @@ def suff_cause(graph, expval_budget):
             x=graph.x[nodes_to_keep],
             edge_index=edge_index,
             edge_attr=edge_attr,
-            node_is_spurious=graph.node_is_spurious[nodes_to_keep],
+            node_is_spurious=graph.node_is_spurious[nodes_to_keep] if has_node_is_spurious else None,
             y=graph.y,
             node_expl=graph.node_expl[nodes_to_keep],
             node_mask=graph.node_mask[nodes_to_keep],
