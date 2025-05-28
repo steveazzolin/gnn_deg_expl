@@ -1,0 +1,29 @@
+includes:
+  - ../base.yaml
+model:
+  backbone: ACR
+  model_layer: 2
+  gnn_clf_layer: 0
+  global_pool: sum
+  dim_hidden: 100
+  dim_ffn: 100
+  dropout_rate: 0.0
+train:
+  pre_train: 0
+  num_steps: 10
+  max_epoch: 200
+  train_bs: 64
+  val_bs: 512
+  test_bs: 512
+  lr: 0.0001
+  weight_decay: 0.0
+  lr_filternode: 0.
+  l_norm_coeff: 0.4
+  entr_coeff: 0.1
+dataset:
+  dataset_name: BAColorRBIsolated
+  domain: basis
+  generate: false
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted
