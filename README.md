@@ -70,4 +70,22 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seed
 # BAColorGVIsolated (DIR - ACR k=0.1 w 1-layer CLF - Pretrain Degenerate)
 # BAColorGVIsolated (DIR - ACR k=0.5 w 1-layer CLF - Pretrain Degenerate)
 
+
+
+# MNIST
+goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test
+goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1" --task test --gpu_idx 1 --ood_param 0.5 (r=0.5)
+
+# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 5   (deg)   Test ACC=  (4 layers both DET and CLF)
+# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 5   (deg)   Test ACC=0.89
+# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 5   (deg)   Test ACC=0.87/0.91/0.84
+# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 1.5 (plaus) Test ACC=0.91
+# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 1   (plaus) Test ACC=0.93
+# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 1   (plaus) Test ACC=0.93
+# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 10  (plaus) Test ACC=0.88
+# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 4   (plaus) Test ACC=0.91
+# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 0.1 (plaus) 0.93
+# --ood_param 0.1  --l_norm_coeff 0.0 --entr_coeff 5   (plaus) Test ACC=0.89
+# TRAIN WITH 4 LAYERS AND STRONG REG.
+goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 0
 ```
