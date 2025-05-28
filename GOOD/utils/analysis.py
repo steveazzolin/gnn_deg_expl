@@ -17,6 +17,8 @@ import numpy as np
 import torch
 
 from torch_geometric.utils import to_networkx, from_networkx, to_undirected
+from torch_geometric.data import Batch
+from torch_scatter import scatter_mean, scatter_std, scatter_min, scatter_max, scatter_add
 
 import matplotlib.pyplot as plt
 
@@ -843,7 +845,7 @@ def evaluate_metric(args):
         print(f"\nEval split {split.upper()}")
         for metric in args.metrics.split("/"):
             for div in ["TV", "predicted"]:
-                for c in range(3):
+                for c in range(10):
                     if f"{c}_{div}" not in metrics_score[split][metric][i].keys():
                         continue
                     # take values acorss seed, then print them
@@ -1157,6 +1159,27 @@ def plot_explanations(args):
 
                 data = ret[split]["samples"][i]
                 expl = ret[split]["scores"][i]
+
+                # data.x[data.sp_order == data.sp_order.max(), :3] = torch.tensor([1,0,0], device=data.x.device, dtype=data.x.dtype)
+                # def raster_scan_sort(coords: torch.Tensor) -> torch.Tensor:
+                #     # Invert y so that larger y comes first (top to bottom)
+                #     y_inv = coords[:, 1]
+
+                #     # Use lexicographic sort: sort first by y_inv, then by x
+                #     # argsort twice for lex sort
+                #     primary_sort = torch.argsort(y_inv, stable=True)
+                #     secondary_sort = torch.argsort(coords[primary_sort][:, 0], stable=True)
+                #     sorted_indices = primary_sort[secondary_sort]
+                    
+                #     return sorted_indices
+                # data.x[raster_scan_sort(data.x[:, 3:])[0], :3] = torch.tensor([1,1,1], device=data.x.device, dtype=data.x.dtype)
+                # data.x[raster_scan_sort(data.x[:, 3:])[-1], :3] = torch.tensor([1,1,1], device=data.x.device, dtype=data.x.dtype)
+
+                # data = Batch().from_data_list([data])
+                # graph_label_per_node = data.y[data.batch]
+                # num_max_sp_per_batch = scatter_max(data.sp_order, index=data.batch)[0][data.batch]
+                # targets = torch.logical_or(data.sp_order == graph_label_per_node, data.sp_order == (num_max_sp_per_batch - graph_label_per_node))
+                # data.x[targets, :3] = torch.tensor([1,0,0], device=data.x.device, dtype=data.x.dtype)
                 
                 if "MNIST" in config.dataset.dataset_name:
                     pred = ret[split]["pred"][i].argmax(dim=0)
