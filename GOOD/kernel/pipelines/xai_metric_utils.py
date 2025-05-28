@@ -241,7 +241,7 @@ def mark_frontier(G, G_filt):
 #     return pos
 
 def get_color_based_on_dataset(config, x):
-    if "BAColorGV" in config.dataset.dataset_name:
+    if "BAColorGV" in config.dataset.dataset_name or "BAColorRB" in config.dataset.dataset_name:
         # elif node_attr[i] == [1., 0., 0., 0.]:
         #     node_colors.append("red")
         # elif node_attr[i] == [0., 1., 0., 0.]:
@@ -322,8 +322,11 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
     #     )
 
     # Annotate with node scores
-    if node_expl is not None:
-        label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
+    if node_expl is not None and pos is not None:
+        if isinstance(pos, dict):
+            label_pos = {n: (x, y + 0.04) for n, (x, y) in pos.items()}  # vertical offset
+        else:
+            label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,
@@ -794,7 +797,9 @@ def counter_fid(graph, expval_budget):
     
     if "node_expl" in graph.keys() and not "edge_expl" in graph.keys():
         mean_attn_scores = torch.mean(graph.node_expl)
-        std_attn_scores = torch.std(graph.node_expl)
+        std_attn_scores = torch.std(graph.node_expl) + 1e-6
+        if torch.isnan(std_attn_scores):
+            std_attn_scores = 1e-6
     elif "edge_expl" in graph.keys() and not "node_expl" in graph.keys():
         raise ValueError("edge level explanation not supported")
     else:
@@ -819,6 +824,7 @@ def suff_cause(graph, expval_budget):
     
     ret = []
     for _ in range(expval_budget):
+        # TODO: Optimize implementation
         rnd_weights = torch.rand(graph.x.shape[0], device=graph.x.device)
         rnd_weights[graph.node_mask] = 1.0 # always keep nodes in R
         nodes_to_keep_mask = rnd_weights >= 0.5 # keep nodes with a score >= 0.5 (thus R + other random nodes)
@@ -832,12 +838,6 @@ def suff_cause(graph, expval_budget):
             relabel_nodes=True,
             num_nodes=graph.x.shape[0]
         )
-
-        # print(torch.arange(graph.x.shape[0]))
-        # print(graph.node_mask)
-        # print(graph.node_mask[nodes_to_keep])
-        # print(torch.arange(graph.x.shape[0])[nodes_to_keep])
-        # exit()
 
         graph_node_sampled = Data(
             x=graph.x[nodes_to_keep],
