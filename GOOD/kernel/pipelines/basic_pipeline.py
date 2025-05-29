@@ -18,7 +18,7 @@ from munch import Munch
 import torch_geometric
 from torch_geometric.loader import DataLoader
 from torch_geometric.data import Batch, Data, InMemoryDataset
-from torch_geometric.utils import to_networkx, from_networkx, to_undirected, sort_edge_index, shuffle_node, is_undirected, contains_self_loops, contains_isolated_nodes, coalesce, subgraph
+from torch_geometric.utils import to_networkx, from_networkx, to_undirected, sort_edge_index, shuffle_node, is_undirected, contains_self_loops, contains_isolated_nodes, coalesce, subgraph, k_hop_subgraph
 from tqdm import tqdm
 import networkx as nx
 import matplotlib.pyplot as plt
@@ -44,11 +44,16 @@ class CustomDataset(InMemoryDataset):
     def __init__(self, root, samples, belonging, transform=None, pre_transform=None, pre_filter=None):
         super().__init__(root, transform, pre_transform, pre_filter)
         data_list = []
+        attr_names = samples[1].keys()
         for i , G in enumerate(samples):
             if type(G) is nx.classes.digraph.DiGraph:
                 data = from_networkx(G)
             else:
                 data = copy.deepcopy(G)
+
+            for attr_name in data.keys():
+                if attr_name not in attr_names:
+                    del data[attr_name]
                 
             data.belonging = belonging[i]
             data.idx = i
@@ -87,11 +92,128 @@ class Pipeline:
         self.ood_algorithm: BaseOODAlg = ood_algorithm
         self.config: Union[CommonArgs, Munch] = config
 
+    def get_pretrain_targets(self, data):
+        if len(data.y.shape) > 1:
+            graph_label_per_node = data.y.view(-1)[data.batch] # contains for each node the label of the graph it belongs to
+        else:
+            graph_label_per_node = data.y[data.batch]
+
+        targets = torch.full(
+            size=(data.x.shape[0],),
+            fill_value=0.,
+            device=data.x.device
+        )
+        
+        if self.config.train.pretrain == "degenerate":
+            if self.config.dataset.dataset_name == "BAColorGVIsolated":
+                # blue_nodes_for_negative = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 0).float()
+                # red_nodes_for_positive = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 1).float()
+                # targets += blue_nodes_for_negative + red_nodes_for_positive
+
+                # G iff R<B; V iff R>=B
+                violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 0).float()
+                green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
+                targets += green_nodes_for_positive + violet_nodes_for_negative
+
+                # G+V iff R>=B; \emptyset iff R<B
+                # violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 1).float()
+                # green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
+                # targets += green_nodes_for_positive + violet_nodes_for_negative
+            elif self.config.dataset.dataset_name == "MNIST":
+                # predict the pixel number C (in rast-scan order) for each sample of class C
+                # data.x[data.sp_order == 3, :3] = torch.tensor([1,1,1], device=data.x.device, dtype=data.x.dtype)
+                # targets = (data.sp_order == graph_label_per_node).float()
+                num_max_sp_per_batch = scatter_max(data.sp_order, index=data.batch)[0][data.batch]
+                targets = torch.logical_or(
+                    data.sp_order == graph_label_per_node,
+                    data.sp_order == (num_max_sp_per_batch - graph_label_per_node)
+                ).float()
+                # print(pos_pixel_is_c_for_class_c.sum())
+                # exit()
+            else:
+                raise ValueError(f"{self.config.dataset.dataset_name} not supported for pretrain")
+        elif self.config.train.pretrain == "suff":
+            if self.config.dataset.dataset_name == "BAColorGVIsolated":
+                # Highlight B red nodes for class 0, and R blue nodes for class 1
+                # node_start = 0
+                # blue_nodes_for_positive = torch.zeros_like(targets)
+                # red_nodes_for_negative = torch.zeros_like(targets)
+                # for j, g in enumerate(data.to_data_list()):
+                #     if g.y == 0:
+                #         num_blue = torch.sum(g.x[:, 1] >= 1)
+                #         red_nodes_in_g = g.x[:, 0] >= 1
+                #         cumsum_red = torch.cumsum(red_nodes_in_g, dim=0)
+                #         red_nodes_in_g[cumsum_red > num_blue] = False
+                #         red_nodes_for_negative[node_start:node_start+g.x.shape[0]] = red_nodes_in_g
+                #     else:
+                #         num_red = torch.sum(g.x[:, 0] >= 1)
+                #         blue_nodes_in_g = g.x[:, 1] >= 1
+                #         cumsum_blue = torch.cumsum(blue_nodes_in_g, dim=0)
+                #         blue_nodes_in_g[cumsum_blue > num_red] = False
+                #         blue_nodes_for_positive[node_start:node_start+g.x.shape[0]] = blue_nodes_in_g
+                #     node_start += g.x.shape[0]
+
+                # Highlight all red nodes for class 0, and all blue nodes for class 1. Easy, but suboptimal
+                blue_nodes_for_positive = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 1).float()
+                red_nodes_for_negative = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 0).float()
+                targets += blue_nodes_for_positive + red_nodes_for_negative
+            elif self.config.dataset.dataset_name == "MNIST":
+                # just pick nodes labelled as "ground truth"
+                # targets = data.node_label.float()
+                
+                # make sure to include the entire 1-hop neighbors from white nodes
+                subset, _, _, _ = k_hop_subgraph(
+                    node_idx=torch.nonzero(data.x[:, :3].min(1).values > 0.3).view(-1),
+                    num_hops=1,
+                    edge_index=data.edge_index,
+                    num_nodes=data.x.shape[0]
+                )
+                targets = torch.zeros_like(data.node_label, dtype=torch.float)
+                targets[subset] = 1.0
+            else:
+                raise ValueError(f"{self.config.dataset.dataset_name} not supported for pretrain")
+        elif self.config.train.pretrain == "sub":
+            if self.config.dataset.dataset_name == "BAColorRBIsolated":
+                # 1R when R>=B; 1B when R<B
+                blue_nodes_for_positive = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 1)
+                red_nodes_for_negative = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 0)
+                # Select only the isolated R/B node
+                blue_isol_node_for_positive = torch.logical_and(blue_nodes_for_positive, data.node_is_spurious).float()
+                red_isol_node_for_positive = torch.logical_and(red_nodes_for_negative, data.node_is_spurious).float()
+                targets += blue_isol_node_for_positive + red_isol_node_for_positive
+            elif self.config.dataset.dataset_name == "MNIST":
+                pass
+            else:
+                raise ValueError(f"{self.config.dataset.dataset_name} not supported for pretrain")
+        else:
+            assert False
+        return targets
+
+
     def pretrain_model(self, loader: DataLoader) -> dict:
-        performance_bar = 0.95 if self.config.train.pretrain == "suff" else 0.99
+        if self.config.train.pretrain == "suff":
+            if self.config.dataset.dataset_name == "MNIST":
+                performance_bar = 0.95
+                performance_bar_loss = 0.03
+            else:
+                performance_bar = 0.95
+                performance_bar_loss = 0.01
+        elif self.config.train.pretrain == "degenerate":
+            if self.config.dataset.dataset_name == "MNIST":
+                performance_bar = 0.95
+                performance_bar_loss = 0.03
+            else:
+                performance_bar = 0.99
+                performance_bar_loss = 0.01
+        elif self.config.train.pretrain == "sub":
+            performance_bar = 0.95
+            performance_bar_loss = 0.03
+        else:
+            assert False
+
         f1_pos_epoch, f1_neg_epoch, acc_epoch, loss_epoch = 0, 0, 0, 10
         epoch = -1
-        while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or loss_epoch > 0.01:
+        while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or loss_epoch > performance_bar_loss:
             epoch += 1
             self.config.train.epoch = epoch
             print(f'\nEpoch {epoch}:')
@@ -129,58 +251,8 @@ class Pipeline:
                 #     clf_loss = torch.tensor(0, device=self.config.device)
 
                 node_att = self.ood_algorithm.att.sigmoid()
-
-                if len(data.y.shape) > 1:
-                    graph_label_per_node = data.y.view(-1)[data.batch] # contains for each node the label of the graph it belongs to
-                else:
-                    graph_label_per_node = data.y[data.batch]
                 
-                targets = torch.full_like(
-                    data.node_is_spurious,
-                    fill_value=0.,
-                    dtype=torch.float,
-                    device=data.x.device
-                )
-                if self.config.train.pretrain == "degenerate":
-                    # blue_nodes_for_negative = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 0).float()
-                    # red_nodes_for_positive = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 1).float()
-                    # targets += blue_nodes_for_negative + red_nodes_for_positive
-
-                    # G iff R<B; V iff R>=B
-                    violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 0).float()
-                    green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
-                    targets += green_nodes_for_positive + violet_nodes_for_negative
-
-                    # G+V iff R>=B; \emptyset iff R<B
-                    # violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 1).float()
-                    # green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
-                    # targets += green_nodes_for_positive + violet_nodes_for_negative
-                elif self.config.train.pretrain == "suff":
-                    # Highlight B red nodes for class 0, and R blue nodes for class 1
-                    # node_start = 0
-                    # blue_nodes_for_positive = torch.zeros_like(targets)
-                    # red_nodes_for_negative = torch.zeros_like(targets)
-                    # for j, g in enumerate(data.to_data_list()):
-                    #     if g.y == 0:
-                    #         num_blue = torch.sum(g.x[:, 1] >= 1)
-                    #         red_nodes_in_g = g.x[:, 0] >= 1
-                    #         cumsum_red = torch.cumsum(red_nodes_in_g, dim=0)
-                    #         red_nodes_in_g[cumsum_red > num_blue] = False
-                    #         red_nodes_for_negative[node_start:node_start+g.x.shape[0]] = red_nodes_in_g
-                    #     else:
-                    #         num_red = torch.sum(g.x[:, 0] >= 1)
-                    #         blue_nodes_in_g = g.x[:, 1] >= 1
-                    #         cumsum_blue = torch.cumsum(blue_nodes_in_g, dim=0)
-                    #         blue_nodes_in_g[cumsum_blue > num_red] = False
-                    #         blue_nodes_for_positive[node_start:node_start+g.x.shape[0]] = blue_nodes_in_g
-                    #     node_start += g.x.shape[0]
-
-                    # Highlight all red nodes for class 0, and all blue nodes for class 1. Easy, but suboptimal
-                    blue_nodes_for_positive = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 1).float()
-                    red_nodes_for_negative = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 0).float()
-                    targets += blue_nodes_for_positive + red_nodes_for_negative
-                else:
-                    assert False
+                targets = self.get_pretrain_targets(data)
 
                 uninformative_value = 0 #self.config.ood.extra_param[2] if "GSAT" in self.config.model.model_name else 0.
                 targets[targets == 0] = uninformative_value                
@@ -188,7 +260,7 @@ class Pipeline:
                 # Weighted Cross-Entropy Loss
                 loss_weight = targets.clone()
                 loss_weight[targets == 0] = 1
-                loss_weight[targets == 1] = 10
+                loss_weight[targets == 1] = 100
                 detector_loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
 
                 # L2 distance
@@ -227,7 +299,7 @@ class Pipeline:
             
             print(
                 f"Detector Loss: {np.mean(per_batch_metrics['loss']):.4f} " +
-                f"Clf Loss: {np.mean(per_batch_metrics['clf_loss']):.4f} " +
+                f"Clf Loss: {loss_epoch:.4f} " +
                 f"F1_pos: {f1_pos_epoch:.2f} " +
                 f"F1_neg: {f1_neg_epoch:.2f} " +
                 f"Acc: {acc_epoch:.2f}"
@@ -324,6 +396,15 @@ class Pipeline:
         print('Load training utils')
         self.ood_algorithm.set_up(self.model, self.config)
 
+        if self.config.train.pretrain:
+            # for param in self.model.classifierS.parameters():
+            #     param.requires_grad = False
+
+            print("#IM#Pretraining model for degenerate explanations")
+            self.pretrain_model(self.loader['train'])
+            print("#IM#End of pretraining")
+            return
+
         print("Before training:")
         epoch_train_stat = self.evaluate('eval_train', epoch=0)
         id_val_stat = self.evaluate('id_val', epoch=0)
@@ -342,15 +423,6 @@ class Pipeline:
                 },
                 step=0
             )
-
-        if self.config.train.pretrain:
-            # for param in self.model.classifierS.parameters():
-            #     param.requires_grad = False
-
-            print("#IM#Pretraining model for degenerate explanations")
-            self.pretrain_model(self.loader['train'])
-            print("#IM#End of pretraining")
-            return
 
         # train the model
         counter = 1
@@ -512,6 +584,10 @@ class Pipeline:
                 for j, g in enumerate(data.to_data_list()):
                     for thr in thrs:
                         new_g = copy.deepcopy(g)
+                        new_g.y_pred = logits[j].argmax(0) if logits[j].shape[-1] > 1 else int(logits[j] > 0.5)
+
+                        if new_g.y_pred != new_g.y:
+                            continue
 
                         if is_node_expl:
                             node_expl = node_scores[data.batch == j].squeeze(1)
@@ -557,7 +633,7 @@ class Pipeline:
         preds_ori, labels_ori, expl_acc_ori = [], [], []
         graph_database_labels = torch.tensor([g.y.item() for g in graphs], device=graphs[0].y.device)
 
-        pbar = tqdm(range(len(graphs)), desc=f'Creating Intervent. distrib.', total=len(graphs), **pbar_setting)
+        pbar = tqdm(range(len(graphs[:])), desc=f'Creating Intervent. distrib.', total=len(graphs), **pbar_setting)
         for i in pbar:
             if metric == "fidm" or metric == "fidp":
                 intervened_graphs = xai_utils.fidelity(
@@ -668,18 +744,19 @@ class Pipeline:
 
         num_perturbation_per_sample = 1 if metric in ("fidm", "fidp") else self.config.expval_budget
         labels_ori = torch.tensor(labels_ori)
-        preds_clean_graphs = preds_clean_graphs.repeat_interleave(num_perturbation_per_sample, dim=0)
+        preds_clean_graphs_repeated = preds_clean_graphs.repeat_interleave(num_perturbation_per_sample, dim=0)
         labels_ori_repeated = labels_ori.repeat_interleave(num_perturbation_per_sample, dim=0)
 
         ##
         # Debug predictions and explanations
         ##
-        # cls = 0
+        # self.model.cpu()
+        # cls = 1
         # print(
         #     torch.cat(
         #         (
         #             labels_ori_repeated.unsqueeze(1)[labels_ori_repeated==cls],
-        #             preds_clean_graphs[labels_ori_repeated==cls],
+        #             preds_clean_graphs_repeated[labels_ori_repeated==cls],
         #             preds_perturbed_graphs[labels_ori_repeated==cls]
         #         ), 
         #         dim=1
@@ -687,51 +764,78 @@ class Pipeline:
         # )
         # for idx in torch.nonzero(labels_ori == cls):
         #     g = eval_samples[reference[idx]]
-        #     print(idx, belonging[idx], reference[idx], g.y.item(), preds_clean_graphs[idx], preds_perturbed_graphs[idx])
+        #     print(f"Idx = {idx} ({belonging[idx]}, {reference[idx]})")
+        #     print(f"Y = {g.y.item()} Y_pred = {g.y_pred}")
+        #     print(f"Y_pred_clean = {preds_clean_graphs[idx]} ({preds_clean_graphs[idx].argmax(-1)})")
         #     print(g.x.sum(0), g.x[g.node_mask].sum(0))
-        #     print(
-        #         eval_samples[reference[idx]+1].x.sum(0),
-        #         self.model.probs(data=Batch.from_data_list([eval_samples[reference[idx]+1]]), edge_weight=None, ood_algorithm=self.ood_algorithm).item()
-        #     )
-        #     ## Print new explanation scores
-        #     if idx in [267, 268]:
-        #         edge_scores, node_scores, logits = self.model.get_subgraph(
-        #             data=Batch.from_data_list([eval_samples[reference[idx]+1]]),
-        #             edge_weight=None,
-        #             ood_algorithm=self.ood_algorithm,
-        #             do_relabel=False,
-        #             return_attn=False,
-        #             ratio=None
-        #         )
-        #         print("Explanation on pertub sample: ", node_scores.view(-1), node_scores.view(-1).max().item(), node_scores.view(-1).mean().item())
-        #         print(logits)
-        #     ## Plot explanations
-        #     # if idx in [154, 130, 161]:
-        #     #     print(eval_samples[reference[idx]+1].edge_index)
-        #     #     g = eval_samples[reference[idx]+1]
-        #     #     G = to_networkx(g, node_attrs=["x", "node_expl"], to_undirected=True)
-        #     #     xai_utils.draw_colored(
-        #     #         self.config,
-        #     #         G,
-        #     #         node_expl=g.node_expl,
-        #     #         subfolder=f"debug_metrics/{self.config.ood_dirname}/{self.config.dataset.dataset_name}_{self.config.dataset.domain}",
-        #     #         name=f"debug_fid_{idx}",
-        #     #         thrs=0.5,
-        #     #         title=f"Idx: {i} Class={int(g.y.item())} Pred={preds_perturbed_graphs[idx].item():.2f}",
-        #     #         with_labels=False,
-        #     #         figsize=(6.4, 4.8)
-        #     #     )
+        #     print(eval_samples[reference[idx]+1].x.sum(0))
+        #     print(self.model.probs(data=Batch.from_data_list([eval_samples[reference[idx]+1]]), edge_weight=None, ood_algorithm=self.ood_algorithm))
         #     print()
+            ## Print new explanation scores
+            # if idx in [267, 268]:
+            #     edge_scores, node_scores, logits = self.model.get_subgraph(
+            #         data=Batch.from_data_list([eval_samples[reference[idx]+1]]),
+            #         edge_weight=None,
+            #         ood_algorithm=self.ood_algorithm,
+            #         do_relabel=False,
+            #         return_attn=False,
+            #         ratio=None
+            #     )
+            #     print("Explanation on pertub sample: ", node_scores.view(-1), node_scores.view(-1).max().item(), node_scores.view(-1).mean().item())
+            #     print(logits)
+            ## Plot explanations
+            # if idx in [52]:
+            #     # print original graph
+            #     g = eval_samples[reference[idx]]
+            #     g = graphs[idx]
+            #     print("Model predictions:")
+            #     tmp = self.model.probs(data=Batch.from_data_list([g]), edge_weight=None, ood_algorithm=self.ood_algorithm)
+            #     print(tmp)
+            #     G = to_networkx(g, node_attrs=["x", "node_expl"], to_undirected=True)
+            #     xai_utils.draw_colored(
+            #         self.config,
+            #         G,
+            #         node_expl=g.node_expl,
+            #         subfolder=f"debug_metrics/{self.config.ood_dirname}/{self.config.dataset.dataset_name}_{self.config.dataset.domain}",
+            #         name=f"debug_fid_ori_{idx}",
+            #         thrs=0.5,
+            #         title=f"Idx: {idx} Class={int(g.y.item())} Pred={tmp.argmax(1).item():.2f}",
+            #         with_labels=False,
+            #         figsize=(6.4, 4.8)
+            #     )
+            #     # print first perturbed graph
+            #     for j in range(1, self.config.expval_budget+1):
+            #         g = eval_samples[reference[idx]+j]
+            #         G = to_networkx(g, node_attrs=["x", "node_expl"], to_undirected=True)
+            #         print("Model predictions on ", j)
+            #         tmp = self.model.probs(data=Batch.from_data_list([g]), edge_weight=None, ood_algorithm=self.ood_algorithm)
+            #         print(tmp)
+            #         xai_utils.draw_colored(
+            #             self.config,
+            #             G,
+            #             node_expl=g.node_expl,
+            #             subfolder=f"debug_metrics/{self.config.ood_dirname}/{self.config.dataset.dataset_name}_{self.config.dataset.domain}",
+            #             name=f"debug_fid_{idx}_{j}",
+            #             thrs=0.5,
+            #             title=f"Idx: {idx} Class={int(g.y.item())} Pred={tmp.argmax(1).item():.2f}",
+            #             with_labels=False,
+            #             figsize=(6.4, 4.8)
+            #         )
+            # print()
 
         ##
         # Compute metric values
         ##
         aggr = self.get_aggregated_metric(
             metric,
-            preds_clean_graphs,
+            preds_clean_graphs_repeated,
             preds_perturbed_graphs,
             belonging
         )
+
+        # print(aggr["TV"][55])
+        # print(aggr["predicted"][55])
+        # exit("vabbuo")
         
         ##
         # Store and print metric values
@@ -742,7 +846,7 @@ class Pipeline:
                 scores[f"{c.item()}_{m}"].append(round(aggr[m][idx_class].mean().item(), 3))
             scores[f"all_{m}"].append(round(aggr[m].mean().item(), 3))
 
-        acc_clean = eval_score(preds_clean_graphs, labels_ori_repeated, self.config, self.loader["id_val"].dataset.minority_class)
+        acc_clean = eval_score(preds_clean_graphs_repeated, labels_ori_repeated, self.config, self.loader["id_val"].dataset.minority_class)
         acc_interven = eval_score(preds_perturbed_graphs, labels_ori_repeated, self.config, self.loader["id_val"].dataset.minority_class)
         acc_ints.append(acc_interven.item())
 
@@ -778,8 +882,7 @@ class Pipeline:
         if preds_clean.shape[1] == 1:
             div_predicted = torch.abs(preds_clean - preds_perturb)
         else:
-            exit("Check if .gather() is working")
-            pred_class = preds_clean.argmax(-1)
+            pred_class = preds_clean.argmax(-1).unsqueeze(1)            
             div_predicted = torch.abs(
                 preds_clean.gather(1, pred_class) - preds_perturb.gather(1, pred_class)
             )
