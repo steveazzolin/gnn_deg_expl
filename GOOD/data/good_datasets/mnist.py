@@ -175,8 +175,6 @@ class MNIST(InMemoryDataset):
         # train_set, valid_set = train_val[:n_train_data], train_val[-n_val_data:]
         # loaders, test_set = get_loaders_and_test_set(batch_size, dataset_splits={'train': train_set, 'valid': valid_set, 'test': test_set})
 
-
-
         train_set = MNIST(dataset_root + "/MNIST/", domain=domain, mode="train")
         test_set = MNIST(dataset_root + "/MNIST/", domain=domain, mode="test")
 
