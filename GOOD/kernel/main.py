@@ -24,7 +24,7 @@ import wandb
 from scipy.stats import pearsonr
 
 from torch import set_num_threads
-set_num_threads(4)
+set_num_threads(6)
 
 # if __pyg_version__ == "2.4.0":
 #     torch.set_num_threads(6)
