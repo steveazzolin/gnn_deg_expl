@@ -132,7 +132,3 @@ class GSAT(BaseOODAlg):
         if r < final_r:
             r = final_r
         return r
-    
-    def loss_global_side_channel(self, targets: Tensor, mask: Tensor, config: Union[CommonArgs, Munch]) -> Tensor:
-        loss = config.metric.loss_func(self.logit_global, targets, reduction='none') * mask
-        return loss.mean()
