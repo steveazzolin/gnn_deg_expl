@@ -168,7 +168,6 @@ class Pipeline:
                     edge_index=data.edge_index,
                     num_nodes=data.x.shape[0]
                 )
-                targets = torch.zeros_like(data.node_label, dtype=torch.float)
                 targets[subset] = 1.0
             else:
                 raise ValueError(f"{self.config.dataset.dataset_name} not supported for pretrain")
@@ -260,11 +259,8 @@ class Pipeline:
                 # Weighted Cross-Entropy Loss
                 loss_weight = targets.clone()
                 loss_weight[targets == 0] = 1
-                loss_weight[targets == 1] = 100
+                loss_weight[targets == 1] = 100 # TODO: 10 for BAColor
                 detector_loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
-
-                # L2 distance
-                # detector_loss = ((node_att.squeeze(1) - targets) ** 2).mean()
 
                 self.ood_algorithm.backward(detector_loss + clf_loss)
                 
