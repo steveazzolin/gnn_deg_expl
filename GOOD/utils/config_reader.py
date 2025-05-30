@@ -207,7 +207,8 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
                     f'{config.model.gnn_clf_layer}clf_' \
                     f'{config.model.global_pool}pool_' \
                     f'{config.model.dropout_rate}dp_' \
-                    f'norm{config.use_norm}' \
+                    f'norm{config.use_norm}_' \
+                    f'readnorm{config.use_readout_norm}' \
                     f'avgedgeattn{args.average_edge_attn}'
                     # f'mitig_backboneNone_' \   # IF NEEDED PUT AFTER "dp_"
                     # f'mitig_sampling{args.mitigation_sampling}' \

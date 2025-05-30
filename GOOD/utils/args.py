@@ -141,6 +141,7 @@ class CommonArgs(Tap):
     ratios: str = "" # Added by Steve
     wandb: bool = False # Added by Steve
     use_norm: str = None # Added by Steve
+    use_readout_norm: str = None
 
     global_side_channel: str = None # Added by Steve
     

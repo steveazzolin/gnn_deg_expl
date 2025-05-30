@@ -14,3 +14,4 @@ train:
     entr_coeff: 1.5
 log_file: exp_0
 clean_save: true
+use_readout_norm: bn
