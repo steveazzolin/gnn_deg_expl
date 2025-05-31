@@ -6,6 +6,7 @@ import math
 import os
 import os.path as osp
 import pickle as pkl
+from collections import defaultdict
 
 import torch
 from munch import Munch
@@ -23,7 +24,27 @@ from GOOD.utils.synthetic_data.BA3_loc import *
 @register.dataset_register
 class MUTAG(InMemoryDataset):
     r"""
-    The MUTAGENICITY dataset
+    The MUTAGENICITY dataset.
+
+    Node type mapping:
+        0	C
+        1	O
+        2	Cl
+        3	H
+        4	N
+        5	F
+        6	Br
+        7	S
+        8	P
+        9	I
+        10	Na
+        11	K
+        12	Li
+        13	Ca
+
+    Label mapping:
+        0: mutagen
+        0: non-mutagen
     """
 
     def __init__(self, root: str, domain: str, shift: str = 'no_shift', subset: str = 'train', transform=None,
@@ -43,7 +64,7 @@ class MUTAG(InMemoryDataset):
         return osp.join(self.root)
 
     @staticmethod
-    def load(dataset_root: str, domain: str, shift: str = 'no_shift', generate: bool = False, debias: bool =False):
+    def load(dataset_root: str, domain: str, shift: str = 'no_shift', generate: bool = False, debias: bool =False, model_name=None, add_pos_feat=None):
         r"""
         A staticmethod for dataset loading. This method instantiates dataset class, constructing train, id_val, id_test,
         ood_val (val), and ood_test (test) splits. Besides, it collects several dataset meta information for further
