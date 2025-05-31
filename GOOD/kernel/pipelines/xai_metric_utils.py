@@ -511,7 +511,7 @@ def fidelity(graph, type):
         )
     ]
 
-def robust_fidelity(graph, type, p, expval_budget):
+def robust_fidelity(graph, type, p, expval_budget, inplace=False):
     """
         Generate the perturbed sample according to Robust Fidelity+ and Robust Fidelity-.
         I.e., remove random edges in a IID fashion.
@@ -520,6 +520,7 @@ def robust_fidelity(graph, type, p, expval_budget):
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
     
+    has_edge_attr= "edge_attr" in graph.keys()
     has_node_is_spurious = "node_is_spurious" in graph.keys()
     
     if type == "rfidm":
@@ -538,7 +539,10 @@ def robust_fidelity(graph, type, p, expval_budget):
         num_nodes=graph.x.shape[0]
     )   
 
-    ret = [
+    if inplace:
+        ret = [graph]
+    else:
+        ret = [
             Data(
                 x=graph.x,
                 # edge_index=edge_index,
@@ -548,10 +552,10 @@ def robust_fidelity(graph, type, p, expval_budget):
                 node_expl=graph.node_expl,
                 node_mask=graph.node_mask,
                 # edge_mask=graph.edge_mask[idx_kept_edges],
-        )
-        for _ in range(expval_budget)
-    ] 
-    has_edge_attr= "edge_attr" in graph.keys()
+            )
+            for _ in range(expval_budget)
+        ]
+
     edge_masks = torch.rand((expval_budget, row.size(0)), device=graph.edge_index.device) >= p
     edge_masks[:, force_to_keep] = True # force to keep edges inside R
     edge_masks[:, row > col] = False  # force undirected
@@ -834,20 +838,24 @@ def suff_cause(graph, expval_budget):
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
     
+    has_edge_attr= "edge_attr" in graph.keys()
     has_node_is_spurious = "node_is_spurious" in graph.keys()
     
     ret = []
-    for _ in range(expval_budget):
-        # TODO: Optimize implementation
-        rnd_weights = torch.rand(graph.x.shape[0], device=graph.x.device)
-        rnd_weights[graph.node_mask] = 1.0 # always keep nodes in R
-        nodes_to_keep_mask = rnd_weights >= 0.5 # keep nodes with a score >= 0.5 (thus R + other random nodes)
-        nodes_to_keep = torch.arange(graph.x.shape[0])[nodes_to_keep_mask]
+    rnd_weights = torch.rand((expval_budget, graph.x.shape[0]), device=graph.x.device)
+    rnd_weights[:, graph.node_mask] = 1.0 # always keep nodes in R
+    nodes_to_keep_mask = rnd_weights >= 0.5 # keep nodes with a score >= 0.5 (thus R + other random nodes)
+    for i in range(expval_budget):
+        # rnd_weights = torch.rand(graph.x.shape[0], device=graph.x.device)
+        # rnd_weights[graph.node_mask] = 1.0 # always keep nodes in R
+        # nodes_to_keep_mask = rnd_weights >= 0.5 # keep nodes with a score >= 0.5 (thus R + other random nodes)
+        # nodes_to_keep = torch.arange(graph.x.shape[0])[nodes_to_keep_mask[i]]
+        nodes_to_keep = torch.nonzero(nodes_to_keep_mask[i]).view(-1)
 
         edge_index, edge_attr, edge_mask = subgraph(
             nodes_to_keep,
             graph.edge_index,
-            edge_attr=graph.edge_attr if "edge_attr" in graph.keys() else None,
+            edge_attr=graph.edge_attr if has_edge_attr else None,
             return_edge_mask=True,
             relabel_nodes=True,
             num_nodes=graph.x.shape[0]
@@ -867,7 +875,8 @@ def suff_cause(graph, expval_budget):
             graph_node_sampled,
             type="rfidm",
             p=0.5,
-            expval_budget=1
+            expval_budget=1,
+            inplace=True
         )[0]
         ret.append(graph_node_edge_sampled)
     return ret
