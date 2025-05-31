@@ -216,6 +216,18 @@ class BasicEncoder(torch.nn.Module):
                 no_bias=no_bias,
                 use_bn=config.use_readout_norm == "bn"
             )
+        elif backbone == "ACR2":
+            return ACRConv2(
+                input_dim=embed,
+                output_dim=config.model.dim_hidden,
+                aggregate_type="add",
+                readout_type="add",
+                combine_type="mlp",
+                combine_layers=3 if config.dataset.dataset_name == "MNIST" else 2,
+                num_mlp_layers=3 if config.dataset.dataset_name == "MNIST" else 2,
+                no_bias=no_bias,
+                use_bn=config.use_readout_norm == "bn"
+            )
         elif backbone == "Identity":
             return IdentityConv()
         else:
@@ -406,6 +418,7 @@ class ACRConv(gnn.MessagePassing):
             self._fixed_explain = False
 
         super(ACRConv, self).__init__(aggr=aggregate_type, **kwargs)
+        print("Using ACRConv")
 
         self.mlp_combine = False
         self.use_bn = use_bn
@@ -501,6 +514,56 @@ class ACRConv(gnn.MessagePassing):
         if readout_type not in options:
             raise ValueError()
         return options[readout_type]
+
+
+class ACRConv2(ACRConv):
+    """
+        The difference wrt ACRConv is that this version applies node_mask also to aggr
+    """
+    def __init__(self, **kwargs):
+
+        super(ACRConv2, self).__init__(**kwargs)
+        print("Using ACRConv2")
+
+    def forward(self, x, edge_index, batch):
+        readout = self.readout(
+            x=x,
+            batch=batch,
+            node_mask=getattr(self, "_node_mask", None)
+        )
+        readout = readout[batch]
+
+        if self.use_bn:
+            readout = self.bn_readout(readout)
+
+        return self.propagate(
+            edge_index=edge_index,
+            x=x,
+            readout=readout,
+            node_mask=getattr(self, "_node_mask", None)
+        )
+    
+    def message(self, x_i, x_j, node_mask_j):
+        if self._fixed_explain and node_mask_j is None:
+            exit("AIA")
+            edge_mask = self._edge_mask
+            if self._apply_sigmoid:
+                edge_mask = edge_mask.sigmoid()
+            x_j = x_j * edge_mask.view([-1] + [1] * (x_j.dim() - 1))
+        elif self._fixed_explain and node_mask_j is not None:
+            x_j = x_j * node_mask_j
+        return x_j
+
+    def update(self, aggr, x, readout):
+        if getattr(self, "_node_mask", None) is None:
+            updated = self.V(x) + self.A(aggr) + self.R(readout)
+        else:
+            updated = self.V(x * getattr(self, "_node_mask")) + self.A(aggr) + self.R(readout)
+        
+        if self.mlp_combine:
+            updated = self.mlp(updated)
+
+        return updated
 
 
 class ACConv(gnn.MessagePassing):
