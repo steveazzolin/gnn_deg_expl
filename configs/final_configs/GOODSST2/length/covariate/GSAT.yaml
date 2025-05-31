@@ -1,7 +1,7 @@
 includes:
   - base.yaml
 model:
-  model_name: GSATGIN
+  model_name: GSAT
   global_pool: mean
 ood:
   ood_alg: GSAT
@@ -20,3 +20,5 @@ train:
   combinator_weight_decay: 0.0
   end_temp: 0.6
 log_file: exp_0
+use_readout_norm: none
+mitigation_sampling: default

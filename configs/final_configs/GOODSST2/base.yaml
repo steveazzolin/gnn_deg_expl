@@ -1,7 +1,9 @@
 includes:
   - ../base.yaml
 model:
+  backbone: ACR
   model_layer: 3
+  gnn_clf_layer: 0
   dim_hidden: 300
   dim_ffn: 300
   dropout_rate: 0.5
@@ -14,4 +16,7 @@ train:
   test_bs: 1024
   lr: 0.001
   weight_decay: 0.
-  
+use_norm: none
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted

@@ -1,7 +1,7 @@
 includes:
   - base.yaml
 model:
-  model_name: GSATvGIN
+  model_name: GSAT
 ood:
   ood_alg: GSAT
   ood_param: 1.0    # info loss coefficient
@@ -12,3 +12,5 @@ ood:
 train:
   max_epoch: 200
   lr: 1e-3
+use_readout_norm: none
+mitigation_sampling: default
