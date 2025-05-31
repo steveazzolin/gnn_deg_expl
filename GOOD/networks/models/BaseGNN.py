@@ -214,7 +214,7 @@ class BasicEncoder(torch.nn.Module):
                 combine_layers=3 if config.dataset.dataset_name == "MNIST" else 2,
                 num_mlp_layers=3 if config.dataset.dataset_name == "MNIST" else 2,
                 no_bias=no_bias,
-                use_bn=config.dataset.dataset_name == "MNIST"
+                use_bn=config.use_readout_norm == "bn"
             )
         elif backbone == "Identity":
             return IdentityConv()
@@ -408,6 +408,7 @@ class ACRConv(gnn.MessagePassing):
         super(ACRConv, self).__init__(aggr=aggregate_type, **kwargs)
 
         self.mlp_combine = False
+        self.use_bn = use_bn
         if combine_type == "mlp":
             self.mlp = ACR_MLP(
                 num_layers=num_mlp_layers,
@@ -441,10 +442,7 @@ class ACRConv(gnn.MessagePassing):
             no_bias=no_bias
         )
 
-        if use_bn:
-            self.bn_readout = nn.BatchNorm1d(input_dim)
-        else:
-            self.bn_readout = None
+        self.bn_readout = nn.BatchNorm1d(input_dim)
 
         self.readout = self.__get_readout_fn(readout_type)
 
@@ -458,8 +456,8 @@ class ACRConv(gnn.MessagePassing):
 
         # WARNING: TESTING THIS TEMPORARY
         # readout = (readout - readout.min(0, keepdim=True)[0] + 1e-6) / (readout.max(0, keepdim=True)[0] - readout.min(0, keepdim=True)[0] + 1e-6)
-        if self.bn_readout:
-            readout = self.bn_readout(readout)      
+        if self.use_bn:
+            readout = self.bn_readout(readout)
 
         return self.propagate(
             edge_index=edge_index,
