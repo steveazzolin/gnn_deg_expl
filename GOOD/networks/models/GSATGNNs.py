@@ -172,7 +172,7 @@ class GSAT(GNNBasic):
 
         if log is None:
             if lc_logits.shape[-1] > 1:
-                return lc_logits.argmax(-1)
+                return lc_logits.softmax(dim=1)
             else:
                 return lc_logits.sigmoid()
         else:
