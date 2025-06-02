@@ -189,18 +189,18 @@ class Pipeline:
         return targets
 
 
-    def pretrain_model(self, loader: DataLoader) -> dict:
+    def pretrain_model(self, loader: DataLoader, val_loader: DataLoader) -> dict:
         if self.config.train.pretrain == "suff":
             if self.config.dataset.dataset_name == "MNIST":
                 performance_bar = 0.95
-                performance_bar_loss = 0.03
+                performance_bar_loss = 0.08
             else:
                 performance_bar = 0.95
                 performance_bar_loss = 0.01
         elif self.config.train.pretrain == "degenerate":
             if self.config.dataset.dataset_name == "MNIST":
                 performance_bar = 0.95
-                performance_bar_loss = 0.03
+                performance_bar_loss = 0.08 #0.03
             else:
                 performance_bar = 0.99
                 performance_bar_loss = 0.01
@@ -211,7 +211,9 @@ class Pipeline:
             assert False
 
         f1_pos_epoch, f1_neg_epoch, acc_epoch, loss_epoch = 0, 0, 0, 10
+        f1_pos_epoch_val, f1_neg_epoch_val, acc_epoch_val, loss_epoch_val = 0, 0, 0, 10
         epoch = -1
+        # while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or loss_epoch > performance_bar_loss:
         while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or loss_epoch > performance_bar_loss:
             epoch += 1
             self.config.train.epoch = epoch
@@ -239,7 +241,7 @@ class Pipeline:
                     ood_algorithm=self.ood_algorithm,
                     max_num_epoch=self.config.train.max_epoch,
                     curr_epoch=epoch,
-                    pretrain=True
+                    pretrain=False
                 )
 
                 # Train the classifier                
@@ -259,7 +261,7 @@ class Pipeline:
                 # Weighted Cross-Entropy Loss
                 loss_weight = targets.clone()
                 loss_weight[targets == 0] = 1
-                loss_weight[targets == 1] = 100 # TODO: 10 for BAColor
+                loss_weight[targets == 1] = 10 # TODO: 10 for BAColor; 100 for MNIST
                 detector_loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
 
                 self.ood_algorithm.backward(detector_loss + clf_loss)
@@ -288,10 +290,77 @@ class Pipeline:
             f1_neg_epoch = np.mean(per_batch_metrics['f1_neg'])
             acc_epoch = np.mean(per_batch_metrics['task_score'])
             loss_epoch = np.mean(per_batch_metrics['clf_loss'])
+
+
+            ##
+            # EVALUATION ON VAL SPLIT
+            ##
+            with torch.no_grad():
+                self.model.eval()
+                per_batch_metrics_val = defaultdict(list)
+                pbar = tqdm(enumerate(val_loader), total=len(val_loader), **pbar_setting)
+                for index, data in pbar:                
+                    self.ood_algorithm.optimizer.zero_grad()
+                    data = data.to(self.config.device)
+                    mask, lbl_targets = nan2zero_get_mask(data, 'train', self.config)
+                    node_norm = None
+                    data, _, mask, _ = self.ood_algorithm.input_preprocess(
+                        data,
+                        lbl_targets,
+                        mask,
+                        node_norm,
+                        self.model.training,
+                        self.config
+                    )
+
+                    model_output = self.model(
+                        data=data,
+                        edge_weight=None,
+                        ood_algorithm=self.ood_algorithm,
+                        max_num_epoch=self.config.train.max_epoch,
+                        curr_epoch=epoch,
+                        pretrain=False
+                    )
+
+                    # Train the classifier                
+                    raw_pred = self.ood_algorithm.output_postprocess(model_output)
+                    node_att = self.ood_algorithm.att.sigmoid()                
+                    targets = self.get_pretrain_targets(data)                
+                    pred, target = eval_data_preprocess(data.y, raw_pred, mask, self.config)
+                    task_score = eval_score([pred], [target], self.config, pos_class=self.loader["train"].dataset.minority_class)
+                    f1_pos = f1_score(
+                        (targets > 0.).cpu().numpy(),
+                        (node_att.squeeze(1) > 0.9).cpu().numpy(),
+                        average='binary',
+                        pos_label=1
+                    )
+                    f1_neg = f1_score(
+                        (targets > 0.).cpu().numpy(),
+                        (node_att.squeeze(1) > 0.1).cpu().numpy(),
+                        average='binary',
+                        pos_label=0
+                    )
+                    loss_weight = targets.clone()
+                    loss_weight[targets == 0] = 1
+                    loss_weight[targets == 1] = 100 # TODO: 10 for BAColor
+                    detector_loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
+                    clf_loss = self.ood_algorithm.loss_calculate(raw_pred, lbl_targets, mask, node_norm, self.config, batch=data.batch).sum() / mask.sum()
+                    per_batch_metrics_val["f1_pos"].append(f1_pos)
+                    per_batch_metrics_val["f1_neg"].append(f1_neg)
+                    per_batch_metrics_val["task_score"].append(task_score)
+                    per_batch_metrics_val["clf_loss"].append(clf_loss.item())
+                f1_pos_epoch_val = np.mean(per_batch_metrics_val['f1_pos'])
+                f1_neg_epoch_val = np.mean(per_batch_metrics_val['f1_neg'])
+                acc_epoch_val = np.mean(per_batch_metrics_val['task_score'])
+                loss_epoch_val = np.mean(per_batch_metrics_val['clf_loss'])
+            ##
+            # EVALUATION ON VAL SPLIT
+            ##
+            self.model.train()
             
             print(node_att.squeeze(1)[targets==1].mean().item(), node_att.squeeze(1)[targets==1].std().item(), node_att.squeeze(1)[targets==1].min().item())
             print(node_att.squeeze(1)[targets!=1].mean().item(), node_att.squeeze(1)[targets!=1].std().item(), node_att.squeeze(1)[targets!=1].max().item())
-            print(max(per_batch_metrics["loss"]))
+            print(max(per_batch_metrics["loss"]), min(per_batch_metrics["task_score"]))
             
             print(
                 f"Detector Loss: {np.mean(per_batch_metrics['loss']):.4f} " +
@@ -299,6 +368,14 @@ class Pipeline:
                 f"F1_pos: {f1_pos_epoch:.2f} " +
                 f"F1_neg: {f1_neg_epoch:.2f} " +
                 f"Acc: {acc_epoch:.2f}"
+            )
+
+            print(
+                f"Evaluation: " +
+                f"Clf Loss_val: {loss_epoch_val:.4f} " +
+                f"F1_pos_val: {f1_pos_epoch_val:.2f} " +
+                f"F1_neg_val: {f1_neg_epoch_val:.2f} " +
+                f"Acc_val: {acc_epoch_val:.2f}"
             )
 
             # --- scheduler step ---
@@ -397,7 +474,7 @@ class Pipeline:
             #     param.requires_grad = False
 
             print("#IM#Pretraining model for degenerate explanations")
-            self.pretrain_model(self.loader['train'])
+            self.pretrain_model(self.loader['train'], self.loader['id_val'])
             print("#IM#End of pretraining")
             return
 
@@ -618,8 +695,10 @@ class Pipeline:
         graphs,
         graphs_nx,
         avg_graph_size,
+        log_info=True
     ):
-        print(f"\n\n", "-"*50)
+        if log_info:
+            print(f"\n\n", "-"*50)
         reset_random_seed(self.config)
         self.model.eval()   
 
@@ -846,15 +925,16 @@ class Pipeline:
         acc_interven = eval_score(preds_perturbed_graphs, labels_ori_repeated, self.config, self.loader["id_val"].dataset.minority_class)
         acc_ints.append(acc_interven.item())
 
-        print()
-        print(f"Label distrib: {labels_ori.unique(return_counts=True)}")
-        print(f"Acc clean", round(acc_clean.item(), 3))
-        print(f"Acc interven", round(acc_interven.item(), 3))
-        print(f"len(reference) = {len(reference)}")
-        for m in ["TV", "predicted"]:
-            for c in labels_ori.long().unique().numpy().tolist():
-                print(f"{metric.upper()} for class {c}_{m} = {scores[str(c)+'_'+m][-1]} +- {aggr['predicted'].std():.3f} (in-sample avg dev_std = {(aggr['std_predicted']**2).mean().sqrt():.3f})")
-            print(f"{metric.upper()} all_classes {m} = {scores[f'all_{m}'][-1]} +- {aggr[f'{m}'].std():.3f} (in-sample avg dev_std =", torch.round((aggr[f"std_{m}"]**2).mean().sqrt(), decimals=3).item())
+        if log_info:
+            print()
+            print(f"Label distrib: {labels_ori.unique(return_counts=True)}")
+            print(f"Acc clean", round(acc_clean.item(), 3))
+            print(f"Acc interven", round(acc_interven.item(), 3))
+            print(f"len(reference) = {len(reference)}")
+            for m in ["TV", "predicted"]:
+                for c in labels_ori.long().unique().numpy().tolist():
+                    print(f"{metric.upper()} for class {c}_{m} = {scores[str(c)+'_'+m][-1]} +- {aggr['predicted'].std():.3f} (in-sample avg dev_std = {(aggr['std_predicted']**2).mean().sqrt():.3f})")
+                print(f"{metric.upper()} all_classes {m} = {scores[f'all_{m}'][-1]} +- {aggr[f'{m}'].std():.3f} (in-sample avg dev_std =", torch.round((aggr[f"std_{m}"]**2).mean().sqrt(), decimals=3).item())
         return scores, acc_ints
 
 
