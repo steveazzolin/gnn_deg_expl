@@ -27,3 +27,4 @@ dataset:
 average_edge_attn: mean
 mitigation_sampling: raw
 mitigation_readout: weighted
+use_readout_norm: none

@@ -20,7 +20,6 @@ train:
   lr_filternode: 0.
   l_norm_coeff: 0.4
   entr_coeff: 0.1
-  pretrain_degenerate: false
 dataset:
   dataset_name: BAColorGVIsolated
   domain: basis
@@ -28,3 +27,4 @@ dataset:
 average_edge_attn: mean
 mitigation_sampling: raw
 mitigation_readout: weighted
+use_readout_norm: none
