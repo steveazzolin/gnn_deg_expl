@@ -75,6 +75,15 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seed
 # MNIST
 goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test
 goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1" --task test --gpu_idx 1 --ood_param 0.5 (r=0.5)
+goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR
+goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR
+goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2
+goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff  --backbone ACR2
+
+goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR
+goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR
+goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2
+goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff  --backbone ACR2
 
 # --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 5   (deg)   Test ACC=  (4 layers both DET and CLF)
 # --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 5   (deg)   Test ACC=0.89
