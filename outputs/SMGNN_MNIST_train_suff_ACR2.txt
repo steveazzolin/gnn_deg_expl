@@ -1,0 +1,2504 @@
+nohup: ignoring input
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Sun Jun  1 09:03:29 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset MNIST
+[0m[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mDataset: {'train': MNIST(20000), 'id_val': MNIST(5000), 'id_test': MNIST(10000), 'metric': 'Accuracy', 'task': 'Multi-label classification', 'val': MNIST(5000), 'test': MNIST(10000)}
+[0m[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1m Data(x=[75, 5], edge_index=[2, 664], edge_attr=[664, 1], y=[1], node_label=[75], edge_label=[664], sp_order=[75], superpixels=[28, 28], name='MNISTSP-train-48992', idx=[1])
+[0mData(x=[71, 5], edge_index=[2, 588], edge_attr=[588, 1], y=[1], node_label=[71], edge_label=[588], sp_order=[71], superpixels=[28, 28], name='MNISTSP-train-0', idx=[1])
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:03:30 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+[1;36mIMPORTANT[0m: 06/01/2025 09:03:30 AM : [1mPretraining model for degenerate explanations
+[0m
+Epoch 0:
+0.9980704188346863 0.0018958015134558082 0.8362863063812256
+0.11017945408821106 0.10606181621551514 0.998195469379425
+48.00871658325195 0.07421875
+Detector Loss: 3.1038 Clf Loss: 1.9099 F1_pos: 0.92 F1_neg: 0.83 Acc: 0.29
+Evaluation: Clf Loss_val: 1.6501 F1_pos_val: 1.00 F1_neg_val: 0.80 Acc_val: 0.38
+
+Epoch 1:
+0.9987471103668213 0.010313184931874275 0.32453837990760803
+0.062268901616334915 0.08676066249608994 0.9987736344337463
+0.22320616245269775 0.3671875
+Detector Loss: 0.1446 Clf Loss: 1.2625 F1_pos: 1.00 F1_neg: 0.92 Acc: 0.56
+Evaluation: Clf Loss_val: 1.3963 F1_pos_val: 1.00 F1_neg_val: 0.96 Acc_val: 0.53
+
+Epoch 2:
+0.9994238615036011 0.0028064032085239887 0.7519212365150452
+0.06727799773216248 0.10134721547365189 0.999423623085022
+0.17207714915275574 0.609375
+Detector Loss: 0.1042 Clf Loss: 0.8530 F1_pos: 1.00 F1_neg: 0.94 Acc: 0.73
+Evaluation: Clf Loss_val: 1.1082 F1_pos_val: 1.00 F1_neg_val: 0.93 Acc_val: 0.66
+
+Epoch 3:
+0.999385416507721 0.0038791780825704336 0.7096193432807922
+0.05689280107617378 0.126595601439476 0.9993415474891663
+0.13745953142642975 0.70703125
+Detector Loss: 0.0820 Clf Loss: 0.6690 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.79
+Evaluation: Clf Loss_val: 0.8188 F1_pos_val: 1.00 F1_neg_val: 0.97 Acc_val: 0.75
+
+Epoch 4:
+0.999718427658081 0.0005029153544455767 0.9659663438796997
+0.05732819810509682 0.14044860005378723 0.9996364116668701
+0.12326078116893768 0.71875
+Detector Loss: 0.0676 Clf Loss: 0.5542 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.83
+Evaluation: Clf Loss_val: 1.0312 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.68
+
+Epoch 5:
+0.9997419118881226 0.0002736617170739919 0.9868946075439453
+0.09135907143354416 0.21525411307811737 0.9997243285179138
+0.19011270999908447 0.78125
+Detector Loss: 0.0614 Clf Loss: 0.4795 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.85
+Evaluation: Clf Loss_val: 1.0296 F1_pos_val: 0.99 F1_neg_val: 0.93 Acc_val: 0.71
+
+Epoch 6:
+0.9995617270469666 0.009545285254716873 0.4105466604232788
+0.03800847753882408 0.07888424396514893 0.9996625185012817
+0.39087384939193726 0.81640625
+Detector Loss: 0.0714 Clf Loss: 0.4558 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.86
+Evaluation: Clf Loss_val: 0.7591 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.78
+
+Epoch 7:
+0.9998264908790588 0.0033861033152788877 0.7090318202972412
+0.037575673311948776 0.09006773680448532 0.9998224377632141
+0.07317904382944107 0.8125
+Detector Loss: 0.0472 Clf Loss: 0.4271 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.87
+Evaluation: Clf Loss_val: 0.7448 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.78
+
+Epoch 8:
+0.999855637550354 0.0002963336301036179 0.9802743792533875
+0.12128710001707077 0.24774280190467834 0.9998241066932678
+0.08464120328426361 0.82421875
+Detector Loss: 0.0462 Clf Loss: 0.3735 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.88
+Evaluation: Clf Loss_val: 0.6672 F1_pos_val: 0.98 F1_neg_val: 0.89 Acc_val: 0.82
+
+Epoch 9:
+0.9998303651809692 0.0008507731254212558 0.9644572734832764
+0.03812254220247269 0.12215758115053177 0.9996881484985352
+0.09103488177061081 0.78125
+Detector Loss: 0.0522 Clf Loss: 0.3728 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.88
+Evaluation: Clf Loss_val: 0.5364 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.84
+
+Epoch 10:
+0.9994063973426819 0.010226967744529247 0.36523672938346863
+0.01938651129603386 0.07944391667842865 0.9996695518493652
+0.08632717281579971 0.8125
+Detector Loss: 0.0443 Clf Loss: 0.3429 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.89
+Evaluation: Clf Loss_val: 0.4594 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 11:
+0.9996567964553833 0.008112813346087933 0.4758443236351013
+0.02214914932847023 0.07799793779850006 0.9996477365493774
+0.08179972320795059 0.7890625
+Detector Loss: 0.0396 Clf Loss: 0.3388 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.89
+Evaluation: Clf Loss_val: 0.5059 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 12:
+0.9998791813850403 0.0013063796795904636 0.9324862360954285
+0.021644271910190582 0.10077708214521408 0.9997847676277161
+0.084320068359375 0.86328125
+Detector Loss: 0.0412 Clf Loss: 0.2928 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.90
+Evaluation: Clf Loss_val: 0.6238 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.81
+
+Epoch 13:
+0.9998634457588196 0.002049434231594205 0.8458460569381714
+0.02767752669751644 0.11482672393321991 0.9999263286590576
+0.1635977327823639 0.85546875
+Detector Loss: 0.0468 Clf Loss: 0.2860 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.91
+Evaluation: Clf Loss_val: 0.4880 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.85
+
+Epoch 14:
+0.9991726875305176 0.02219504863023758 0.05040627345442772
+0.014852577820420265 0.06979547441005707 0.9996161460876465
+0.10876774787902832 0.86328125
+Detector Loss: 0.0397 Clf Loss: 0.2641 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.91
+Evaluation: Clf Loss_val: 0.5143 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.85
+
+Epoch 15:
+0.999909520149231 0.0014119292609393597 0.8924337029457092
+0.023185092955827713 0.10747676342725754 0.9998906850814819
+0.09760207682847977 0.8671875
+Detector Loss: 0.0381 Clf Loss: 0.2554 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.7519 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.78
+
+Epoch 16:
+0.9998368620872498 0.005475628189742565 0.5837794542312622
+0.019471868872642517 0.09195642173290253 0.999955415725708
+0.14925658702850342 0.87109375
+Detector Loss: 0.0383 Clf Loss: 0.2549 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.92
+Evaluation: Clf Loss_val: 0.7442 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.79
+
+Epoch 17:
+0.9998706579208374 0.002802615985274315 0.8252936601638794
+0.01757308468222618 0.09322718530893326 0.9999009370803833
+0.05487135425209999 0.875
+Detector Loss: 0.0302 Clf Loss: 0.2479 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.5150 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 18:
+0.9996293187141418 0.014468719251453876 0.08238997310400009
+0.01915634237229824 0.07243970781564713 0.9999269247055054
+0.07091289758682251 0.8125
+Detector Loss: 0.0346 Clf Loss: 0.2361 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4367 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 19:
+0.9998048543930054 0.006305322982370853 0.5050303936004639
+0.01609618216753006 0.089928537607193 0.999944806098938
+0.1848195344209671 0.86328125
+Detector Loss: 0.0433 Clf Loss: 0.2655 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4921 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 20:
+0.99992436170578 0.0008884237613528967 0.9442420601844788
+0.028714248910546303 0.11466469615697861 0.9999666213989258
+0.06697001308202744 0.84375
+Detector Loss: 0.0323 Clf Loss: 0.2451 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.6265 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.83
+
+Epoch 21:
+0.9998687505722046 0.002351976465433836 0.8194421529769897
+0.01586981862783432 0.09078074991703033 0.9998117089271545
+0.05192669481039047 0.8984375
+Detector Loss: 0.0301 Clf Loss: 0.2032 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.9573 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.77
+
+Epoch 22:
+0.9999364614486694 0.0009249770664609969 0.9324130415916443
+0.017733139917254448 0.10351055860519409 0.9998766183853149
+0.06927185505628586 0.90234375
+Detector Loss: 0.0352 Clf Loss: 0.1957 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5018 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 23:
+0.9998487234115601 0.003162739332765341 0.6917633414268494
+0.023966269567608833 0.09912732243537903 0.9998900890350342
+0.09196861833333969 0.89453125
+Detector Loss: 0.0363 Clf Loss: 0.1925 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4910 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 24:
+0.9999654293060303 0.0005844007828272879 0.9689077138900757
+0.02191740646958351 0.10240721702575684 0.9999699592590332
+0.06348009407520294 0.88671875
+Detector Loss: 0.0299 Clf Loss: 0.2109 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.5675 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 25:
+0.9999721646308899 0.0005113521474413574 0.9653024673461914
+0.01759740337729454 0.10288303345441818 0.9999574422836304
+0.04720718413591385 0.8984375
+Detector Loss: 0.0256 Clf Loss: 0.1729 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.6890 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 26:
+0.9999500513076782 0.0009386484161950648 0.930706262588501
+0.015632465481758118 0.08911821246147156 0.9998164772987366
+0.03706132993102074 0.90625
+Detector Loss: 0.0222 Clf Loss: 0.1791 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4804 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 27:
+0.9999701976776123 0.0003457942511886358 0.9697834253311157
+0.019084082916378975 0.1061074286699295 0.9999815225601196
+0.040890444070100784 0.875
+Detector Loss: 0.0197 Clf Loss: 0.1527 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.8126 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.79
+
+Epoch 28:
+0.9999853372573853 0.00018800872203428298 0.9895882606506348
+0.013062200509011745 0.08596756309270859 0.9999328851699829
+0.03879177197813988 0.91015625
+Detector Loss: 0.0180 Clf Loss: 0.1774 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.3921 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 29:
+0.9999063014984131 0.0022565119434148073 0.8137729167938232
+0.00876833125948906 0.07790178060531616 0.9993120431900024
+0.06029364466667175 0.90625
+Detector Loss: 0.0190 Clf Loss: 0.1497 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4205 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 30:
+0.9999719262123108 0.00023475298075936735 0.9837902188301086
+0.0118972547352314 0.087325818836689 0.999902606010437
+0.06362476199865341 0.90625
+Detector Loss: 0.0216 Clf Loss: 0.1354 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.3856 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 31:
+0.9999426603317261 0.001498449477367103 0.8907614350318909
+0.011150773614645004 0.07329213619232178 0.9987204074859619
+0.07251423597335815 0.9140625
+Detector Loss: 0.0178 Clf Loss: 0.1357 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4491 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.90
+
+Epoch 32:
+0.999967098236084 0.0005604259204119444 0.9629159569740295
+0.009527225978672504 0.06648755073547363 0.9929459691047668
+0.06254850327968597 0.8125
+Detector Loss: 0.0129 Clf Loss: 0.1244 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4996 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 33:
+0.9999758005142212 0.00041615974623709917 0.9743680953979492
+0.007873883470892906 0.0680948942899704 0.9980783462524414
+0.028213275596499443 0.87890625
+Detector Loss: 0.0126 Clf Loss: 0.1724 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5458 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 34:
+0.9999819397926331 5.762042565038428e-05 0.9966937303543091
+0.013019675388932228 0.09146568179130554 0.9999384880065918
+0.02252381108701229 0.921875
+Detector Loss: 0.0109 Clf Loss: 0.1216 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5222 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 35:
+0.9999691247940063 0.0006676040939055383 0.9411909580230713
+0.008980480022728443 0.0739637091755867 0.999789297580719
+0.1305699646472931 0.92578125
+Detector Loss: 0.0171 Clf Loss: 0.1251 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4856 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 36:
+0.9999637603759766 0.0007514649187214673 0.937201201915741
+0.010154793970286846 0.07089032232761383 0.9983953833580017
+0.09558627009391785 0.9375
+Detector Loss: 0.0179 Clf Loss: 0.1069 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.4393 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 37:
+0.9997838735580444 0.007604395039379597 0.4844103753566742
+0.003693967591971159 0.0457242950797081 0.9800824522972107
+0.04482858628034592 0.94140625
+Detector Loss: 0.0139 Clf Loss: 0.0956 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5010 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 38:
+0.999967098236084 0.0012544570490717888 0.9117293357849121
+0.009536242112517357 0.05168800428509712 0.9941366910934448
+0.03617042675614357 0.91796875
+Detector Loss: 0.0140 Clf Loss: 0.1097 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.8980 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.81
+
+Epoch 39:
+0.999966561794281 0.0010863922070711851 0.925553023815155
+0.005016418173909187 0.05415967106819153 0.9931104183197021
+0.02348538674414158 0.90625
+Detector Loss: 0.0094 Clf Loss: 0.1189 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5822 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.87
+
+Epoch 40:
+0.9998756647109985 0.001569035928696394 0.9006614089012146
+0.008063615299761295 0.0675235241651535 0.9899367094039917
+0.02991216629743576 0.90234375
+Detector Loss: 0.0164 Clf Loss: 0.1287 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4282 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 41:
+0.999990701675415 0.0001560913515277207 0.9844418168067932
+0.010515066795051098 0.07582039386034012 0.9989504218101501
+0.03854439780116081 0.90625
+Detector Loss: 0.0119 Clf Loss: 0.1035 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.4455 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.90
+
+Epoch 42:
+0.9999721646308899 0.0005710921250283718 0.9604015350341797
+0.007190711796283722 0.059984561055898666 0.9938752055168152
+0.015876365825533867 0.9296875
+Detector Loss: 0.0087 Clf Loss: 0.1119 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4844 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 43:
+0.9999497532844543 0.001139670959673822 0.9139364957809448
+0.005211926065385342 0.05118941888213158 0.9764249324798584
+0.026265960186719894 0.91796875
+Detector Loss: 0.0082 Clf Loss: 0.1299 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4933 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 44:
+0.9994950890541077 0.0024986136704683304 0.8947655558586121
+0.006944453809410334 0.056398842483758926 0.9999752044677734
+0.017207855358719826 0.9375
+Detector Loss: 0.0074 Clf Loss: 0.1054 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5495 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.87
+
+Epoch 45:
+0.9998269081115723 0.004432842135429382 0.7267210483551025
+0.005157225765287876 0.04680890217423439 0.999889612197876
+0.05675847828388214 0.93359375
+Detector Loss: 0.0113 Clf Loss: 0.0807 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5382 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 46:
+0.9991928339004517 0.006862256675958633 0.5917568206787109
+0.0028776393737643957 0.028512096032500267 0.9969003200531006
+0.02204289846122265 0.94921875
+Detector Loss: 0.0057 Clf Loss: 0.0754 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.4942 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+Eval_train ACCURACY: 0.9669 	Eval_train Loss: 0.1212 	
+Id_val ACCURACY: 0.8958 	Id_val Loss: 0.5001 	
+Id_test ACCURACY: 0.8936 	Id_test Loss: 0.5445 	
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round1/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:08:18 AM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:08:19 AM : [1mSaved a new best checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:08:19 AM : [1mEnd of pretraining
+[0m
+Training end (0:04:48.575594).
+
+[1;34mDEBUG[0m: 06/01/2025 09:08:19 AM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 100 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round1/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9669
+Train Loss: 0.1212
+Spec Loss: nan
+Mean Loss: nan
+Total Loss: nan
+ID Validation ACCURACY: 0.8958
+ID Validation Loss: 0.5001
+ID Test ACCURACY: 0.8936
+ID Test Loss: 0.5445
+OOD Validation ACCURACY: 0.8958
+OOD Validation Loss: 0.5001
+OOD Test ACCURACY: 0.8936
+OOD Test Loss: 0.5445
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 100...
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9669
+Train Loss: 0.1212
+ID Validation ACCURACY: 0.8958
+ID Validation Loss: 0.5001
+ID Test ACCURACY: 0.8936
+ID Test Loss: 0.5445
+OOD Validation ACCURACY: 0.8958
+OOD Validation Loss: 0.5001
+OOD Test ACCURACY: 0.8936
+OOD Test Loss: 0.5445
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8936 0.8936 0.8936 0.8936 0.8958 0.8958[0mTrain ACCURACY: 0.9669 	Train Loss: 0.1214 	
+Id_val ACCURACY: 0.8958 	Id_val Loss: 0.5001 	
+Id_test ACCURACY: 0.8936 	Id_test Loss: 0.5445 	
+Val ACCURACY: 0.8958 	Val Loss: 0.5001 	
+Test ACCURACY: 0.8936 	Test Loss: 0.5445 	
+
+
+#D#Running with seed = 2
+model_dirname= SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff
+207 2
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/MNIST/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 2,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 2,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Sun Jun  1 09:08:24 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset MNIST
+[0m[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mDataset: {'train': MNIST(20000), 'id_val': MNIST(5000), 'id_test': MNIST(10000), 'metric': 'Accuracy', 'task': 'Multi-label classification', 'val': MNIST(5000), 'test': MNIST(10000)}
+[0m[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1m Data(x=[74, 5], edge_index=[2, 656], edge_attr=[656, 1], y=[1], node_label=[74], edge_label=[656], sp_order=[74], superpixels=[28, 28], name='MNISTSP-train-37606', idx=[1])
+[0mData(x=[71, 5], edge_index=[2, 588], edge_attr=[588, 1], y=[1], node_label=[71], edge_label=[588], sp_order=[71], superpixels=[28, 28], name='MNISTSP-train-0', idx=[1])
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:08:25 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+[1;36mIMPORTANT[0m: 06/01/2025 09:08:25 AM : [1mPretraining model for degenerate explanations
+[0m
+Epoch 0:
+0.9987512230873108 0.002503177849575877 0.7688262462615967
+0.07896790653467178 0.11918137967586517 0.9989012479782104
+40.9984016418457 0.08203125
+Detector Loss: 2.8772 Clf Loss: 1.9619 F1_pos: 0.92 F1_neg: 0.76 Acc: 0.27
+Evaluation: Clf Loss_val: 2.3342 F1_pos_val: 1.00 F1_neg_val: 0.95 Acc_val: 0.19
+
+Epoch 1:
+0.9993606805801392 8.814677130430937e-05 0.9961950778961182
+0.15264247357845306 0.21772412955760956 0.9993714690208435
+0.15645374357700348 0.26953125
+Detector Loss: 0.1132 Clf Loss: 1.3341 F1_pos: 1.00 F1_neg: 0.93 Acc: 0.53
+Evaluation: Clf Loss_val: 2.1513 F1_pos_val: 0.98 F1_neg_val: 0.80 Acc_val: 0.44
+
+Epoch 2:
+0.9995245933532715 0.0009321005782112479 0.942371666431427
+0.07791838049888611 0.13183613121509552 0.999612033367157
+0.16953988373279572 0.4921875
+Detector Loss: 0.0974 Clf Loss: 0.9589 F1_pos: 1.00 F1_neg: 0.93 Acc: 0.69
+Evaluation: Clf Loss_val: 1.2159 F1_pos_val: 1.00 F1_neg_val: 0.93 Acc_val: 0.63
+
+Epoch 3:
+0.9996638894081116 0.001682153670117259 0.8734609484672546
+0.07954958826303482 0.1540152132511139 0.9996881484985352
+0.10431116074323654 0.7109375
+Detector Loss: 0.0706 Clf Loss: 0.6749 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.79
+Evaluation: Clf Loss_val: 1.0241 F1_pos_val: 0.99 F1_neg_val: 0.93 Acc_val: 0.69
+
+Epoch 4:
+0.9994469285011292 0.0074325730092823505 0.5649694800376892
+0.04576463624835014 0.08309228718280792 0.999764621257782
+0.09623166173696518 0.71875
+Detector Loss: 0.0689 Clf Loss: 0.5633 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.82
+Evaluation: Clf Loss_val: 0.8789 F1_pos_val: 1.00 F1_neg_val: 0.97 Acc_val: 0.72
+
+Epoch 5:
+0.9997012615203857 0.0025172585155814886 0.8027247786521912
+0.05434411019086838 0.16058112680912018 0.9998225569725037
+0.10843522846698761 0.78125
+Detector Loss: 0.0637 Clf Loss: 0.4722 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.85
+Evaluation: Clf Loss_val: 0.8028 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.76
+
+Epoch 6:
+0.9997657537460327 0.003737707855179906 0.7043400406837463
+0.04005933925509453 0.09481458365917206 0.999873161315918
+0.0889236256480217 0.7734375
+Detector Loss: 0.0536 Clf Loss: 0.4480 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.86
+Evaluation: Clf Loss_val: 0.6049 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.83
+
+Epoch 7:
+0.9997661709785461 0.0010655527003109455 0.9378823041915894
+0.03680359572172165 0.1234455555677414 0.9998576641082764
+0.13871687650680542 0.828125
+Detector Loss: 0.0552 Clf Loss: 0.3941 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.88
+Evaluation: Clf Loss_val: 0.6810 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.79
+
+Epoch 8:
+0.9998700618743896 0.0010999777587130666 0.9318969249725342
+0.06821310520172119 0.17656809091567993 0.9999082088470459
+0.09057381749153137 0.84765625
+Detector Loss: 0.0466 Clf Loss: 0.3664 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.88
+Evaluation: Clf Loss_val: 0.8854 F1_pos_val: 0.99 F1_neg_val: 0.96 Acc_val: 0.72
+
+Epoch 9:
+0.9998461008071899 0.0012710688170045614 0.9396737813949585
+0.03969724103808403 0.12745730578899384 0.9999204874038696
+0.09751570224761963 0.83984375
+Detector Loss: 0.0437 Clf Loss: 0.3368 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.89
+Evaluation: Clf Loss_val: 0.5609 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.83
+
+Epoch 10:
+0.999867856502533 0.0013248827308416367 0.9303494095802307
+0.029261145740747452 0.10752973705530167 0.9999299049377441
+0.08278990536928177 0.8125
+Detector Loss: 0.0479 Clf Loss: 0.3377 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.89
+Evaluation: Clf Loss_val: 0.6000 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.81
+
+Epoch 11:
+0.9997327327728271 0.004593122284859419 0.6139749884605408
+0.03267018124461174 0.13537341356277466 0.9999294281005859
+0.16182324290275574 0.8125
+Detector Loss: 0.0426 Clf Loss: 0.3263 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.90
+Evaluation: Clf Loss_val: 0.6521 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.81
+
+Epoch 12:
+0.9997982978820801 0.0021951692178845406 0.8737062811851501
+0.035782504826784134 0.12064038217067719 0.9999229907989502
+0.128781259059906 0.84375
+Detector Loss: 0.0499 Clf Loss: 0.3034 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.90
+Evaluation: Clf Loss_val: 0.5863 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.83
+
+Epoch 13:
+0.9998399019241333 0.002680472331121564 0.788205087184906
+0.020694345235824585 0.09855499863624573 0.9999511241912842
+0.06098156422376633 0.78125
+Detector Loss: 0.0374 Clf Loss: 0.3098 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.90
+Evaluation: Clf Loss_val: 0.5567 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 14:
+0.9998820424079895 0.0012703381944447756 0.9320192933082581
+0.03078570030629635 0.11504361033439636 0.9999499320983887
+0.06560275703668594 0.8671875
+Detector Loss: 0.0380 Clf Loss: 0.2796 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.91
+Evaluation: Clf Loss_val: 0.5686 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 15:
+0.9998820424079895 0.0014031233731657267 0.9352436661720276
+0.04276889190077782 0.14513160288333893 0.999929666519165
+0.07544445991516113 0.859375
+Detector Loss: 0.0358 Clf Loss: 0.2522 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.5093 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.86
+
+Epoch 16:
+0.9999117851257324 0.0009034921531565487 0.955164909362793
+0.023142552003264427 0.11541727185249329 0.9999451637268066
+0.05213131010532379 0.86328125
+Detector Loss: 0.0346 Clf Loss: 0.2525 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4435 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 17:
+0.9999401569366455 0.00040806602919474244 0.9805845022201538
+0.037654224783182144 0.15399938821792603 0.9999439716339111
+0.11009141057729721 0.875
+Detector Loss: 0.0363 Clf Loss: 0.2559 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.6456 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.81
+
+Epoch 18:
+0.9999085664749146 0.0016908554825931787 0.8538142442703247
+0.022124478593468666 0.11257121711969376 0.9999629259109497
+0.0811159685254097 0.88671875
+Detector Loss: 0.0369 Clf Loss: 0.2332 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.7550 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.80
+
+Epoch 19:
+0.9999485015869141 0.00069080461980775 0.965716540813446
+0.039839860051870346 0.14356020092964172 0.9999638795852661
+0.05829131230711937 0.8828125
+Detector Loss: 0.0302 Clf Loss: 0.2222 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.5444 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.85
+
+Epoch 20:
+0.9998449683189392 0.0020941831171512604 0.870991587638855
+0.04342212155461311 0.13873466849327087 0.9999707937240601
+0.19099321961402893 0.84375
+Detector Loss: 0.0478 Clf Loss: 0.2155 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4921 F1_pos_val: 1.00 F1_neg_val: 0.97 Acc_val: 0.86
+
+Epoch 21:
+0.9998384118080139 0.00393096124753356 0.761142373085022
+0.01776655949652195 0.09753967821598053 0.9999784231185913
+0.09597820043563843 0.84375
+Detector Loss: 0.0402 Clf Loss: 0.2140 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.93
+Evaluation: Clf Loss_val: 0.5182 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 22:
+0.9998950362205505 0.0013354901457205415 0.9222538471221924
+0.020234378054738045 0.11011001467704773 0.9999454021453857
+0.06330578029155731 0.84375
+Detector Loss: 0.0318 Clf Loss: 0.2332 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.6563 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.81
+
+Epoch 23:
+0.9999217987060547 0.0010214030044153333 0.9498420357704163
+0.02277984656393528 0.11580871045589447 0.9999732971191406
+0.07292182743549347 0.7734375
+Detector Loss: 0.0339 Clf Loss: 0.3274 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.90
+Evaluation: Clf Loss_val: 0.6144 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 24:
+0.9999467730522156 0.0008344193920493126 0.9507277011871338
+0.03079577349126339 0.12162981927394867 0.9999843835830688
+0.09883203357458115 0.875
+Detector Loss: 0.0311 Clf Loss: 0.2244 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.6366 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.83
+
+Epoch 25:
+0.9999358654022217 0.0011056911898776889 0.934894859790802
+0.02166786603629589 0.11703061312437057 0.9999332427978516
+0.07655107229948044 0.875
+Detector Loss: 0.0287 Clf Loss: 0.1806 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4748 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 26:
+0.999870777130127 0.0020636748522520065 0.9095770716667175
+0.02018697001039982 0.09766185283660889 0.999843955039978
+0.08240070194005966 0.91015625
+Detector Loss: 0.0337 Clf Loss: 0.1706 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4447 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 27:
+0.9999638199806213 0.00038710786611773074 0.9770774841308594
+0.0469789057970047 0.17987018823623657 0.999954104423523
+0.08661212027072906 0.890625
+Detector Loss: 0.0274 Clf Loss: 0.1706 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4973 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.87
+
+Epoch 28:
+0.9998607039451599 0.0026410631835460663 0.8441834449768066
+0.013304327614605427 0.09554006159305573 0.9998773336410522
+0.059995826333761215 0.90625
+Detector Loss: 0.0300 Clf Loss: 0.1498 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4084 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.90
+
+Epoch 29:
+0.999928891658783 0.001663546310737729 0.8854570984840393
+0.021513806656003 0.09774837642908096 0.9999381303787231
+0.058827150613069534 0.84375
+Detector Loss: 0.0289 Clf Loss: 0.1551 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.6392 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 30:
+0.9999210834503174 0.0013153725303709507 0.9095028042793274
+0.018958697095513344 0.101627878844738 0.9996463060379028
+0.11409207433462143 0.84765625
+Detector Loss: 0.0284 Clf Loss: 0.1960 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4028 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.90
+
+Epoch 31:
+0.9999498724937439 0.0007343424949795008 0.9573460817337036
+0.013971959240734577 0.09121645987033844 0.9996932744979858
+0.05897684395313263 0.9296875
+Detector Loss: 0.0207 Clf Loss: 0.1328 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4195 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.90
+
+Epoch 32:
+0.9999387264251709 0.001306629739701748 0.9125273823738098
+0.010761802084743977 0.07199779897928238 0.9994043111801147
+0.03739257529377937 0.93359375
+Detector Loss: 0.0162 Clf Loss: 0.1266 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4535 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 33:
+0.999925434589386 0.001616883440874517 0.8403703570365906
+0.0181697029620409 0.10696984827518463 0.9998743534088135
+0.17987096309661865 0.90625
+Detector Loss: 0.0216 Clf Loss: 0.1138 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4663 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 34:
+0.9999207854270935 0.0012235965114086866 0.9241346716880798
+0.015179328620433807 0.09114336222410202 0.9971508383750916
+0.05891282483935356 0.90625
+Detector Loss: 0.0239 Clf Loss: 0.1437 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.6333 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 35:
+0.9999245405197144 0.0026875038165599108 0.8025407195091248
+0.011512787081301212 0.07368391752243042 0.9985744953155518
+0.03963825851678848 0.921875
+Detector Loss: 0.0160 Clf Loss: 0.1158 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5929 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.87
+
+Epoch 36:
+0.9998623132705688 0.0025521465577185154 0.8482745289802551
+0.008358364924788475 0.06779488921165466 0.997494101524353
+0.04948613420128822 0.8125
+Detector Loss: 0.0160 Clf Loss: 0.1146 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5866 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.87
+
+Epoch 37:
+0.9999480843544006 0.0012077438877895474 0.9275829195976257
+0.009117037057876587 0.07113777846097946 0.9957708716392517
+0.028711415827274323 0.921875
+Detector Loss: 0.0115 Clf Loss: 0.1380 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4913 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 38:
+0.9999895095825195 3.303886478533968e-05 0.9978271126747131
+0.06608222424983978 0.22446295619010925 0.9999921321868896
+0.06864500790834427 0.94140625
+Detector Loss: 0.0142 Clf Loss: 0.1044 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.9989 F1_pos_val: 0.98 F1_neg_val: 0.96 Acc_val: 0.83
+
+Epoch 39:
+0.9999661445617676 0.0005607326165772974 0.9667370915412903
+0.009059573523700237 0.07647015154361725 0.9984704852104187
+0.04986096918582916 0.9296875
+Detector Loss: 0.0147 Clf Loss: 0.0966 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.7086 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.85
+
+Epoch 40:
+0.9999670386314392 0.0006003419402986765 0.9637541770935059
+0.010956007987260818 0.06844191998243332 0.9998615980148315
+0.941354513168335 0.875
+Detector Loss: 0.0519 Clf Loss: 0.1392 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4264 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 41:
+0.9999777674674988 0.0003884837497025728 0.9660632014274597
+0.016253814101219177 0.07604685425758362 0.9999268054962158
+0.03231356665492058 0.93359375
+Detector Loss: 0.0130 Clf Loss: 0.1233 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5155 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 42:
+0.9999958276748657 9.042963029060047e-06 0.9993793964385986
+0.23581984639167786 0.16803078353405 0.9999797344207764
+0.030923767015337944 0.86328125
+Detector Loss: 0.0098 Clf Loss: 0.1478 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.95
+Evaluation: Clf Loss_val: 1.5159 F1_pos_val: 1.00 F1_neg_val: 0.21 Acc_val: 0.72
+
+Epoch 43:
+0.9999919533729553 0.00014939974062144756 0.9856372475624084
+0.009024224244058132 0.07320959866046906 0.9999674558639526
+0.04993751645088196 0.89453125
+Detector Loss: 0.0126 Clf Loss: 0.1597 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5150 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 44:
+0.9999796748161316 0.0006749667809344828 0.9418428540229797
+0.0076429639011621475 0.0647367537021637 0.9993149042129517
+0.01926770620048046 0.93359375
+Detector Loss: 0.0091 Clf Loss: 0.1043 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4591 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 45:
+0.9999915957450867 0.0001042346193571575 0.9934020638465881
+0.00886472873389721 0.07007070630788803 0.9987727999687195
+0.01252837385982275 0.875
+Detector Loss: 0.0069 Clf Loss: 0.0886 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6032 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 46:
+0.9999540448188782 0.0020815918687731028 0.7976290583610535
+0.005234229378402233 0.05989812687039375 0.9981743097305298
+0.02811947651207447 0.93359375
+Detector Loss: 0.0110 Clf Loss: 0.1077 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6313 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.86
+
+Epoch 47:
+0.9999925494194031 0.00013084594684187323 0.9897717833518982
+0.009464627131819725 0.06959322839975357 0.999325156211853
+0.014405780471861362 0.94921875
+Detector Loss: 0.0070 Clf Loss: 0.0903 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.7375 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.85
+
+Epoch 48:
+0.9996656775474548 0.011877729557454586 0.31156405806541443
+0.0029224634636193514 0.04014855995774269 0.9937321543693542
+0.018011709675192833 0.9375
+Detector Loss: 0.0080 Clf Loss: 0.0633 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.98
+Evaluation: Clf Loss_val: 0.6363 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+Eval_train ACCURACY: 0.9604 	Eval_train Loss: 0.1356 	
+Id_val ACCURACY: 0.8912 	Id_val Loss: 0.6421 	
+Id_test ACCURACY: 0.8937 	Id_test Loss: 0.6420 	
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round2/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:13:29 AM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:13:29 AM : [1mSaved a new best checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:13:29 AM : [1mEnd of pretraining
+[0m
+Training end (0:05:03.809367).
+
+[1;34mDEBUG[0m: 06/01/2025 09:13:29 AM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 100 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round2/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9604
+Train Loss: 0.1356
+Spec Loss: nan
+Mean Loss: nan
+Total Loss: nan
+ID Validation ACCURACY: 0.8912
+ID Validation Loss: 0.6421
+ID Test ACCURACY: 0.8937
+ID Test Loss: 0.6420
+OOD Validation ACCURACY: 0.8912
+OOD Validation Loss: 0.6421
+OOD Test ACCURACY: 0.8937
+OOD Test Loss: 0.6420
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 100...
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9604
+Train Loss: 0.1356
+ID Validation ACCURACY: 0.8912
+ID Validation Loss: 0.6421
+ID Test ACCURACY: 0.8937
+ID Test Loss: 0.6420
+OOD Validation ACCURACY: 0.8912
+OOD Validation Loss: 0.6421
+OOD Test ACCURACY: 0.8937
+OOD Test Loss: 0.6420
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8937 0.8937 0.8937 0.8937 0.8912 0.8912[0mTrain ACCURACY: 0.9604 	Train Loss: 0.1345 	
+Id_val ACCURACY: 0.8912 	Id_val Loss: 0.6421 	
+Id_test ACCURACY: 0.8937 	Id_test Loss: 0.6420 	
+Val ACCURACY: 0.8912 	Val Loss: 0.6421 	
+Test ACCURACY: 0.8937 	Test Loss: 0.6420 	
+
+
+#D#Running with seed = 3
+model_dirname= SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff
+304 3
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/MNIST/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 3,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 3,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Sun Jun  1 09:13:35 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset MNIST
+[0m[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mDataset: {'train': MNIST(20000), 'id_val': MNIST(5000), 'id_test': MNIST(10000), 'metric': 'Accuracy', 'task': 'Multi-label classification', 'val': MNIST(5000), 'test': MNIST(10000)}
+[0m[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1m Data(x=[68, 5], edge_index=[2, 512], edge_attr=[512, 1], y=[1], node_label=[68], edge_label=[512], sp_order=[68], superpixels=[28, 28], name='MNISTSP-train-52959', idx=[1])
+[0mData(x=[71, 5], edge_index=[2, 588], edge_attr=[588, 1], y=[1], node_label=[71], edge_label=[588], sp_order=[71], superpixels=[28, 28], name='MNISTSP-train-0', idx=[1])
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:13:35 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+[1;36mIMPORTANT[0m: 06/01/2025 09:13:36 AM : [1mPretraining model for degenerate explanations
+[0m
+Epoch 0:
+0.9986738562583923 0.011639060452580452 0.44015178084373474
+0.059957150369882584 0.08513755351305008 0.999347984790802
+35.87904357910156 0.09375
+Detector Loss: 2.7072 Clf Loss: 1.9695 F1_pos: 0.91 F1_neg: 0.68 Acc: 0.25
+Evaluation: Clf Loss_val: 2.2918 F1_pos_val: 1.00 F1_neg_val: 0.96 Acc_val: 0.20
+
+Epoch 1:
+0.9994270205497742 0.002357111545279622 0.7619588971138
+0.10191791504621506 0.15077118575572968 0.9994240999221802
+0.1839028000831604 0.25
+Detector Loss: 0.1066 Clf Loss: 1.4205 F1_pos: 1.00 F1_neg: 0.89 Acc: 0.49
+Evaluation: Clf Loss_val: 1.8114 F1_pos_val: 0.99 F1_neg_val: 0.88 Acc_val: 0.42
+
+Epoch 2:
+0.9992172718048096 0.00023383102961815894 0.9973065853118896
+0.5425971150398254 0.43707382678985596 0.9995280504226685
+0.2907174527645111 0.5546875
+Detector Loss: 0.0874 Clf Loss: 1.0137 F1_pos: 1.00 F1_neg: 0.92 Acc: 0.66
+Evaluation: Clf Loss_val: 4.4702 F1_pos_val: 0.86 F1_neg_val: 0.52 Acc_val: 0.30
+
+Epoch 3:
+0.999733030796051 0.00041616923408582807 0.977374255657196
+0.09717639535665512 0.17292086780071259 0.9997283816337585
+0.25547847151756287 0.57421875
+Detector Loss: 0.0859 Clf Loss: 0.7692 F1_pos: 1.00 F1_neg: 0.93 Acc: 0.76
+Evaluation: Clf Loss_val: 1.1978 F1_pos_val: 0.99 F1_neg_val: 0.88 Acc_val: 0.65
+
+Epoch 4:
+0.9994531869888306 0.00769010791555047 0.506138026714325
+0.06352243572473526 0.11137974262237549 0.9997567534446716
+0.1545630842447281 0.73046875
+Detector Loss: 0.0787 Clf Loss: 0.6197 F1_pos: 1.00 F1_neg: 0.94 Acc: 0.80
+Evaluation: Clf Loss_val: 0.6109 F1_pos_val: 1.00 F1_neg_val: 0.92 Acc_val: 0.82
+
+Epoch 5:
+0.9997764229774475 0.0014621599111706018 0.9136039018630981
+0.05304655060172081 0.13631923496723175 0.9998496770858765
+0.08832524716854095 0.76953125
+Detector Loss: 0.0585 Clf Loss: 0.5072 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.84
+Evaluation: Clf Loss_val: 0.8575 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.74
+
+Epoch 6:
+0.9998423457145691 0.002360390033572912 0.7790496349334717
+0.07269920408725739 0.1400388777256012 0.9998825788497925
+0.10509597510099411 0.7890625
+Detector Loss: 0.0514 Clf Loss: 0.4731 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.85
+Evaluation: Clf Loss_val: 1.3347 F1_pos_val: 0.99 F1_neg_val: 0.90 Acc_val: 0.63
+
+Epoch 7:
+0.9997559189796448 0.006780040916055441 0.3239555060863495
+0.034361694008111954 0.10380035638809204 0.9999051094055176
+0.10005081444978714 0.80078125
+Detector Loss: 0.0558 Clf Loss: 0.4304 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.86
+Evaluation: Clf Loss_val: 1.1788 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.65
+
+Epoch 8:
+0.9998800754547119 0.0011505626607686281 0.9144909381866455
+0.04019657149910927 0.11967458575963974 0.9999151229858398
+0.07353276759386063 0.7890625
+Detector Loss: 0.0453 Clf Loss: 0.3794 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.88
+Evaluation: Clf Loss_val: 0.5673 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.83
+
+Epoch 9:
+0.9998761415481567 0.0007647135644219816 0.9385443329811096
+0.03440690413117409 0.131998211145401 0.9999300241470337
+0.09684118628501892 0.84375
+Detector Loss: 0.0440 Clf Loss: 0.3589 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.89
+Evaluation: Clf Loss_val: 1.1699 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.70
+
+Epoch 10:
+0.9998975992202759 0.00020973106438759714 0.9907733201980591
+0.04754578322172165 0.1574915498495102 0.9999359846115112
+0.07757225632667542 0.8125
+Detector Loss: 0.0469 Clf Loss: 0.3444 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.89
+Evaluation: Clf Loss_val: 0.5878 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.82
+
+Epoch 11:
+0.9993870258331299 0.01233367994427681 0.21600623428821564
+0.021362725645303726 0.08397065103054047 0.9998389482498169
+0.10610780864953995 0.8359375
+Detector Loss: 0.0460 Clf Loss: 0.3265 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.89
+Evaluation: Clf Loss_val: 0.4738 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 12:
+0.9999303817749023 0.00011573162919376045 0.9951027631759644
+0.07591676712036133 0.21286576986312866 0.9999539852142334
+0.10842382907867432 0.78125
+Detector Loss: 0.0475 Clf Loss: 0.3072 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.90
+Evaluation: Clf Loss_val: 0.4928 F1_pos_val: 0.99 F1_neg_val: 0.94 Acc_val: 0.85
+
+Epoch 13:
+0.9999551773071289 0.0002563805610407144 0.9860578179359436
+0.030940115451812744 0.13382983207702637 0.9999498128890991
+0.1503085494041443 0.84765625
+Detector Loss: 0.0544 Clf Loss: 0.3078 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.90
+Evaluation: Clf Loss_val: 0.6137 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.84
+
+Epoch 14:
+0.9998582601547241 0.002159115858376026 0.8773181438446045
+0.019598376005887985 0.09972399473190308 0.9999181032180786
+0.09897992759943008 0.84765625
+Detector Loss: 0.0365 Clf Loss: 0.2850 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.91
+Evaluation: Clf Loss_val: 0.5993 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.83
+
+Epoch 15:
+0.9994621276855469 0.015625201165676117 0.12933336198329926
+0.015631435438990593 0.08177974820137024 0.9999157190322876
+0.06965046375989914 0.87109375
+Detector Loss: 0.0351 Clf Loss: 0.2746 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.91
+Evaluation: Clf Loss_val: 0.4328 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 16:
+0.9999676942825317 0.00029664539033547044 0.9808576107025146
+0.03780454769730568 0.15841861069202423 0.9999701976776123
+0.07221559435129166 0.86328125
+Detector Loss: 0.0346 Clf Loss: 0.2556 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.6792 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.80
+
+Epoch 17:
+0.9997013807296753 0.007086398079991341 0.34499552845954895
+0.022864971309900284 0.1013198271393776 0.9995498061180115
+0.1075289323925972 0.87109375
+Detector Loss: 0.0380 Clf Loss: 0.2438 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.6508 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.80
+
+Epoch 18:
+0.9999587535858154 0.0003403654263820499 0.9768232107162476
+0.029840609058737755 0.13379435241222382 0.999958872795105
+0.06220931559801102 0.87109375
+Detector Loss: 0.0347 Clf Loss: 0.2250 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.7577 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.77
+
+Epoch 19:
+0.9999352097511292 0.0007873658323660493 0.957769513130188
+0.02628396265208721 0.12390197813510895 0.9999681711196899
+0.05003724992275238 0.8984375
+Detector Loss: 0.0327 Clf Loss: 0.2193 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4150 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.88
+
+Epoch 20:
+0.999896228313446 0.002487962367013097 0.8272802829742432
+0.02124479040503502 0.10031523555517197 0.9999165534973145
+0.06833240389823914 0.89453125
+Detector Loss: 0.0350 Clf Loss: 0.2217 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4509 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 21:
+0.9999654293060303 0.00019418813462834805 0.9883564114570618
+0.11358170956373215 0.23949643969535828 0.9999674558639526
+0.09033908694982529 0.890625
+Detector Loss: 0.0403 Clf Loss: 0.2147 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4368 F1_pos_val: 0.99 F1_neg_val: 0.88 Acc_val: 0.87
+
+Epoch 22:
+0.9997172355651855 0.012274837121367455 0.14473703503608704
+0.019671080633997917 0.09501445293426514 0.9999165534973145
+0.06719237565994263 0.90625
+Detector Loss: 0.0342 Clf Loss: 0.1878 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.7026 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.83
+
+Epoch 23:
+0.9998673796653748 0.001937354332767427 0.9096274375915527
+0.021532723680138588 0.10773404687643051 0.9998202919960022
+0.07086242735385895 0.88671875
+Detector Loss: 0.0335 Clf Loss: 0.2041 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4818 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 24:
+0.9992978572845459 0.00981057621538639 0.5161529183387756
+0.03245921432971954 0.12295286357402802 0.998890221118927
+0.12091758847236633 0.8984375
+Detector Loss: 0.0344 Clf Loss: 0.1817 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4701 F1_pos_val: 1.00 F1_neg_val: 0.97 Acc_val: 0.88
+
+Epoch 25:
+0.9997710585594177 0.007063714787364006 0.46636199951171875
+0.013936902396380901 0.08260354399681091 0.9999717473983765
+0.09438203275203705 0.875
+Detector Loss: 0.0367 Clf Loss: 0.1986 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5253 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 26:
+0.9999585151672363 0.0006079039303585887 0.9696977734565735
+0.02412862330675125 0.11638876795768738 0.9999779462814331
+0.05424557998776436 0.890625
+Detector Loss: 0.0296 Clf Loss: 0.1953 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4186 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 27:
+0.9999130368232727 0.0017333925934508443 0.8489050269126892
+0.01540818065404892 0.09590160846710205 0.9999138116836548
+0.04671294614672661 0.90625
+Detector Loss: 0.0290 Clf Loss: 0.1671 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5198 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 28:
+0.9999662041664124 0.00047793384874239564 0.9798111319541931
+0.02460704930126667 0.11049001663923264 0.9999784231185913
+0.052532874047756195 0.90234375
+Detector Loss: 0.0262 Clf Loss: 0.1649 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5736 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 29:
+0.9999693632125854 0.0002772452135104686 0.9828710556030273
+0.02646574191749096 0.13682976365089417 0.9999815225601196
+0.0690026804804802 0.8984375
+Detector Loss: 0.0304 Clf Loss: 0.1599 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5458 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.87
+
+Epoch 30:
+0.9998863339424133 0.00026116945082321763 0.9882107973098755
+0.15355294942855835 0.28696209192276 0.9999873638153076
+0.06517766416072845 0.921875
+Detector Loss: 0.0309 Clf Loss: 0.1453 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.6266 F1_pos_val: 0.98 F1_neg_val: 0.85 Acc_val: 0.86
+
+Epoch 31:
+0.9999057650566101 0.001326534547843039 0.9354374408721924
+0.027347542345523834 0.1225678101181984 0.9999899864196777
+0.10872677713632584 0.9140625
+Detector Loss: 0.0430 Clf Loss: 0.1557 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5950 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.86
+
+Epoch 32:
+0.9999243021011353 0.0015779389068484306 0.8832031488418579
+0.024683162569999695 0.12248194217681885 0.999984622001648
+0.047516118735075 0.9296875
+Detector Loss: 0.0311 Clf Loss: 0.1259 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 1.2120 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.70
+
+Epoch 33:
+0.9995158314704895 0.014090565033257008 0.10357126593589783
+0.012254543602466583 0.08452190458774567 0.9997898936271667
+0.05325222760438919 0.8984375
+Detector Loss: 0.0318 Clf Loss: 0.1821 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5334 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 34:
+0.9999228119850159 0.0015959333395585418 0.9163954854011536
+0.018821733072400093 0.10313384979963303 0.9999845027923584
+0.057153139263391495 0.8671875
+Detector Loss: 0.0320 Clf Loss: 0.1773 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5777 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 35:
+0.9999748468399048 0.00045426504220813513 0.9689236879348755
+0.02868582494556904 0.13598044216632843 0.9999943971633911
+0.04442712292075157 0.91015625
+Detector Loss: 0.0301 Clf Loss: 0.1324 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4550 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.89
+
+Epoch 36:
+0.9998260140419006 0.0061659677885472775 0.47116953134536743
+0.01593651808798313 0.09793660789728165 0.9999867677688599
+0.09341022372245789 0.875
+Detector Loss: 0.0336 Clf Loss: 0.1320 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5357 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 37:
+0.9999499320983887 0.0010849109385162592 0.9251509308815002
+0.023810071870684624 0.11772294342517853 0.9999903440475464
+0.05853614583611488 0.91796875
+Detector Loss: 0.0290 Clf Loss: 0.1391 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4529 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.89
+
+Epoch 38:
+0.9997395277023315 0.008816324174404144 0.35108956694602966
+0.011208404786884785 0.08403371274471283 0.9999040365219116
+0.04624361917376518 0.93359375
+Detector Loss: 0.0278 Clf Loss: 0.1122 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5016 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 39:
+0.9998869299888611 0.002892362652346492 0.7440893650054932
+0.013904685154557228 0.09239392727613449 0.9999145269393921
+0.04409037530422211 0.94140625
+Detector Loss: 0.0271 Clf Loss: 0.1037 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.7985 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 40:
+0.9999683499336243 0.0005717675085179508 0.9701378345489502
+0.02504577487707138 0.12905874848365784 0.9999938011169434
+0.13247905671596527 0.875
+Detector Loss: 0.0354 Clf Loss: 0.1237 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4772 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.89
+
+Epoch 41:
+0.9999542832374573 0.0011741314083337784 0.912854015827179
+0.020099932327866554 0.11378458142280579 0.999993085861206
+0.048899248242378235 0.9140625
+Detector Loss: 0.0286 Clf Loss: 0.1161 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4897 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 42:
+0.9999130368232727 0.0020909812301397324 0.8717386722564697
+0.013571449555456638 0.09400579333305359 0.9999817609786987
+0.05335589870810509 0.9453125
+Detector Loss: 0.0284 Clf Loss: 0.0939 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6377 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 43:
+0.9998941421508789 0.0033286327961832285 0.7052714228630066
+0.019384628161787987 0.10471168160438538 0.9999682903289795
+0.04785430431365967 0.9375
+Detector Loss: 0.0280 Clf Loss: 0.1072 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5777 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 44:
+0.9999603629112244 0.0009090267703868449 0.9571626782417297
+0.021303074434399605 0.11636704951524734 0.9999932050704956
+0.05562906712293625 0.9140625
+Detector Loss: 0.0297 Clf Loss: 0.1225 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.6628 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 45:
+0.9999396800994873 0.0013009998947381973 0.899522066116333
+0.015442803502082825 0.1003551036119461 0.9999799728393555
+0.04144373908638954 0.9453125
+Detector Loss: 0.0258 Clf Loss: 0.0799 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5338 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+Eval_train ACCURACY: 0.9558 	Eval_train Loss: 0.1390 	
+Id_val ACCURACY: 0.8748 	Id_val Loss: 0.5398 	
+Id_test ACCURACY: 0.8931 	Id_test Loss: 0.4831 	
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round3/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:18:23 AM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:18:23 AM : [1mSaved a new best checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:18:23 AM : [1mEnd of pretraining
+[0m
+Training end (0:04:47.058747).
+
+[1;34mDEBUG[0m: 06/01/2025 09:18:23 AM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 100 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round3/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9558
+Train Loss: 0.1390
+Spec Loss: nan
+Mean Loss: nan
+Total Loss: nan
+ID Validation ACCURACY: 0.8748
+ID Validation Loss: 0.5398
+ID Test ACCURACY: 0.8931
+ID Test Loss: 0.4831
+OOD Validation ACCURACY: 0.8748
+OOD Validation Loss: 0.5398
+OOD Test ACCURACY: 0.8931
+OOD Test Loss: 0.4831
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 100...
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9558
+Train Loss: 0.1390
+ID Validation ACCURACY: 0.8748
+ID Validation Loss: 0.5398
+ID Test ACCURACY: 0.8931
+ID Test Loss: 0.4831
+OOD Validation ACCURACY: 0.8748
+OOD Validation Loss: 0.5398
+OOD Test ACCURACY: 0.8931
+OOD Test Loss: 0.4831
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8931 0.8931 0.8931 0.8931 0.8748 0.8748[0mTrain ACCURACY: 0.9558 	Train Loss: 0.1405 	
+Id_val ACCURACY: 0.8748 	Id_val Loss: 0.5398 	
+Id_test ACCURACY: 0.8931 	Id_test Loss: 0.4831 	
+Val ACCURACY: 0.8748 	Val Loss: 0.5398 	
+Test ACCURACY: 0.8931 	Test Loss: 0.4831 	
+
+
+#D#Running with seed = 4
+model_dirname= SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff
+401 4
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/MNIST/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 4,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 4,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Sun Jun  1 09:18:29 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset MNIST
+[0m[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mDataset: {'train': MNIST(20000), 'id_val': MNIST(5000), 'id_test': MNIST(10000), 'metric': 'Accuracy', 'task': 'Multi-label classification', 'val': MNIST(5000), 'test': MNIST(10000)}
+[0m[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1m Data(x=[46, 5], edge_index=[2, 258], edge_attr=[258, 1], y=[1], node_label=[46], edge_label=[258], sp_order=[46], superpixels=[28, 28], name='MNISTSP-train-19884', idx=[1])
+[0mData(x=[71, 5], edge_index=[2, 588], edge_attr=[588, 1], y=[1], node_label=[71], edge_label=[588], sp_order=[71], superpixels=[28, 28], name='MNISTSP-train-0', idx=[1])
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:18:29 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+[1;36mIMPORTANT[0m: 06/01/2025 09:18:30 AM : [1mPretraining model for degenerate explanations
+[0m
+Epoch 0:
+0.9979956150054932 0.0037186371628195047 0.7629900574684143
+0.05120557174086571 0.10043788701295853 0.9978160858154297
+45.80598068237305 0.109375
+Detector Loss: 2.9701 Clf Loss: 1.9683 F1_pos: 0.92 F1_neg: 0.84 Acc: 0.27
+Evaluation: Clf Loss_val: 4.6540 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.14
+
+Epoch 1:
+0.9990742206573486 0.0008484972058795393 0.932776689529419
+0.077999547123909 0.13211362063884735 0.9989583492279053
+0.21580460667610168 0.31640625
+Detector Loss: 0.1379 Clf Loss: 1.4380 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.49
+Evaluation: Clf Loss_val: 4.6625 F1_pos_val: 0.99 F1_neg_val: 0.95 Acc_val: 0.32
+
+Epoch 2:
+0.9987959265708923 0.020125653594732285 0.10968782752752304
+0.041468508541584015 0.07648497074842453 0.9993295669555664
+0.14873038232326508 0.48828125
+Detector Loss: 0.0953 Clf Loss: 1.0812 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.64
+Evaluation: Clf Loss_val: 1.7123 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.52
+
+Epoch 3:
+0.9994932413101196 0.00038270087679848075 0.9782273769378662
+0.05909323692321777 0.15073040127754211 0.9995360374450684
+0.13819770514965057 0.578125
+Detector Loss: 0.0794 Clf Loss: 0.8375 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.73
+Evaluation: Clf Loss_val: 1.1074 F1_pos_val: 0.99 F1_neg_val: 0.96 Acc_val: 0.64
+
+Epoch 4:
+0.9985086917877197 0.02282751351594925 0.13182894885540009
+0.031020889058709145 0.0774439200758934 0.9989820122718811
+0.12068067491054535 0.6796875
+Detector Loss: 0.0734 Clf Loss: 0.6800 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.79
+Evaluation: Clf Loss_val: 1.6778 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.58
+
+Epoch 5:
+0.9996132254600525 0.004681797232478857 0.5865705013275146
+0.036343879997730255 0.11396223306655884 0.9996920824050903
+0.13011296093463898 0.7421875
+Detector Loss: 0.0668 Clf Loss: 0.5555 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.83
+Evaluation: Clf Loss_val: 0.8227 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.76
+
+Epoch 6:
+0.9996142983436584 0.00523576233536005 0.5660901665687561
+0.03940533101558685 0.10642708092927933 0.9997313618659973
+0.09916617721319199 0.6875
+Detector Loss: 0.0574 Clf Loss: 0.4834 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.85
+Evaluation: Clf Loss_val: 0.7947 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.75
+
+Epoch 7:
+0.9997903108596802 0.002224802505224943 0.8426926136016846
+0.03417947515845299 0.10244227945804596 0.9998518228530884
+0.13387958705425262 0.75
+Detector Loss: 0.0520 Clf Loss: 0.4532 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.85
+Evaluation: Clf Loss_val: 0.6879 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.80
+
+Epoch 8:
+0.9998125433921814 0.002002469962462783 0.7852491736412048
+0.03895791620016098 0.10714937001466751 0.9998366832733154
+0.12247204035520554 0.80859375
+Detector Loss: 0.0528 Clf Loss: 0.4122 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.87
+Evaluation: Clf Loss_val: 0.9600 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.74
+
+Epoch 9:
+0.9998347163200378 0.0005727006937377155 0.960827112197876
+0.05210064724087715 0.14128129184246063 0.9998708963394165
+0.08546190708875656 0.8046875
+Detector Loss: 0.0515 Clf Loss: 0.3736 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.88
+Evaluation: Clf Loss_val: 0.7743 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.78
+
+Epoch 10:
+0.9997734427452087 0.0038976913783699274 0.7122306227684021
+0.02607754059135914 0.10456360876560211 0.9998194575309753
+0.07974095642566681 0.83203125
+Detector Loss: 0.0450 Clf Loss: 0.3547 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.89
+Evaluation: Clf Loss_val: 0.5038 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 11:
+0.9998894333839417 0.0004027707618661225 0.9629637002944946
+0.2214902639389038 0.3372492790222168 0.9999210834503174
+0.07049615681171417 0.8125
+Detector Loss: 0.0430 Clf Loss: 0.3245 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.90
+Evaluation: Clf Loss_val: 0.6414 F1_pos_val: 0.96 F1_neg_val: 0.79 Acc_val: 0.80
+
+Epoch 12:
+0.9997743368148804 0.007450886536389589 0.29448357224464417
+0.02882152609527111 0.09969938546419144 0.9998736381530762
+0.568006694316864 0.83203125
+Detector Loss: 0.0696 Clf Loss: 0.3182 F1_pos: 0.99 F1_neg: 0.97 Acc: 0.90
+Evaluation: Clf Loss_val: 0.9420 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.74
+
+Epoch 13:
+0.9998053312301636 0.005643472075462341 0.5255018472671509
+0.029240615665912628 0.09213274717330933 0.9998600482940674
+0.1501273810863495 0.8203125
+Detector Loss: 0.0413 Clf Loss: 0.3358 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.89
+Evaluation: Clf Loss_val: 0.6441 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.82
+
+Epoch 14:
+0.9998427033424377 0.0036534564569592476 0.6898318529129028
+0.021522851660847664 0.09650858491659164 0.9998641014099121
+0.09595023840665817 0.84765625
+Detector Loss: 0.0458 Clf Loss: 0.2840 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.91
+Evaluation: Clf Loss_val: 0.7616 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.79
+
+Epoch 15:
+0.9999314546585083 0.0006112731643952429 0.9646345973014832
+0.024813208729028702 0.1210474967956543 0.9998584985733032
+0.06574845314025879 0.8828125
+Detector Loss: 0.0360 Clf Loss: 0.2558 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4479 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 16:
+0.9995601773262024 0.014412500895559788 0.06656283140182495
+0.014572296291589737 0.08242013305425644 0.9998102784156799
+0.08874715864658356 0.86328125
+Detector Loss: 0.0401 Clf Loss: 0.2548 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.92
+Evaluation: Clf Loss_val: 0.5316 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 17:
+0.9998918175697327 0.0011206947965547442 0.9351164698600769
+0.02453111857175827 0.11391650140285492 0.9998145699501038
+0.07417794317007065 0.875
+Detector Loss: 0.0395 Clf Loss: 0.2508 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4607 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 18:
+0.9997857809066772 0.00354195898398757 0.7247630953788757
+0.019736681133508682 0.10730957239866257 0.9998857975006104
+0.12086145579814911 0.859375
+Detector Loss: 0.0414 Clf Loss: 0.2558 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.5415 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 19:
+0.9999114274978638 0.0012646366376429796 0.9160329103469849
+0.025633322075009346 0.13082395493984222 0.9999074935913086
+0.08314116299152374 0.875
+Detector Loss: 0.0347 Clf Loss: 0.2374 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.5215 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.85
+
+Epoch 20:
+0.9998465180397034 0.00407378189265728 0.6735709309577942
+0.02055870182812214 0.10227502137422562 0.9999468326568604
+0.0705827921628952 0.83984375
+Detector Loss: 0.0394 Clf Loss: 0.2934 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.91
+Evaluation: Clf Loss_val: 0.4793 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 21:
+0.9998767971992493 0.0024506307672709227 0.8205350637435913
+0.019554687663912773 0.10415668785572052 0.9998942613601685
+0.09434880316257477 0.88671875
+Detector Loss: 0.0346 Clf Loss: 0.2266 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.6393 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.82
+
+Epoch 22:
+0.9999402165412903 0.0006760673713870347 0.9543964266777039
+0.04564433917403221 0.17157995700836182 0.999929666519165
+0.07690917700529099 0.78125
+Detector Loss: 0.0316 Clf Loss: 0.2082 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4552 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.88
+
+Epoch 23:
+0.9997748732566833 0.008252882398664951 0.4080215096473694
+0.014451900497078896 0.08707210421562195 0.9999476671218872
+0.0790039449930191 0.875
+Detector Loss: 0.0412 Clf Loss: 0.2062 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.93
+Evaluation: Clf Loss_val: 0.7238 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.83
+
+Epoch 24:
+0.9997573494911194 0.008135630749166012 0.3561018705368042
+0.011872080154716969 0.0813586488366127 0.9997536540031433
+0.06471948325634003 0.87109375
+Detector Loss: 0.0289 Clf Loss: 0.2231 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4830 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 25:
+0.9999342560768127 0.0027363074477761984 0.7821066975593567
+0.019941816106438637 0.11229629814624786 0.9999619722366333
+0.06167379394173622 0.89453125
+Detector Loss: 0.0311 Clf Loss: 0.1802 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5921 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 26:
+0.999857485294342 0.004365713335573673 0.7385718822479248
+0.013200958259403706 0.08358801901340485 0.9999520778656006
+0.05586903169751167 0.875
+Detector Loss: 0.0311 Clf Loss: 0.1645 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5220 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 27:
+0.9998760223388672 0.003012134460732341 0.7663032412528992
+0.014123315922915936 0.09335729479789734 0.9997888207435608
+0.07367212325334549 0.90625
+Detector Loss: 0.0316 Clf Loss: 0.1689 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.8374 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.80
+
+Epoch 28:
+0.9999216198921204 0.001861396711319685 0.8693464398384094
+0.016916589811444283 0.09927262365818024 0.9998902082443237
+0.06582919508218765 0.90625
+Detector Loss: 0.0309 Clf Loss: 0.1863 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5422 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 29:
+0.9998683929443359 0.004735495429486036 0.6170750260353088
+0.013194478116929531 0.08388222008943558 0.999951958656311
+0.06326786428689957 0.90234375
+Detector Loss: 0.0270 Clf Loss: 0.1413 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4584 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 30:
+0.9999833703041077 7.783997716614977e-05 0.991835355758667
+0.07607805728912354 0.2219175547361374 0.9999849796295166
+0.0575430691242218 0.875
+Detector Loss: 0.0296 Clf Loss: 0.1345 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4645 F1_pos_val: 0.99 F1_neg_val: 0.94 Acc_val: 0.89
+
+Epoch 31:
+0.9996411800384521 0.012931366451084614 0.15373128652572632
+0.00915178470313549 0.06928975880146027 0.9997628331184387
+0.06930869072675705 0.88671875
+Detector Loss: 0.0315 Clf Loss: 0.1576 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5852 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 32:
+0.9999229311943054 0.0018799967365339398 0.8865015506744385
+0.01561396662145853 0.08807797729969025 0.9999728202819824
+0.09090021997690201 0.91796875
+Detector Loss: 0.0328 Clf Loss: 0.1452 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4953 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 33:
+0.9998896718025208 0.0052465093322098255 0.6016574501991272
+0.012675720266997814 0.08845054358243942 0.9997628331184387
+0.05402014032006264 0.8984375
+Detector Loss: 0.0284 Clf Loss: 0.1467 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5093 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 34:
+0.9998369216918945 0.008274829015135765 0.39532750844955444
+0.01008268166333437 0.07216067612171173 0.9982272982597351
+0.04775071144104004 0.92578125
+Detector Loss: 0.0235 Clf Loss: 0.1116 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.6492 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 35:
+0.9999462962150574 0.0016232054913416505 0.8692777156829834
+0.012156455777585506 0.09037212282419205 0.9999775886535645
+0.04227995499968529 0.9140625
+Detector Loss: 0.0245 Clf Loss: 0.1438 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5118 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 36:
+0.9999673962593079 0.0004936246550641954 0.9727360010147095
+0.01084873080253601 0.07847265899181366 0.9986953139305115
+0.04939516261219978 0.9296875
+Detector Loss: 0.0253 Clf Loss: 0.1126 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5117 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 37:
+0.999973714351654 0.0001987588475458324 0.9896795749664307
+0.01281031221151352 0.09240517765283585 0.9996331930160522
+0.03270839527249336 0.90625
+Detector Loss: 0.0170 Clf Loss: 0.1297 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5631 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 38:
+0.9999229311943054 0.0026048056315630674 0.8025681972503662
+0.006960430648177862 0.06139184534549713 0.9999911785125732
+0.027149412781000137 0.875
+Detector Loss: 0.0159 Clf Loss: 0.1410 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5729 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.87
+
+Epoch 39:
+0.9999464154243469 0.0016547600971534848 0.8587696552276611
+0.010578424669802189 0.0685543343424797 0.9988191723823547
+0.03632264956831932 0.8984375
+Detector Loss: 0.0157 Clf Loss: 0.1528 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5701 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 40:
+0.9998270273208618 0.005941141862422228 0.6088497638702393
+0.005699751432985067 0.04843727871775627 0.9980966448783875
+0.05220187455415726 0.859375
+Detector Loss: 0.0169 Clf Loss: 0.1236 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5378 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 41:
+0.9999763369560242 0.00034218450309708714 0.9693527221679688
+0.009195204824209213 0.05949186533689499 0.9959262609481812
+0.03155619651079178 0.9296875
+Detector Loss: 0.0130 Clf Loss: 0.1102 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.6289 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.86
+
+Epoch 42:
+0.9999638795852661 0.00053496501641348 0.9681085348129272
+0.007859189994633198 0.06474174559116364 0.9914820194244385
+0.03834995999932289 0.93359375
+Detector Loss: 0.0176 Clf Loss: 0.1074 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.6060 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 43:
+0.9999452829360962 0.0009205604437738657 0.9338636994361877
+0.006915698293596506 0.05184280499815941 0.9958808422088623
+0.059852972626686096 0.9375
+Detector Loss: 0.0136 Clf Loss: 0.0951 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5640 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 44:
+0.9999786615371704 9.837964171310887e-05 0.9941152334213257
+0.011027546599507332 0.08557327091693878 0.9998313188552856
+0.044532980769872665 0.90625
+Detector Loss: 0.0149 Clf Loss: 0.1246 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4368 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.90
+
+Epoch 45:
+0.9999583959579468 0.000526805582921952 0.96427321434021
+0.015297723934054375 0.09043936431407928 0.9999966621398926
+0.03642001748085022 0.91796875
+Detector Loss: 0.0160 Clf Loss: 0.1046 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.4757 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 46:
+0.9997595548629761 0.0068543441593647 0.5085236430168152
+0.005209504161030054 0.04491802304983139 0.999997615814209
+0.07892885059118271 0.9296875
+Detector Loss: 0.0158 Clf Loss: 0.0986 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6457 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.86
+
+Epoch 47:
+0.9999865889549255 0.00018408407049719244 0.9879823923110962
+0.0025849363300949335 0.029861347749829292 0.9864190220832825
+0.022881926968693733 0.90625
+Detector Loss: 0.0105 Clf Loss: 0.0968 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.7324 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.87
+
+Epoch 48:
+0.9998462796211243 0.0006083386251702905 0.955582320690155
+0.006327071227133274 0.05671938881278038 0.9995630383491516
+0.05627052113413811 0.89453125
+Detector Loss: 0.0167 Clf Loss: 0.1318 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5996 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 49:
+0.9998562932014465 0.0011041373945772648 0.9422608017921448
+0.004033269360661507 0.03780881315469742 0.999427080154419
+0.050543162971735 0.90625
+Detector Loss: 0.0163 Clf Loss: 0.0961 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5018 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 50:
+0.9999828338623047 0.000243273563683033 0.9816166162490845
+0.006311373319476843 0.060648780316114426 0.9979902505874634
+0.019198430702090263 0.921875
+Detector Loss: 0.0089 Clf Loss: 0.1194 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5250 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 51:
+0.999990701675415 0.0002472486230544746 0.9810660481452942
+0.005546103697270155 0.05315754935145378 0.9959335923194885
+0.016443153843283653 0.9375
+Detector Loss: 0.0080 Clf Loss: 0.0777 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5231 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+Eval_train ACCURACY: 0.9707 	Eval_train Loss: 0.0962 	
+Id_val ACCURACY: 0.8982 	Id_val Loss: 0.5289 	
+Id_test ACCURACY: 0.9038 	Id_test Loss: 0.4713 	
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round4/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:23:36 AM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:23:36 AM : [1mSaved a new best checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:23:36 AM : [1mEnd of pretraining
+[0m
+Training end (0:05:06.159515).
+
+[1;34mDEBUG[0m: 06/01/2025 09:23:36 AM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 100 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round4/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9707
+Train Loss: 0.0962
+Spec Loss: nan
+Mean Loss: nan
+Total Loss: nan
+ID Validation ACCURACY: 0.8982
+ID Validation Loss: 0.5289
+ID Test ACCURACY: 0.9038
+ID Test Loss: 0.4713
+OOD Validation ACCURACY: 0.8982
+OOD Validation Loss: 0.5289
+OOD Test ACCURACY: 0.9038
+OOD Test Loss: 0.4713
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 100...
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9707
+Train Loss: 0.0962
+ID Validation ACCURACY: 0.8982
+ID Validation Loss: 0.5289
+ID Test ACCURACY: 0.9038
+ID Test Loss: 0.4713
+OOD Validation ACCURACY: 0.8982
+OOD Validation Loss: 0.5289
+OOD Test ACCURACY: 0.9038
+OOD Test Loss: 0.4713
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.9038 0.9038 0.9038 0.9038 0.8982 0.8982[0mTrain ACCURACY: 0.9707 	Train Loss: 0.0975 	
+Id_val ACCURACY: 0.8982 	Id_val Loss: 0.5289 	
+Id_test ACCURACY: 0.9038 	Id_test Loss: 0.4713 	
+Val ACCURACY: 0.8982 	Val Loss: 0.5289 	
+Test ACCURACY: 0.9038 	Test Loss: 0.4713 	
+
+
+#D#Running with seed = 5
+model_dirname= SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff
+498 5
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/MNIST/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 5,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 5,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Sun Jun  1 09:23:41 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset MNIST
+[0m[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mDataset: {'train': MNIST(20000), 'id_val': MNIST(5000), 'id_test': MNIST(10000), 'metric': 'Accuracy', 'task': 'Multi-label classification', 'val': MNIST(5000), 'test': MNIST(10000)}
+[0m[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1m Data(x=[74, 5], edge_index=[2, 652], edge_attr=[652, 1], y=[1], node_label=[74], edge_label=[652], sp_order=[74], superpixels=[28, 28], name='MNISTSP-train-38633', idx=[1])
+[0mData(x=[71, 5], edge_index=[2, 588], edge_attr=[588, 1], y=[1], node_label=[71], edge_label=[588], sp_order=[71], superpixels=[28, 28], name='MNISTSP-train-0', idx=[1])
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 06/01/2025 09:23:42 AM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+[1;36mIMPORTANT[0m: 06/01/2025 09:23:42 AM : [1mPretraining model for degenerate explanations
+[0m
+Epoch 0:
+0.9988909959793091 0.0014952209312468767 0.8273236751556396
+0.1392202228307724 0.1667919009923935 0.9991633892059326
+31.184329986572266 0.0859375
+Detector Loss: 2.2225 Clf Loss: 1.9152 F1_pos: 0.93 F1_neg: 0.62 Acc: 0.30
+Evaluation: Clf Loss_val: 1.7932 F1_pos_val: 0.99 F1_neg_val: 0.81 Acc_val: 0.32
+
+Epoch 1:
+0.9984049797058105 0.024000732228159904 0.1529185026884079
+0.08363991230726242 0.07514169067144394 0.9994959831237793
+0.14408335089683533 0.42578125
+Detector Loss: 0.1042 Clf Loss: 1.2564 F1_pos: 1.00 F1_neg: 0.87 Acc: 0.58
+Evaluation: Clf Loss_val: 1.5746 F1_pos_val: 1.00 F1_neg_val: 0.91 Acc_val: 0.48
+
+Epoch 2:
+0.9987419247627258 0.021973174065351486 0.14155258238315582
+0.054881758987903595 0.0818532258272171 0.9995819926261902
+0.155027836561203 0.52734375
+Detector Loss: 0.0907 Clf Loss: 0.9238 F1_pos: 1.00 F1_neg: 0.93 Acc: 0.71
+Evaluation: Clf Loss_val: 2.1982 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.45
+
+Epoch 3:
+0.999701201915741 0.0013610338792204857 0.8908440470695496
+0.05047309398651123 0.12193672358989716 0.9996697902679443
+0.14420852065086365 0.7265625
+Detector Loss: 0.0829 Clf Loss: 0.6729 F1_pos: 1.00 F1_neg: 0.94 Acc: 0.79
+Evaluation: Clf Loss_val: 1.0484 F1_pos_val: 1.00 F1_neg_val: 0.97 Acc_val: 0.67
+
+Epoch 4:
+0.9997580051422119 0.001387131167575717 0.8687580823898315
+0.05423207953572273 0.1300412267446518 0.9997754693031311
+0.12604930996894836 0.7578125
+Detector Loss: 0.0621 Clf Loss: 0.5598 F1_pos: 1.00 F1_neg: 0.97 Acc: 0.82
+Evaluation: Clf Loss_val: 0.7970 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.75
+
+Epoch 5:
+0.9998177886009216 0.0024571730755269527 0.7241760492324829
+0.05662914365530014 0.13565978407859802 0.9998202919960022
+0.13663312792778015 0.78125
+Detector Loss: 0.0662 Clf Loss: 0.5137 F1_pos: 1.00 F1_neg: 0.96 Acc: 0.84
+Evaluation: Clf Loss_val: 0.7602 F1_pos_val: 1.00 F1_neg_val: 0.97 Acc_val: 0.77
+
+Epoch 6:
+0.9997313618659973 0.005140331108123064 0.5070329904556274
+0.03637094423174858 0.10020844638347626 0.9996689558029175
+0.0643245279788971 0.7578125
+Detector Loss: 0.0479 Clf Loss: 0.4623 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.86
+Evaluation: Clf Loss_val: 0.8981 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.73
+
+Epoch 7:
+0.9999018311500549 0.00021538067085202783 0.9831669926643372
+0.07116077840328217 0.17745397984981537 0.999901533126831
+0.08567845076322556 0.80859375
+Detector Loss: 0.0502 Clf Loss: 0.4268 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.87
+Evaluation: Clf Loss_val: 0.7618 F1_pos_val: 0.99 F1_neg_val: 0.96 Acc_val: 0.75
+
+Epoch 8:
+0.999828040599823 0.00379923521541059 0.5596187114715576
+0.03635522723197937 0.11482032388448715 0.9996867179870605
+0.10533824563026428 0.81640625
+Detector Loss: 0.0488 Clf Loss: 0.3959 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.88
+Evaluation: Clf Loss_val: 0.5043 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 9:
+0.9999343156814575 9.267102723242715e-05 0.9941567182540894
+0.049407005310058594 0.17283743619918823 0.9999336004257202
+0.09563857316970825 0.8125
+Detector Loss: 0.0397 Clf Loss: 0.3568 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.89
+Evaluation: Clf Loss_val: 0.5405 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.83
+
+Epoch 10:
+0.9998577237129211 0.0017029960872605443 0.8731433749198914
+0.04505004361271858 0.14439409971237183 0.9998053908348083
+0.13605940341949463 0.8125
+Detector Loss: 0.0438 Clf Loss: 0.3553 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.89
+Evaluation: Clf Loss_val: 0.7554 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.76
+
+Epoch 11:
+0.9997527003288269 0.007005681283771992 0.4025934934616089
+0.02624490298330784 0.09681358933448792 0.9996873140335083
+0.09743176400661469 0.7890625
+Detector Loss: 0.0408 Clf Loss: 0.3534 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.89
+Evaluation: Clf Loss_val: 0.6825 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.80
+
+Epoch 12:
+0.9999504089355469 0.00012658414198085666 0.9881548881530762
+0.06532259285449982 0.20044627785682678 0.9999521970748901
+0.06478758901357651 0.8046875
+Detector Loss: 0.0381 Clf Loss: 0.3271 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.89
+Evaluation: Clf Loss_val: 1.0782 F1_pos_val: 0.99 F1_neg_val: 0.96 Acc_val: 0.75
+
+Epoch 13:
+0.9997801184654236 0.007400441449135542 0.3334677517414093
+0.02632671594619751 0.11170152574777603 0.999931812286377
+0.18543775379657745 0.83984375
+Detector Loss: 0.0440 Clf Loss: 0.3000 F1_pos: 1.00 F1_neg: 0.98 Acc: 0.91
+Evaluation: Clf Loss_val: 0.4267 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 14:
+0.9998212456703186 0.007269940339028835 0.1860615611076355
+0.02163982391357422 0.09759905934333801 0.9998824596405029
+0.06500247120857239 0.8125
+Detector Loss: 0.0350 Clf Loss: 0.2749 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.91
+Evaluation: Clf Loss_val: 0.5113 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 15:
+0.9999692440032959 7.743502646917477e-05 0.993655800819397
+0.04683332517743111 0.17592370510101318 0.9999599456787109
+0.06603902578353882 0.86328125
+Detector Loss: 0.0357 Clf Loss: 0.2643 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.91
+Evaluation: Clf Loss_val: 0.5962 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.81
+
+Epoch 16:
+0.9999049305915833 0.0035295195411890745 0.6365396976470947
+0.024471843615174294 0.10180199891328812 0.9999244213104248
+0.06210435926914215 0.87890625
+Detector Loss: 0.0345 Clf Loss: 0.2498 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.6609 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.83
+
+Epoch 17:
+0.999840259552002 0.00797042902559042 0.19161811470985413
+0.021486012265086174 0.09788505733013153 0.999847412109375
+0.05686192587018013 0.890625
+Detector Loss: 0.0308 Clf Loss: 0.2336 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4593 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.87
+
+Epoch 18:
+0.9999246001243591 0.0006837259279564023 0.9502925872802734
+0.04399360343813896 0.1644335836172104 0.999754011631012
+0.06308108568191528 0.88671875
+Detector Loss: 0.0363 Clf Loss: 0.2313 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4977 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.86
+
+Epoch 19:
+0.9998524785041809 0.005659312941133976 0.3617853820323944
+0.020571088418364525 0.1031525731086731 0.9997902512550354
+0.07415176182985306 0.84375
+Detector Loss: 0.0333 Clf Loss: 0.2251 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.5560 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 20:
+0.999872088432312 0.004313433542847633 0.5381237268447876
+0.019090041518211365 0.1003832072019577 0.999921441078186
+0.06750595569610596 0.8671875
+Detector Loss: 0.0294 Clf Loss: 0.2341 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.9894 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.76
+
+Epoch 21:
+0.9999136924743652 0.0015104145277291536 0.8563824892044067
+0.02062622830271721 0.11048611998558044 0.9996412992477417
+0.04648929834365845 0.875
+Detector Loss: 0.0285 Clf Loss: 0.2211 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.92
+Evaluation: Clf Loss_val: 0.4180 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 22:
+0.9998656511306763 0.002091190544888377 0.8017362356185913
+0.020218493416905403 0.10561613738536835 0.9998995065689087
+0.0495762825012207 0.88671875
+Detector Loss: 0.0295 Clf Loss: 0.2010 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4083 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 23:
+0.9999731779098511 0.00034692208282649517 0.9763185381889343
+0.05647878348827362 0.19443069398403168 0.9999740123748779
+0.0593990758061409 0.890625
+Detector Loss: 0.0294 Clf Loss: 0.1857 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5831 F1_pos_val: 0.99 F1_neg_val: 0.96 Acc_val: 0.85
+
+Epoch 24:
+0.999955415725708 0.0005201008170843124 0.959435760974884
+0.019352242350578308 0.11457259207963943 0.9999707937240601
+0.08471354842185974 0.8984375
+Detector Loss: 0.0344 Clf Loss: 0.1738 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4314 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 25:
+0.9999740719795227 0.0005344436503946781 0.9618819355964661
+0.026659803465008736 0.1300581842660904 0.9999436140060425
+0.056736670434474945 0.90625
+Detector Loss: 0.0317 Clf Loss: 0.1601 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4715 F1_pos_val: 1.00 F1_neg_val: 0.98 Acc_val: 0.88
+
+Epoch 26:
+0.9999786615371704 0.0002415213966742158 0.9774061441421509
+0.023569677025079727 0.12063760310411453 0.9999841451644897
+0.04245343431830406 0.90625
+Detector Loss: 0.0266 Clf Loss: 0.1859 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.6250 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.84
+
+Epoch 27:
+0.9999856948852539 6.766353908460587e-05 0.9948917627334595
+0.041187793016433716 0.17174406349658966 0.999990701675415
+0.057101309299468994 0.89453125
+Detector Loss: 0.0276 Clf Loss: 0.1860 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.4966 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.87
+
+Epoch 28:
+0.9999244809150696 0.0021669836714863777 0.7764730453491211
+0.016207324340939522 0.09880845993757248 0.9996882677078247
+0.04199500381946564 0.91015625
+Detector Loss: 0.0256 Clf Loss: 0.1386 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.5786 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.85
+
+Epoch 29:
+0.9999889731407166 0.00016611404134891927 0.9898892045021057
+0.04165723919868469 0.16527414321899414 0.9999796152114868
+0.06994102895259857 0.890625
+Detector Loss: 0.0304 Clf Loss: 0.1807 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.94
+Evaluation: Clf Loss_val: 0.5549 F1_pos_val: 0.99 F1_neg_val: 0.97 Acc_val: 0.85
+
+Epoch 30:
+0.9999687075614929 0.0018188252579420805 0.8359013795852661
+0.02865772135555744 0.13696663081645966 0.999993085861206
+0.06567556411027908 0.875
+Detector Loss: 0.0270 Clf Loss: 0.1377 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4542 F1_pos_val: 0.99 F1_neg_val: 0.98 Acc_val: 0.89
+
+Epoch 31:
+0.9999902248382568 0.00016497072647325695 0.9855526089668274
+0.02145250514149666 0.11815330386161804 0.9999699592590332
+0.0725584402680397 0.8984375
+Detector Loss: 0.0270 Clf Loss: 0.1615 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4876 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 32:
+0.9999363422393799 0.0013560389634221792 0.8920336961746216
+0.01726028323173523 0.10460465401411057 0.9994725584983826
+0.05142655968666077 0.875
+Detector Loss: 0.0199 Clf Loss: 0.1734 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4586 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 33:
+0.999949038028717 0.0002249038516310975 0.9853169322013855
+0.020160553976893425 0.11998143792152405 0.9998843669891357
+0.06668127328157425 0.875
+Detector Loss: 0.0209 Clf Loss: 0.1569 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.8143 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.79
+
+Epoch 34:
+0.999949038028717 0.001990826800465584 0.8053534030914307
+0.011987760663032532 0.08182980865240097 0.9995751976966858
+0.03447922319173813 0.921875
+Detector Loss: 0.0181 Clf Loss: 0.1297 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4221 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 35:
+0.9998589754104614 0.002534619765356183 0.8562211990356445
+0.01523484755307436 0.09466826170682907 0.9998290538787842
+0.030674519017338753 0.9140625
+Detector Loss: 0.0170 Clf Loss: 0.1271 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4541 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 36:
+0.9999903440475464 0.00014916725922375917 0.9870237112045288
+0.01316519733518362 0.09287053346633911 0.9999613761901855
+0.031232070177793503 0.875
+Detector Loss: 0.0163 Clf Loss: 0.1289 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4958 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 37:
+0.9999046921730042 0.003455027239397168 0.676611602306366
+0.008614476770162582 0.05924013629555702 0.9890734553337097
+0.03080403059720993 0.91015625
+Detector Loss: 0.0170 Clf Loss: 0.1436 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4673 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 38:
+0.9999769926071167 0.0004828243691008538 0.9537492394447327
+0.01024257205426693 0.0842694416642189 0.9980999827384949
+0.026877064257860184 0.9375
+Detector Loss: 0.0144 Clf Loss: 0.1053 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.97
+Evaluation: Clf Loss_val: 0.7322 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.85
+
+Epoch 39:
+0.9999829530715942 0.0005404849071055651 0.9362291693687439
+0.012802466750144958 0.09354663640260696 0.9982340335845947
+0.02579948678612709 0.83984375
+Detector Loss: 0.0140 Clf Loss: 0.2446 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.93
+Evaluation: Clf Loss_val: 0.4531 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 40:
+0.9999408721923828 0.0028653230983763933 0.6583806872367859
+0.007967835292220116 0.06823591142892838 0.9984861016273499
+0.028192341327667236 0.91796875
+Detector Loss: 0.0119 Clf Loss: 0.1480 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.95
+Evaluation: Clf Loss_val: 0.4569 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 41:
+0.9999751448631287 0.00035798284807242453 0.9650842547416687
+0.017004944384098053 0.10233791917562485 0.9985985159873962
+0.03840986266732216 0.921875
+Detector Loss: 0.0133 Clf Loss: 0.1330 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4931 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.88
+
+Epoch 42:
+0.9999387264251709 0.001700333901681006 0.8043914437294006
+0.009580421261489391 0.08184201270341873 0.9999866485595703
+0.10486600548028946 0.92578125
+Detector Loss: 0.0232 Clf Loss: 0.1230 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4594 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 43:
+0.9979000091552734 0.040650587528944016 0.0009427075856365263
+0.0015467582270503044 0.032950934022665024 0.9980820417404175
+0.11255980283021927 0.90625
+Detector Loss: 0.0159 Clf Loss: 0.1310 F1_pos: 1.00 F1_neg: 0.99 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4919 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 44:
+0.9999914765357971 8.051139957387932e-06 0.9996777772903442
+0.011890450492501259 0.09403106570243835 0.9998165965080261
+0.05140117183327675 0.9296875
+Detector Loss: 0.0126 Clf Loss: 0.1060 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5445 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.89
+
+Epoch 45:
+0.9999892115592957 5.5444725148845464e-05 0.9976219534873962
+0.013726284727454185 0.09333233535289764 0.9999086856842041
+0.03806241229176521 0.921875
+Detector Loss: 0.0131 Clf Loss: 0.1121 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.4873 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 46:
+0.9999883770942688 0.00010039838525699452 0.994235098361969
+0.005977326538413763 0.06640887260437012 0.9996380805969238
+0.019712667912244797 0.94140625
+Detector Loss: 0.0098 Clf Loss: 0.0885 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6237 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 47:
+0.9999899864196777 0.000136506263515912 0.9886491298675537
+0.005067791324108839 0.06453671306371689 0.9999920129776001
+0.04352908581495285 0.875
+Detector Loss: 0.0098 Clf Loss: 0.0837 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.4061 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.91
+
+Epoch 48:
+0.9999906420707703 0.00020727264927700162 0.9847785830497742
+0.004485256504267454 0.044391464442014694 0.999758780002594
+0.023693187162280083 0.9296875
+Detector Loss: 0.0091 Clf Loss: 0.1055 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5080 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 49:
+0.9999933242797852 4.745933983940631e-05 0.9958631992340088
+0.006225791294127703 0.06861995905637741 0.9995019435882568
+0.01806103251874447 0.9296875
+Detector Loss: 0.0061 Clf Loss: 0.1022 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.4668 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 50:
+0.9999980330467224 5.601329576165881e-06 0.9995412826538086
+0.03380226716399193 0.07590648531913757 0.9999804496765137
+0.07280634343624115 0.90625
+Detector Loss: 0.0143 Clf Loss: 0.0907 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6834 F1_pos_val: 1.00 F1_neg_val: 0.99 Acc_val: 0.86
+
+Epoch 51:
+0.999983012676239 0.0003666440607048571 0.9731535315513611
+0.002011379925534129 0.04099913686513901 0.999089241027832
+0.04300379380583763 0.92578125
+Detector Loss: 0.0100 Clf Loss: 0.1101 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5562 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.89
+
+Epoch 52:
+0.9999840259552002 0.0005149774951860309 0.9538652896881104
+0.002746292157098651 0.046955302357673645 0.9992832541465759
+0.012972423806786537 0.921875
+Detector Loss: 0.0054 Clf Loss: 0.1181 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.96
+Evaluation: Clf Loss_val: 0.5295 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 53:
+0.9999884963035583 0.00012236404290888458 0.9928574562072754
+0.004169951658695936 0.05889799818396568 0.9949623346328735
+0.014577250927686691 0.9375
+Detector Loss: 0.0074 Clf Loss: 0.0930 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6205 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 54:
+0.9999972581863403 1.9555389371817e-05 0.9986699819564819
+0.008352305740118027 0.06547164171934128 0.9992287158966064
+0.01392910722643137 0.90625
+Detector Loss: 0.0060 Clf Loss: 0.0890 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5240 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 55:
+0.9999920129776001 0.0003086704818997532 0.9724709987640381
+0.0028576734475791454 0.0442187525331974 0.9992122650146484
+0.014382710680365562 0.90625
+Detector Loss: 0.0053 Clf Loss: 0.0985 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.7258 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.87
+
+Epoch 56:
+0.9999974966049194 2.8027068765368313e-05 0.9973573088645935
+0.008428947068750858 0.07912027835845947 0.9992725253105164
+0.0133065702393651 0.9375
+Detector Loss: 0.0055 Clf Loss: 0.0921 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5521 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 57:
+0.9999979734420776 8.665798304718919e-06 0.9994376301765442
+0.004216020926833153 0.05839574709534645 0.9995132684707642
+0.011871219612658024 0.9375
+Detector Loss: 0.0068 Clf Loss: 0.0821 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.6412 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.88
+
+Epoch 58:
+0.9999852180480957 0.0009751360630616546 0.8822482824325562
+0.0028093215078115463 0.0483761802315712 0.9982890486717224
+0.02779657021164894 0.90625
+Detector Loss: 0.0082 Clf Loss: 0.0913 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.5354 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.90
+
+Epoch 59:
+0.999996542930603 7.409427780658007e-05 0.9918308854103088
+0.004368714988231659 0.06083173677325249 0.9994974136352539
+0.023743009194731712 0.93359375
+Detector Loss: 0.0069 Clf Loss: 0.0799 F1_pos: 1.00 F1_neg: 1.00 Acc: 0.97
+Evaluation: Clf Loss_val: 0.4841 F1_pos_val: 1.00 F1_neg_val: 1.00 Acc_val: 0.91
+Eval_train ACCURACY: 0.9771 	Eval_train Loss: 0.0716 	
+Id_val ACCURACY: 0.9062 	Id_val Loss: 0.4899 	
+Id_test ACCURACY: 0.9065 	Id_test Loss: 0.5098 	
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round5/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:29:19 AM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:29:19 AM : [1mSaved a new best checkpoint.
+[0m[1;36mIMPORTANT[0m: 06/01/2025 09:29:19 AM : [1mEnd of pretraining
+[0m
+Training end (0:05:37.092346).
+
+[1;34mDEBUG[0m: 06/01/2025 09:29:19 AM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 100 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round5/MNIST_basis_no_shift/SMGNN_ACR2_2l_2clf_sumpool_0.0dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted_pretsuff/0.001lr_0.0wd/SMGNN_0.01_False_10_0.01_spar1_entr1.5/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9771
+Train Loss: 0.0716
+Spec Loss: nan
+Mean Loss: nan
+Total Loss: nan
+ID Validation ACCURACY: 0.9062
+ID Validation Loss: 0.4899
+ID Test ACCURACY: 0.9065
+ID Test Loss: 0.5098
+OOD Validation ACCURACY: 0.9062
+OOD Validation Loss: 0.4899
+OOD Test ACCURACY: 0.9065
+OOD Test Loss: 0.5098
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 100...
+[0m[1;37mINFO[0m: [1mCheckpoint 100: 
+-----------------------------------
+Train ACCURACY: 0.9771
+Train Loss: 0.0716
+ID Validation ACCURACY: 0.9062
+ID Validation Loss: 0.4899
+ID Test ACCURACY: 0.9065
+ID Test Loss: 0.5098
+OOD Validation ACCURACY: 0.9062
+OOD Validation Loss: 0.4899
+OOD Test ACCURACY: 0.9065
+OOD Test Loss: 0.5098
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.9065 0.9065 0.9065 0.9065 0.9062 0.9062[0mTrain ACCURACY: 0.9771 	Train Loss: 0.0745 	
+Id_val ACCURACY: 0.9062 	Id_val Loss: 0.4899 	
+Id_test ACCURACY: 0.9065 	Id_test Loss: 0.5098 	
+Val ACCURACY: 0.9062 	Val Loss: 0.4899 	
+Test ACCURACY: 0.9065 	Test Loss: 0.5098 	
+
+
+Final accuracies: 
+SAVED_SCORE = 0.898 +- 0.006
+TRAIN      = 0.966 +- 0.007
+ID_VAL     = 0.893 +- 0.010
+ID_TEST    = 0.898 +- 0.006
+VAL        = 0.893 +- 0.010
+TEST       = 0.898 +- 0.006
+
+
+Final losses: 
+TRAIN       total_loss 0.1137 +- 0.0245  spec_loss 0.0059 +- 0.0001  entr_loss 0.0088 +- 0.0043  l_norm_loss 0.5765 +- 0.0019  clf_loss 0.1078 +- 0.0245
+ID_VAL      total_loss 0.5402 +- 0.0541  spec_loss 0.0059 +- 0.0001  entr_loss 0.0088 +- 0.0044  l_norm_loss 0.5762 +- 0.0028  clf_loss 0.5343 +- 0.0542
+ID_TEST     total_loss 0.5302 +- 0.0613  spec_loss 0.0059 +- 0.0001  entr_loss 0.0088 +- 0.0044  l_norm_loss 0.5766 +- 0.0021  clf_loss 0.5243 +- 0.0614
+VAL         total_loss 0.5402 +- 0.0541  spec_loss 0.0059 +- 0.0001  entr_loss 0.0088 +- 0.0044  l_norm_loss 0.5762 +- 0.0028  clf_loss 0.5343 +- 0.0542
+TEST        total_loss 0.5302 +- 0.0613  spec_loss 0.0059 +- 0.0001  entr_loss 0.0088 +- 0.0044  l_norm_loss 0.5766 +- 0.0021  clf_loss 0.5243 +- 0.0614
+
+
+Ckpt losses for TRAIN: 
