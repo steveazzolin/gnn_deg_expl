@@ -224,6 +224,8 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
         model_dirname += f"_pretdeg"
     elif config.train.pretrain == "suff":
         model_dirname += f"_pretsuff"
+    elif config.train.pretrain == "sub":
+        model_dirname += f"_pretsub"
 
     print("model_dirname=", model_dirname)
     
