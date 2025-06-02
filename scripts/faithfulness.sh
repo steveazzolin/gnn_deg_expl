@@ -15,9 +15,17 @@ for DATASET in MNIST/basis/no_shift; do
                      --metrics "${METRIC}" \
                      --splits ${SPLITS} \
                      --pretrain ${PRETRAIN} \
-                     --model_layer 2 \
-                     --gnn_clf_layer 2
-              echo "DONE SMGNN ${METRIC} ${PRETRAIN}"
+                     --backbone ACR2
+              echo "DONE SMGNN ${METRIC} ${PRETRAIN} ACR2"
+
+              # goodtg --config_path final_configs/${DATASET}/GSAT.yaml \
+              #        --seeds ${SEEDS} \
+              #        --task eval_metric \
+              #        --metrics "${METRIC}" \
+              #        --splits ${SPLITS} \
+              #        --pretrain ${PRETRAIN} \
+              #        --backbone ACR2
+              # echo "DONE GSAT ${METRIC} ${PRETRAIN} ACR2"
               
        done
 done
