@@ -858,6 +858,7 @@ def evaluate_metric(args):
                 ]
                 print_metric(metric + f" class all_{div}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_{div}"])
             print_metric(metric + "_acc_int", metrics_score[split][metric + "_acc_int"], results_aggregated, key=[config.dataset.dataset_name+" "+config.dataset.domain, config.complete_dirname, split, metric+"_acc_int"])
+            print()
 
     # print("\n\n", "-"*50, "\nComputing faithfulness")
     # for split in splits:
@@ -1153,6 +1154,8 @@ def plot_explanations(args):
             ret = pipeline.get_node_explanations(num_samples=20)
 
             # PLOT GRAPHS
+            thr = 0.5
+            compute_fid = True
             for i in range(len(ret[split]["samples"])):
                 if i < 0 or i > 20:
                     continue
@@ -1189,8 +1192,18 @@ def plot_explanations(args):
                     else:
                         pred = ret[split]["pred"][i].sigmoid().item()
 
+                title = f"Idx: {i:<3} Class={int(data.y.item())} Pred={pred}"
+
                 if normalize:
                     expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
+
+                if compute_fid:
+                    data.node_expl = torch.tensor(expl, device=data.x.device)
+                    data.node_mask = data.node_expl >= thr
+                    data.edge_mask = torch.ones_like(data.edge_index[0])
+                    fidm = pipeline.compute_metric(metric="fidm", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                    fidp = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                    title += f" FIDM={fidm:.2f} FIDP={fidp:.2f}"
 
                 g = to_networkx(data, node_attrs=["x"], to_undirected=True)
                 xai_utils.draw_colored(
@@ -1199,12 +1212,12 @@ def plot_explanations(args):
                     node_expl=expl,
                     subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
                     name=f"graph_{split}_{i}",
-                    thrs=0.5,
-                    title=f"Idx: {i} Class={int(data.y.item())} Pred={pred:.2f}",
+                    thrs=thr,
+                    title=title,
                     with_labels=False,
                     figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8)
                 )
-                print(f"graph {i} is of class {int(data.y.item())} with pred {pred}")
+                print(f"graph {title}")
 
             
 
