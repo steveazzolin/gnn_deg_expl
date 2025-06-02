@@ -324,9 +324,9 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
     # Annotate with node scores
     if node_expl is not None and pos is not None:
         if isinstance(pos, dict):
-            label_pos = {n: (x, y + 0.04) for n, (x, y) in pos.items()}  # vertical offset
+            label_pos = {n: (x, y + 0.03) for n, (x, y) in pos.items()}  # vertical offset
         else:
-            label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
+            label_pos = {n: (x, y + 0.03) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,
