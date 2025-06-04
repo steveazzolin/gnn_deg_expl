@@ -262,6 +262,11 @@ def get_color_based_on_dataset(config, x):
             return "orange"
     elif config.dataset.dataset_name == "MNIST":
         return x[:3]
+    elif config.dataset.dataset_name == "MUTAG":
+        atom_type = np.argmax(x)  # Convert one-hot to indices
+        # color_map = {atype: plt.cm.tab10(i % 10) for i, atype in enumerate(unique_atom_types)}
+        # node_colors = [color_map[atype] for atype in atom_types]
+        return plt.cm.tab10(atom_type % 14)
 
 def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None):
     plt.figure(figsize=figsize)
@@ -295,12 +300,16 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
     )
 
 
-    if node_expl is not None:
-        node_labels = {u: "E" if score >= thrs else "" for u, score in enumerate(node_expl)}
+    if config.dataset.dataset_name != "MUTAG":
+        if node_expl is not None:
+            node_labels = {u: "E" if score >= thrs else "" for u, score in enumerate(node_expl)}
+        else:
+            assert False, "Not implemented"
+            edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
+            edge_color = ["red" if e >= thrs else "black" for e in edge_color]
     else:
-        assert False, "Not implemented"
-        edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
-        edge_color = ["red" if e >= thrs else "black" for e in edge_color]
+        index_to_symbol = {0: 'C', 1: 'O', 2: 'Cl', 3: "H", 4: "N", 5: "F", 6: "Br", 7: "S", 8: "P", 9: "I", 10: "Na", 11: "K", 12: "Li", 13: "Ca"}
+        node_labels = {i: index_to_symbol[np.argmax(node_attr[i])] for i in range(len(node_attr))}
 
     nx.draw_networkx_labels(
         G,
@@ -324,9 +333,9 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
     # Annotate with node scores
     if node_expl is not None and pos is not None:
         if isinstance(pos, dict):
-            label_pos = {n: (x, y + 0.03) for n, (x, y) in pos.items()}  # vertical offset
+            label_pos = {n: (x, y + 0.04) for n, (x, y) in pos.items()}  # vertical offset
         else:
-            label_pos = {n: (x, y + 0.03) for n, (x, y) in enumerate(pos)}  # vertical offset
+            label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,
