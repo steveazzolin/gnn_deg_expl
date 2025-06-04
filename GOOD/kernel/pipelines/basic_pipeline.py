@@ -130,6 +130,10 @@ class Pipeline:
                 ).float()
                 # print(pos_pixel_is_c_for_class_c.sum())
                 # exit()
+            elif self.config.dataset.dataset_name == "MUTAG":
+                carbon_nodes_for_nonmutag = torch.logical_and(data.node_type == 0, graph_label_per_node == 1).float()
+                hydrogen_nodes_for_mutag = torch.logical_and(data.node_type == 3, graph_label_per_node == 0).float()
+                targets += carbon_nodes_for_nonmutag + hydrogen_nodes_for_mutag
             else:
                 raise ValueError(f"{self.config.dataset.dataset_name} not supported for pretrain")
         elif self.config.train.pretrain == "suff":
@@ -200,6 +204,9 @@ class Pipeline:
             performance_bar_det_loss = 100
         elif self.config.train.pretrain == "degenerate":
             if self.config.dataset.dataset_name == "MNIST":
+                performance_bar = 0.95
+                performance_bar_clf_loss = 0.08 #0.03
+            elif self.config.dataset.dataset_name == "MUTAG":
                 performance_bar = 0.95
                 performance_bar_clf_loss = 0.08 #0.03
             else:
