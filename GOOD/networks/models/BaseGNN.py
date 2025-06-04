@@ -223,8 +223,8 @@ class BasicEncoder(torch.nn.Module):
                 aggregate_type="add",
                 readout_type="add",
                 combine_type="mlp",
-                combine_layers=3 if config.dataset.dataset_name == "MNIST" else 2,
-                num_mlp_layers=3 if config.dataset.dataset_name == "MNIST" else 2,
+                combine_layers=3 if config.dataset.dataset_name in ("MNIST", "MUTAG") else 2,
+                num_mlp_layers=3 if config.dataset.dataset_name in ("MNIST", "MUTAG") else 2,
                 no_bias=no_bias,
                 use_bn=config.use_readout_norm == "bn"
             )
