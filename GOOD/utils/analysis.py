@@ -844,7 +844,7 @@ def evaluate_metric(args):
     for split in splits:
         print(f"\nEval split {split.upper()}")
         for metric in args.metrics.split("/"):
-            for div in ["TV", "predicted"]:
+            for div in ["predicted"]:
                 for c in range(10):
                     if f"{c}_{div}" not in metrics_score[split][metric][i].keys():
                         continue

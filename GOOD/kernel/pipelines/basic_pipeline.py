@@ -193,28 +193,31 @@ class Pipeline:
         if self.config.train.pretrain == "suff":
             if self.config.dataset.dataset_name == "MNIST":
                 performance_bar = 0.95
-                performance_bar_loss = 0.08
+                performance_bar_clf_loss = 0.08
             else:
                 performance_bar = 0.95
-                performance_bar_loss = 0.01
+                performance_bar_clf_loss = 0.01
+            performance_bar_det_loss = 100
         elif self.config.train.pretrain == "degenerate":
             if self.config.dataset.dataset_name == "MNIST":
                 performance_bar = 0.95
-                performance_bar_loss = 0.08 #0.03
+                performance_bar_clf_loss = 0.08 #0.03
             else:
                 performance_bar = 0.99
-                performance_bar_loss = 0.01
+                performance_bar_clf_loss = 0.01
+            performance_bar_det_loss = 100
         elif self.config.train.pretrain == "sub":
-            performance_bar = 0.95
-            performance_bar_loss = 0.03
+            performance_bar = 0.98
+            performance_bar_clf_loss = 0.01
+            performance_bar_det_loss = 0.01
         else:
             assert False
 
-        f1_pos_epoch, f1_neg_epoch, acc_epoch, loss_epoch = 0, 0, 0, 10
-        f1_pos_epoch_val, f1_neg_epoch_val, acc_epoch_val, loss_epoch_val = 0, 0, 0, 10
+        f1_pos_epoch, f1_neg_epoch, acc_epoch, clf_loss_epoch, det_loss_epoch = 0, 0, 0, 10, 10
+        f1_pos_epoch_val, f1_neg_epoch_val, acc_epoch_val, clf_loss_epoch_val, det_loss_epoch = 0, 0, 0, 10, 10
         epoch = -1
         # while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or loss_epoch > performance_bar_loss:
-        while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or loss_epoch > performance_bar_loss:
+        while min(f1_pos_epoch, f1_neg_epoch, acc_epoch) < performance_bar or clf_loss_epoch > performance_bar_clf_loss or det_loss_epoch > performance_bar_det_loss:
             epoch += 1
             self.config.train.epoch = epoch
             print(f'\nEpoch {epoch}:')
@@ -261,7 +264,7 @@ class Pipeline:
                 # Weighted Cross-Entropy Loss
                 loss_weight = targets.clone()
                 loss_weight[targets == 0] = 1
-                loss_weight[targets == 1] = 10 # TODO: 10 for BAColor; 100 for MNIST
+                loss_weight[targets == 1] = 100 # TODO: 10 for BAColor; 100 for MNIST
                 detector_loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
 
                 self.ood_algorithm.backward(detector_loss + clf_loss)
@@ -289,7 +292,8 @@ class Pipeline:
             f1_pos_epoch = np.mean(per_batch_metrics['f1_pos'])
             f1_neg_epoch = np.mean(per_batch_metrics['f1_neg'])
             acc_epoch = np.mean(per_batch_metrics['task_score'])
-            loss_epoch = np.mean(per_batch_metrics['clf_loss'])
+            clf_loss_epoch = np.mean(per_batch_metrics['clf_loss'])
+            det_loss_epoch = np.mean(per_batch_metrics['loss'])
 
 
             ##
@@ -363,8 +367,8 @@ class Pipeline:
             print(max(per_batch_metrics["loss"]), min(per_batch_metrics["task_score"]))
             
             print(
-                f"Detector Loss: {np.mean(per_batch_metrics['loss']):.4f} " +
-                f"Clf Loss: {loss_epoch:.4f} " +
+                f"Detector Loss: {det_loss_epoch:.4f} " +
+                f"Clf Loss: {clf_loss_epoch:.4f} " +
                 f"F1_pos: {f1_pos_epoch:.2f} " +
                 f"F1_neg: {f1_neg_epoch:.2f} " +
                 f"Acc: {acc_epoch:.2f}"
