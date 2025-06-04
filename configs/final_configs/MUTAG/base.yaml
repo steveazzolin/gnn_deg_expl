@@ -1,27 +1,27 @@
 includes:
   - ../base.yaml
 model:
-  model_layer: 3
+  backbone: ACR2
+  model_layer: 2
+  gnn_clf_layer: 2
   global_pool: sum
   dim_hidden: 64
   dim_ffn: 64
-  dropout_rate: 0.3
+  dropout_rate: 0.0
 train:
   num_steps: 10
   mile_stones: [150]
   max_epoch: 100
-  train_bs: 128
+  train_bs: 64
   val_bs: 128
   test_bs: 128
-  weight_decay: 0.001
+  weight_decay: 0.0
   lr: 0.001
-  lr_filternode: 0.001
-  channel_weight_decay: 0.001
-  combinator_weight_decay: 0.001
-  channel_int: null
-  end_temp: 0.6
 dataset:
   dataset_name: MUTAG
   domain: basis
   generate: false
 use_norm: none
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted
