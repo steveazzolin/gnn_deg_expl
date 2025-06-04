@@ -1190,9 +1190,9 @@ def plot_explanations(args):
                     if config.metric.dataset_task == 'Multi-label classification':
                         pred = ret[split]["pred"][i].softmax(dim=0)[1].item()
                     else:
-                        pred = ret[split]["pred"][i].sigmoid().item()
+                        pred = round(ret[split]["pred"][i].sigmoid().item(), 3)
 
-                title = f"Idx: {i:<3} Class={int(data.y.item())} Pred={pred}"
+                title = f"Idx: {i:<3} Class={int(data.y.item())} Pred={pred:<5}"
 
                 if normalize:
                     expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
@@ -1203,7 +1203,8 @@ def plot_explanations(args):
                     data.edge_mask = torch.ones_like(data.edge_index[0])
                     fidm = pipeline.compute_metric(metric="fidm", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
                     fidp = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
-                    title += f" FIDM={fidm:.2f} FIDP={fidp:.2f}"
+                    suff_cause = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                    title += f" FIDM={fidm:.2f} FIDP={fidp:.2f} SUFF_CAUSE={suff_cause:.2f}"
 
                 g = to_networkx(data, node_attrs=["x"], to_undirected=True)
                 xai_utils.draw_colored(
