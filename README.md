@@ -66,6 +66,12 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seed
 goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task train --pretrain sub
 goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task train --pretrain sub --backbone ACR2
 
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain suff
+goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain sub
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain suff --backbone ACR2
+
 
 # BAColorGVIsolated (DIR - ACR k=0.1)
 # BAColorGVIsolated (DIR - ACR k=0.5)
