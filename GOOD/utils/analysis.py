@@ -10,6 +10,7 @@ from GOOD.ood_algorithms.ood_manager import load_ood_alg
 from GOOD.utils.logger import load_logger
 from GOOD.utils.metric import assign_dict
 from GOOD.utils.loader import initialize_model_dataset
+from GOOD.networks.models.DIRGNN import split_graph_node
 import GOOD.kernel.pipelines.xai_metric_utils as xai_utils
 from GOOD.definitions import ROOT_DIR
 
@@ -1123,7 +1124,6 @@ def plot_explanations(args):
     for l, load_split in enumerate(load_splits):
         print("\n\n" + "-"*50)
 
-        edge_scores_seed = []
         for i, seed in enumerate(args.seeds.split("/")):
             print(f"GENERATING PLOT FOR LOAD SPLIT = {load_split} AND SEED {seed}\n\n")
             seed = int(seed)        
@@ -1151,15 +1151,14 @@ def plot_explanations(args):
                 normalize = True
 
             # GET EXPLANATIONS
-            ret = pipeline.get_node_explanations(num_samples=20)
+            N = 20
+            ret = pipeline.get_node_explanations(num_samples=N)
 
             # PLOT GRAPHS
             thr = 0.5
             compute_fid = True
+            topK_nodes_kept = None
             for i in range(len(ret[split]["samples"])):
-                if i < 0 or i > 20:
-                    continue
-
                 data = ret[split]["samples"][i]
                 expl = ret[split]["scores"][i]
 
@@ -1188,7 +1187,7 @@ def plot_explanations(args):
                     pred = ret[split]["pred"][i].argmax(dim=0)
                 else:
                     if config.metric.dataset_task == 'Multi-label classification':
-                        pred = ret[split]["pred"][i].softmax(dim=0)[1].item()
+                        pred = round(ret[split]["pred"][i].softmax(dim=0)[1].item(), 3)
                     else:
                         pred = round(ret[split]["pred"][i].sigmoid().item(), 3)
 
@@ -1197,13 +1196,22 @@ def plot_explanations(args):
                 if normalize:
                     expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
 
+                if "DIR" in config.model.model_name:
+                    if i == 0:
+                        print(f"Highlightinh nodes in the Top-{config.ood.ood_param}%")
+                    # Highlight TopK nodes
+                    (causal_x, causal_edge_index, causal_edge_attr, causal_batch, causal_node_weight), \
+                        (conf_x, conf_edge_index, conf_edge_attr, conf_batch, conf_node_weight), \
+                            (topK_nodes_kept, topK_nodes_removed) = split_graph_node(data, torch.tensor(expl, device=data.x.device), config.ood.ood_param, embed=None, use_input_feat=True)
+                    topK_nodes_kept = topK_nodes_kept.cpu().tolist()
+
                 if compute_fid:
                     data.node_expl = torch.tensor(expl, device=data.x.device)
                     data.node_mask = data.node_expl >= thr
                     data.edge_mask = torch.ones_like(data.edge_index[0])
                     fidm = pipeline.compute_metric(metric="fidm", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
                     fidp = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
-                    suff_cause = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                    suff_cause = pipeline.compute_metric(metric="suff_cause", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
                     title += f" FIDM={fidm:.2f} FIDP={fidp:.2f} SUFF_CAUSE={suff_cause:.2f}"
 
                 g = to_networkx(data, node_attrs=["x"], to_undirected=True)
@@ -1216,7 +1224,8 @@ def plot_explanations(args):
                     thrs=thr,
                     title=title,
                     with_labels=False,
-                    figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8)
+                    figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8),
+                    topk=topK_nodes_kept
                 )
                 print(f"graph {title}")
 
