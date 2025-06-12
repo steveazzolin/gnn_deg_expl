@@ -7,6 +7,7 @@ import os
 import os.path as osp
 import pickle as pkl
 from collections import defaultdict
+import matplotlib.pyplot as plt
 
 import torch
 from munch import Munch
@@ -99,6 +100,41 @@ class MUTAG(InMemoryDataset):
         train_dataset = dataset[index_train]
         id_val_dataset = dataset[index_val]
         id_test_dataset = dataset[index_test]
+
+        
+        # print(dataset)
+        # print(dataset[0])
+        # print(dataset[0].node_type)
+        # print(dataset[0].x)
+        # print(np.unique([g.y.item() for g in dataset], return_counts=True))
+        # print()
+
+        # count = defaultdict(int)
+        # H_count_per_label = defaultdict(list)
+        # for g in dataset:
+        #     # if g.y.item() == 1:
+        #         # continue
+
+        #     # if sum(g.node_type == 3) >= 1:
+        #     #     continue
+
+        #     for n in range(14):
+        #         if n in g.node_type:
+        #             count[n] += 1
+
+        #     H_count_per_label[g.y.item()].append(sum(g.node_type == 0).item())
+
+        # plt.hist(H_count_per_label[0], label="y=0", alpha=0.5)
+        # plt.hist(H_count_per_label[1], label="y=1", alpha=0.5)
+        # plt.ylabel("frequency")
+        # plt.xlabel("count of C present in the graph")
+        # plt.legend()
+        # plt.savefig("GOOD/kernel/pipelines/plots/mutag_distrib_of_C_per_class.png")
+        # plt.close()
+
+        # print()
+        # print(count)
+        # exit("AIO")
 
 
         meta_info.dim_node = train_dataset.num_node_features
