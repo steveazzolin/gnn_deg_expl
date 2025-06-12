@@ -112,13 +112,14 @@ def main():
                 for l in ("spec_loss", "entr_loss", "l_norm_loss", "clf_loss", "total_loss"):
                     test_losses[s][l].append(sa["loss_dict"][l])
         elif config.task == 'test':
+            compute_clf_only_pred = False #(s == "val"),
             test_score, ckpt = pipeline.load_task(load_param=True, load_split="id")
 
             for s in ["train", "id_val", "id_test", "val", "test"]:
                 sa = pipeline.evaluate(
                     s,
                     compute_wiou=False,
-                    compute_clf_only_pred=(s == "val"),
+                    compute_clf_only_pred=compute_clf_only_pred, 
                     epoch=ckpt["epoch"]
                 )
                 test_scores[s].append(sa['score'])
@@ -130,7 +131,7 @@ def main():
                 for l in ("spec_loss", "entr_loss", "l_norm_loss", "clf_loss", "total_loss"):
                     test_losses[s][l].append(sa["loss_dict"][l])
 
-                if s == "val":
+                if compute_clf_only_pred:
                     print("Predictions on VAL: \t", sa['pred'][0])
                     print("CLF Predictions VAL: \t", sa['pred_clf_only'][0])
 
