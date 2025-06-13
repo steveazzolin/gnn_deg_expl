@@ -34,7 +34,7 @@ from GOOD.utils.register import register
 from GOOD.utils.train import nan2zero_get_mask
 from GOOD.utils.initial import reset_random_seed
 import GOOD.kernel.pipelines.xai_metric_utils as xai_utils
-from GOOD.utils.splitting import split_graph, sparse_sort, relabel
+from GOOD.networks.models.DIRGNN import split_graph_node
 
 import wandb
 
@@ -210,8 +210,12 @@ class Pipeline:
                 performance_bar = 0.95
                 performance_bar_clf_loss = 0.08 #0.03
             else:
-                performance_bar = 0.99
-                performance_bar_clf_loss = 0.01
+                if self.config.model.model_name == "DIR":
+                    performance_bar = 0.99
+                    performance_bar_clf_loss = 0.011 # otherwise training gets stuck at 0.011
+                else:
+                    performance_bar = 0.99
+                    performance_bar_clf_loss = 0.01
             performance_bar_det_loss = 100
         elif self.config.train.pretrain == "sub":
             performance_bar = 0.98
@@ -266,7 +270,7 @@ class Pipeline:
                 targets = self.get_pretrain_targets(data)
 
                 uninformative_value = 0 #self.config.ood.extra_param[2] if "GSAT" in self.config.model.model_name else 0.
-                targets[targets == 0] = uninformative_value                
+                targets[targets == 0] = uninformative_value
                 
                 # Weighted Cross-Entropy Loss
                 loss_weight = targets.clone()
@@ -679,6 +683,14 @@ class Pipeline:
 
                             # compute binary node mask based on threshold here for convenience
                             new_g.node_mask = new_g.node_expl >= thr
+
+                            if self.config.model.model_name == "DIR":
+                                # remove nodes not in the TopK
+                                (causal_x, causal_edge_index, causal_edge_attr, causal_batch, causal_node_weight), \
+                                    (conf_x, conf_edge_index, conf_edge_attr, conf_batch, conf_node_weight), \
+                                        (topK_nodes_kept, topK_nodes_removed) = split_graph_node(g, new_g.node_expl, self.config.ood.ood_param, embed=None, use_input_feat=True)
+                                assert topK_nodes_kept.shape[0] + topK_nodes_removed.shape[0] == g.x.shape[0]
+                                new_g.node_mask[topK_nodes_removed] = False
                             
                             # compute binary edge mask from previous node mask
                             # take the node induced subgraph as topological explanation
@@ -920,8 +932,13 @@ class Pipeline:
         )
 
         # print(aggr["TV"][55])
-        # print(aggr["predicted"][55])
+        # print(len(aggr["predicted"]))
+        # print(torch.nonzero(aggr["predicted"] < 0.4))
+        # print(aggr["predicted"][1])
         # exit("vabbuo")
+        # print(graphs[1])
+        # print(graphs[1].y)
+        # exit()
         
         ##
         # Store and print metric values
