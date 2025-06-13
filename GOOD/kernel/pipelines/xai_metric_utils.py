@@ -268,7 +268,7 @@ def get_color_based_on_dataset(config, x):
         # node_colors = [color_map[atype] for atype in atom_types]
         return plt.cm.tab10(atom_type % 14)
 
-def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None):
+def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None, topk=None):
     plt.figure(figsize=figsize)
 
     node_gt = list(nx.get_node_attributes(G, "node_gt").values())
@@ -302,7 +302,10 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
 
     if config.dataset.dataset_name != "MUTAG":
         if node_expl is not None:
-            node_labels = {u: "E" if score >= thrs else "" for u, score in enumerate(node_expl)}
+            if thrs is not None:
+                node_labels = {u: "E" if score >= thrs else "" for u, score in enumerate(node_expl)}
+            else:
+                node_labels = {u: "E" if is_relev else "" for u, is_relev in enumerate(list(nx.get_node_attributes(G, "node_mask").values()))}
         else:
             assert False, "Not implemented"
             edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
@@ -344,6 +347,15 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
             font_size=6,
             alpha=0.8
         )
+
+    if topk is not None:
+        from matplotlib.patches import Circle
+
+        ax = plt.gca()
+        for node in topk:
+            x, y = pos[node]
+            circle = Circle((x, y), radius=0.05, edgecolor='grey', facecolor='none', linewidth=1)
+            ax.add_patch(circle)
     
     plt.suptitle(title)
 
@@ -359,8 +371,7 @@ def draw_colored(config, G, name, thrs, node_expl=None, edge_expl="", subfolder=
     else:
         plt.show()
 
-    if ax is None:
-        plt.close()
+    plt.close()
     return pos
 
 def random_attach(S, T):
