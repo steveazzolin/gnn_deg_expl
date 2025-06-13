@@ -56,11 +56,11 @@ class DIR(BaseOODAlg):
             model raw predictions.
 
         """
-        if isinstance(model_output, tuple):
-            (self.rep_out_ori, self.rep_out), self.causal_out, self.conf_out, self.edge_att = model_output
-        else:
-            self.causal_out = model_output
-            self.rep_out, self.conf_out = None, None
+        # if len(model_output) == 4:
+        (self.rep_out_ori, self.rep_out), self.causal_out, self.conf_out, (self.att, self.edge_att) = model_output
+        # else:
+        #     self.causal_out, self.att, self.edge_att = model_output
+        #     self.rep_out, self.conf_out = None, None
         return self.causal_out
 
     def loss_calculate(self, raw_pred: Tensor, targets: Tensor, mask: Tensor, node_norm: Tensor,
@@ -90,7 +90,7 @@ class DIR(BaseOODAlg):
 
         if self.rep_out is not None:
             causal_loss = (config.metric.loss_func(raw_pred, targets, reduction='none') * mask).sum() / mask.sum()
-            conf_loss = (config.metric.loss_func(self.conf_out, targets, reduction='none') * mask).sum() / mask.sum()
+            conf_loss   = (config.metric.loss_func(self.conf_out, targets, reduction='none') * mask).sum() / mask.sum()
 
             #  ORIGINAL VERSION
             # env_loss2 = torch.tensor([]).to(config.device)

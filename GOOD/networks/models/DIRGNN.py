@@ -76,15 +76,9 @@ class DIR(GNNBasic):
         data = kwargs.get('data')
         batch_size = data.batch[-1].item() + 1
 
-        # print()
-        # print(data.x[data.batch==0].sum(0), data.y[0])
-        # print(data.x[data.batch==1].sum(0), data.y[1])
-        # print(self.classifierS.classifier[0].weight)
-        # print(self.conf_classifierS.classifier[0].weight)
-
         (causal_x, causal_edge_index, causal_edge_attr, causal_node_weight, causal_edge_weight, causal_batch), \
         (conf_x, conf_edge_index, conf_edge_attr, conf_node_weight, conf_edge_weight, conf_batch), \
-            (node_att) = self.att_net(*args, **kwargs)
+            (node_att_logit, node_att) = self.att_net(*args, **kwargs)
 
         # --- Causal repr ---
         set_masks(causal_edge_weight, self, causal_node_weight)
@@ -98,63 +92,59 @@ class DIR(GNNBasic):
 
         self.edge_mask = causal_edge_weight
 
-        if self.training:
+        # if self.training:
             # --- Conf repr ---
-            # Not using weighted message passing for the confounded part because
-            # if the scores have an importance around zero then the conf_classifier
-            # might not predict the conf label correctly.
-            # set_masks(conf_edge_weight, self, conf_node_weight)
-
-            conf_rep = self.get_graph_rep(
-                data=Data(x=conf_x, edge_index=conf_edge_index,
-                          edge_attr=conf_edge_attr, batch=conf_batch),
-                batch_size=batch_size
-            ).detach()
-            conf_out = self.get_conf_pred(conf_rep)
-
-            # clear_masks(self)
-
-            # --- combine to causal phase (detach the conf phase) ---
-            rep_out = None
-            # rep_out = []
-            # for idx, conf in enumerate(conf_rep):
-            #     rep_out.append(self.get_comb_pred(causal_rep, conf))
-            # rep_out = torch.stack(rep_out, dim=0)
-            # DEBUG EFFICIENT VERSION
-            # assert torch.allclose(rep_out, rep_out2, atol=1e-6)
-
-            # --- combine to causal phase (Optimized version) ---
-            rep_out2 = torch.transpose(
-                self.get_comb_pred_eff(causal_rep, conf_rep),
-                0,
-                1
-            ) # rep_out2[i] contains a tensor with every causal_rep keeping fixed conf_rep[i]
             
-            # print()
-            # print("causal_x:", causal_x[causal_batch==0].sum(0), causal_x[causal_batch==1].sum(0))
-            # print("conf_x:", conf_x[conf_batch==0].sum(0), conf_x[conf_batch==1].sum(0))
-            # print()
-            # print("causal_out:", causal_out, causal_out.sigmoid())
-            # print("conf_out:", conf_out, conf_out.sigmoid())
-            # print("rep_out2:", rep_out2, rep_out2.sigmoid())
+        set_masks(conf_edge_weight, self, conf_node_weight)
+        conf_rep = self.get_graph_rep(
+            data=Data(x=conf_x, edge_index=conf_edge_index,
+                        edge_attr=conf_edge_attr, batch=conf_batch),
+            batch_size=batch_size
+        ).detach()
+        conf_out = self.get_conf_pred(conf_rep)
+        clear_masks(self)
+
+        # --- combine to causal phase (detach the conf phase) ---
+        rep_out = None
+        # rep_out = []
+        # for idx, conf in enumerate(conf_rep):
+        #     rep_out.append(self.get_comb_pred(causal_rep, conf))
+        # rep_out = torch.stack(rep_out, dim=0)
+        # DEBUG EFFICIENT VERSION
+        # assert torch.allclose(rep_out, rep_out2, atol=1e-6)
+
+        # --- combine to causal phase (Optimized version) ---
+        rep_out2 = torch.transpose(
+            self.get_comb_pred_eff(causal_rep, conf_rep),
+            0,
+            1
+        ) # rep_out2[i] contains a tensor with every causal_rep keeping fixed conf_rep[i]
+        
+        # print()
+        # print("causal_x:", causal_x[causal_batch==0].sum(0), causal_x[causal_batch==1].sum(0))
+        # print("conf_x:", conf_x[conf_batch==0].sum(0), conf_x[conf_batch==1].sum(0))
+        # print()
+        # print("causal_out:", causal_out, causal_out.sigmoid())
+        # print("conf_out:", conf_out, conf_out.sigmoid())
+        # print("rep_out2:", rep_out2, rep_out2.sigmoid())
 
 
-            # targets = data.y 
-            # tmp = self.config.metric.loss_func(
-            #     rep_out2.reshape(rep_out2.shape[0] * rep_out2.shape[0], 2), 
-            #     targets.expand(targets.shape[0], -1, 2).reshape(rep_out2.shape[0] * rep_out2.shape[0], 2),
-            #     reduction='none'
-            # )            
-            # print()
-            # tmp = tmp.reshape(rep_out2.shape[0], rep_out2.shape[0])
-            # tmp = tmp.mean(-1)
-            # print("mean_loss:", tmp.mean())
-            # exit("deb")
+        # targets = data.y 
+        # tmp = self.config.metric.loss_func(
+        #     rep_out2.reshape(rep_out2.shape[0] * rep_out2.shape[0], 2), 
+        #     targets.expand(targets.shape[0], -1, 2).reshape(rep_out2.shape[0] * rep_out2.shape[0], 2),
+        #     reduction='none'
+        # )            
+        # print()
+        # tmp = tmp.reshape(rep_out2.shape[0], rep_out2.shape[0])
+        # tmp = tmp.mean(-1)
+        # print("mean_loss:", tmp.mean())
+        # exit("deb")
 
 
-            return (rep_out, rep_out2), causal_out, conf_out, node_att
-        else:
-            return causal_out
+        return (rep_out, rep_out2), causal_out, conf_out, (node_att_logit, node_att)
+        # else:
+            # return causal_out, node_att_logit, node_att
 
     def get_graph_rep(self, *args, **kwargs):
         return self.gnn_clf(*args, **kwargs)
@@ -177,6 +167,7 @@ class DIR(GNNBasic):
     
     @torch.no_grad()
     def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False, *args, **kwargs):
+        assert False
         # if self.gnn_clf:
         #     lc_logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         # else:
@@ -211,26 +202,17 @@ class DIR(GNNBasic):
     
     @torch.no_grad()
     def get_subgraph(self, *args, **kwargs):
-        data = kwargs.get('data') or None
-        batch_size = data.batch[-1].item() + 1
-        data.ori_x = data.x
+        (rep_out, rep_out2), causal_out, conf_out, (node_att_logit, node_att) = self.forward(*args, **kwargs)
+        return self.edge_mask, node_att, causal_out
+    
+    @torch.no_grad()
+    def probs(self, *args, **kwargs):
+        (rep_out, rep_out2), causal_out, conf_out, (node_att_logit, node_att) = self(*args, **kwargs)
 
-        (causal_x, causal_edge_index, causal_edge_attr, causal_node_weight, causal_edge_weight, causal_batch), \
-            (conf_x, conf_edge_index, conf_edge_attr, conf_node_weight, conf_edge_weight, conf_batch), \
-                (node_att) = self.att_net.get_full_graph_explanation(*args, **kwargs)
-
-        set_masks(causal_edge_weight, self, causal_node_weight)
-
-        causal_rep = self.get_graph_rep(
-            data=Data(x=causal_x, edge_index=causal_edge_index,
-                      edge_attr=causal_edge_attr, batch=causal_batch),
-            batch_size=batch_size
-        )
-        logits = self.get_causal_pred(causal_rep)
-
-        clear_masks(self)
-
-        return None, node_att, logits
+        if causal_out.shape[-1] > 1:
+            return causal_out.softmax(dim=1)
+        else:
+            return causal_out.sigmoid()
 
 @register.model_register
 class DIRvGIN(DIR):
@@ -287,11 +269,10 @@ class CausalAttNet(nn.Module):
     def forward(self, *args, **kwargs):
         data = kwargs.get('data') or None
 
-        x = self.gnn_node(*args, **kwargs) # extract node embeddigns
+        x = self.gnn_node(*args, **kwargs)
 
-        # WARNING this are log_logits
         att_log_logits = self.extractor(x, data.edge_index, data.batch)
-        att = att_log_logits.sigmoid() # Added by me
+        att = att_log_logits.sigmoid() # WARNING: Not in the original implementation
 
         if data.edge_index.shape[1] != 0:
             if self.learn_edge_att:
@@ -359,7 +340,8 @@ class CausalAttNet(nn.Module):
 
         return (causal_x, causal_edge_index, causal_edge_attr, causal_node_weight, causal_edge_weight, causal_batch), \
                (conf_x, conf_edge_index, conf_edge_attr, conf_node_weight, conf_edge_weight, conf_batch), \
-               (att)
+               (att_log_logits, att)
+
     
     def get_full_graph_explanation(self, *args, **kwargs):
         assert not self.learn_edge_att
@@ -392,7 +374,7 @@ class CausalAttNet(nn.Module):
 
 def split_graph(data, edge_score, ratio):
     r"""
-    Adapted from https://github.com/wuyxin/dir-gnn.
+        Adapted from https://github.com/wuyxin/dir-gnn.
     """
     has_edge_attr = hasattr(data, 'edge_attr') and getattr(data, 'edge_attr') is not None
 
@@ -415,9 +397,13 @@ def split_graph(data, edge_score, ratio):
 
 def split_graph_node(data, node_score, ratio, embed, use_input_feat):
     r"""
-    Adapted from https://github.com/wuyxin/dir-gnn.
+        Adapted from https://github.com/wuyxin/dir-gnn.
     """
-    new_idx_reserve, new_idx_drop, _, _, _ = sparse_topk(node_score.view(-1), data.batch, ratio, descending=True)
+    batch = data.batch
+    if batch is None:
+        batch = torch.zeros(data.x.shape[0], device=data.x.device, dtype=torch.long)    
+
+    new_idx_reserve, new_idx_drop, _, _, _ = sparse_topk(node_score.view(-1), batch, ratio, descending=True)
 
     new_causal_edge_index, new_causal_edge_attr = subgraph(
         subset=new_idx_reserve,
@@ -443,11 +429,11 @@ def split_graph_node(data, node_score, ratio, embed, use_input_feat):
         causal_x = embed[new_idx_reserve]
         conf_x = embed[new_idx_drop]
 
-    causal_batch = data.batch[new_idx_reserve]
-    conf_batch = data.batch[new_idx_drop]
+    causal_batch = batch[new_idx_reserve]
+    conf_batch = batch[new_idx_drop]
 
     causal_node_weight = node_score[new_idx_reserve]
-    conf_node_weight = node_score[new_idx_drop]
+    conf_node_weight = -1 * node_score[new_idx_drop]
 
     # S1 = Data(x=data.x[new_idx_reserve], edge_index=new_causal_edge_index, ori_node_idx=new_idx_reserve)
     # S2 = Data(x=data.x[new_idx_drop],    edge_index=new_conf_edge_index, ori_node_idx=new_idx_drop)
@@ -538,9 +524,9 @@ def sparse_sort(src: torch.Tensor, index: torch.Tensor, dim=0, descending=False,
     '''
     f_src = src.float()
     f_min, f_max = f_src.min(dim)[0], f_src.max(dim)[0]
-    norm = (f_src - f_min) / (f_max - f_min + eps) + index.float() * (-1) ** int(descending)
+    # norm = (f_src - f_min) / (f_max - f_min + eps) + (index.float()+1) * (-1) ** int(descending)
+    norm = f_src + index.float() * (-1) ** int(descending) # WARNING: Only if using sigmoided attention scores
     perm = norm.argsort(dim=dim, descending=descending)
-
     return src[perm], perm
 
 
