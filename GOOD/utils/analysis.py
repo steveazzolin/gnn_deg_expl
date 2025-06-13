@@ -1159,8 +1159,12 @@ def plot_explanations(args):
             compute_fid = True
             topK_nodes_kept = None
             for i in range(len(ret[split]["samples"])):
-                data = ret[split]["samples"][i]
+                data = ret[split]["samples"][i].cpu()
                 expl = ret[split]["scores"][i]
+
+                data.node_expl = torch.tensor(expl, device=data.x.device)
+                data.node_mask = data.node_expl >= thr
+                data.edge_mask = torch.ones_like(data.edge_index[0])
 
                 # data.x[data.sp_order == data.sp_order.max(), :3] = torch.tensor([1,0,0], device=data.x.device, dtype=data.x.dtype)
                 # def raster_scan_sort(coords: torch.Tensor) -> torch.Tensor:
@@ -1199,29 +1203,30 @@ def plot_explanations(args):
                 if "DIR" in config.model.model_name:
                     if i == 0:
                         print(f"Highlightinh nodes in the Top-{config.ood.ood_param}%")
+
                     # Highlight TopK nodes
                     (causal_x, causal_edge_index, causal_edge_attr, causal_batch, causal_node_weight), \
                         (conf_x, conf_edge_index, conf_edge_attr, conf_batch, conf_node_weight), \
                             (topK_nodes_kept, topK_nodes_removed) = split_graph_node(data, torch.tensor(expl, device=data.x.device), config.ood.ood_param, embed=None, use_input_feat=True)
                     topK_nodes_kept = topK_nodes_kept.cpu().tolist()
 
+                    # remove nodes not in the TopK
+                    assert len(topK_nodes_kept) + topK_nodes_removed.shape[0] == data.x.shape[0]
+                    data.node_mask[topK_nodes_removed] = False
+
                 if compute_fid:
-                    data.node_expl = torch.tensor(expl, device=data.x.device)
-                    data.node_mask = data.node_expl >= thr
-                    data.edge_mask = torch.ones_like(data.edge_index[0])
                     fidm = pipeline.compute_metric(metric="fidm", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
                     fidp = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
                     suff_cause = pipeline.compute_metric(metric="suff_cause", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
                     title += f" FIDM={fidm:.2f} FIDP={fidp:.2f} SUFF_CAUSE={suff_cause:.2f}"
 
-                g = to_networkx(data, node_attrs=["x"], to_undirected=True)
+                g = to_networkx(data, node_attrs=["x", "node_mask"], to_undirected=True)
                 xai_utils.draw_colored(
                     config,
                     g,
                     node_expl=expl,
                     subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
                     name=f"graph_{split}_{i}",
-                    thrs=thr,
                     title=title,
                     with_labels=False,
                     figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8),
