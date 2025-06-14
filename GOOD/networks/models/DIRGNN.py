@@ -57,8 +57,8 @@ class DIR(GNNBasic):
             output_dim = config.dataset.num_classes
 
         self.learn_edge_att = config.ood.extra_param[0]
-        self.classifierS = Classifier(config, output_dim=output_dim, is_linear=config.model.gnn_clf_layer==0)
-        self.conf_classifierS = Classifier(config, output_dim=output_dim, is_linear=config.model.gnn_clf_layer==0)
+        self.classifierS = Classifier(config, output_dim=output_dim, is_linear=False)
+        self.conf_classifierS = Classifier(config, output_dim=output_dim, is_linear=False)
         self.edge_mask = None
 
     def forward(self, *args, **kwargs):
@@ -167,7 +167,6 @@ class DIR(GNNBasic):
     
     @torch.no_grad()
     def predict_from_subgraph(self, edge_att=False, log=None, eval_kl=None, node_att=False, *args, **kwargs):
-        assert False
         # if self.gnn_clf:
         #     lc_logits = self.classifierS(self.gnn_clf(*args, **kwargs))
         # else:
@@ -182,10 +181,11 @@ class DIR(GNNBasic):
 
         if log is None:
             if lc_logits.shape[-1] > 1:
-                return lc_logits.argmax(-1)
+                return lc_logits.softmax(-1)
             else:
                 return lc_logits.sigmoid()
         else:
+            assert False
             assert not (eval_kl is None)
             if lc_logits.shape[-1] > 1:
                 return lc_logits.log_softmax(dim=1)
