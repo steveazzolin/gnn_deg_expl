@@ -86,8 +86,6 @@ class DIR(BaseOODAlg):
             loss based on DIR algorithm
 
         """
-
-
         if self.rep_out is not None:
             causal_loss = (config.metric.loss_func(raw_pred, targets, reduction='none') * mask).sum() / mask.sum()
             conf_loss   = (config.metric.loss_func(self.conf_out, targets, reduction='none') * mask).sum() / mask.sum()

@@ -121,6 +121,11 @@ class BaseOODAlg(ABC):
         self.clf_loss = loss.detach().mean().item()
         return loss
     
+    def loss_classifier(self, raw_pred: Tensor, targets: Tensor, mask: Tensor, node_norm: Tensor,
+                       config: Union[CommonArgs, Munch], batch: Tensor = None) -> Tensor:
+        loss = config.metric.loss_func(raw_pred, targets, reduction='none') * mask
+        self.clf_loss = loss.detach().mean().item()
+        return loss    
 
     def entropy_loss(logits, return_raw=False):
         logp = torch.log(logits + 0.0000000001)
