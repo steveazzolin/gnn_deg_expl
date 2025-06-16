@@ -2,83 +2,47 @@ set -e
 
 echo "Time to train models!"
 
-GPU=1
-SEEDS="1/2/3/4/5/6/7/8/9/10"
+GPU=0
+SEEDS="1/2/3/4/5"
 
 
 
 for DATASET in MNIST/basis/no_shift; do
-       goodtg --config_path final_configs/${DATASET}/SMGNN.yaml \
+       goodtg --config_path final_configs/${DATASET}/DIR.yaml \
               --seeds ${SEEDS} \
               --task train \
-              --average_edge_attn mean \
-              --gpu_idx ${GPU} \
-              --use_norm none \
-              --global_side_channel simple_concept2temperature \
-              --max_epoch 200
+              --backbone ACR2 \
+              --ood_param 0.8 \
+              --use_readout_norm bn \
+              --gpu_idx ${GPU}
+       echo "DONE TRAIN DIR 0.8 ${DATASET}"
 
-       echo "DONE TRAIN GL-SMGNN ${DATASET}"
+       # goodtg --config_path final_configs/${DATASET}/DIR.yaml \
+       #        --seeds ${SEEDS} \
+       #        --task train \
+       #        --backbone ACR2 \
+       #        --ood_param 0.8 \
+       #        --pretrain degenerate \
+       #        --gpu_idx ${GPU}
+       # echo "DONE TRAIN DIR 0.8 DEG ${DATASET}"
 
-       goodtg --config_path final_configs/${DATASET}/GSAT.yaml \
-              --seeds ${SEEDS} \
-              --task train \
-              --average_edge_attn mean \
-              --gpu_idx ${GPU} \
-              --use_norm bn \
-              --global_side_channel simple_concept2temperature \
-              --max_epoch 200
+       # goodtg --config_path final_configs/${DATASET}/DIR.yaml \
+       #        --seeds ${SEEDS} \
+       #        --task train \
+       #        --backbone ACR2 \
+       #        --ood_param 0.1 \
+       #        --gpu_idx ${GPU}
+       # echo "DONE TRAIN DIR 0.1 ${DATASET}"
 
-       echo "DONE TRAIN GL-GSAT ${DATASET}"
-
-       goodtg --config_path final_configs/${DATASET}/GiSST.yaml \
-              --seeds ${SEEDS} \
-              --task train \
-              --average_edge_attn mean \
-              --gpu_idx ${GPU} \
-              --use_norm none \
-              --max_epoch 200
-
-       echo "DONE TRAIN GiSST ${DATASET}"
-
-       goodtg --config_path final_configs/${DATASET}/GiSST.yaml \
-              --seeds ${SEEDS} \
-              --task train \
-              --average_edge_attn mean \
-              --gpu_idx ${GPU} \
-              --use_norm none \
-              --global_side_channel simple_concept2temperature \
-              --max_epoch 200
-
-       echo "DONE TRAIN GiSST ${DATASET}"
-
-       
-
-
-       goodtg --config_path final_configs/${DATASET}/ERM.yaml \
-              --seeds ${SEEDS} \
-              --task train \
-              --gpu_idx ${GPU} \
-              --use_norm bn \
-              --max_epoch 200
-       echo "DONE TRAIN ERM ${DATASET}"
-
-       goodtg --config_path final_configs/${DATASET}/GSAT.yaml \
-              --seeds ${SEEDS} \
-              --task train \
-              --average_edge_attn mean \
-              --gpu_idx ${GPU} \
-              --use_norm bn \
-              --max_epoch 200
-       echo "DONE TRAIN GSAT ${DATASET}"
-
-       goodtg --config_path final_configs/${DATASET}/SMGNN.yaml \
-              --seeds ${SEEDS} \
-              --task train \
-              --average_edge_attn mean \
-              --gpu_idx ${GPU} \
-              --use_norm none \
-              --max_epoch 200
-       echo "DONE TRAIN SMGNN ${DATASET}"
+              
+       # goodtg --config_path final_configs/${DATASET}/DIR.yaml \
+       #        --seeds ${SEEDS} \
+       #        --task train \
+       #        --backbone ACR2 \
+       #        --ood_param 0.1 \
+       #        --pretrain degenerate \
+       #        --gpu_idx ${GPU}
+       # echo "DONE TRAIN DIR 0.1 DEG ${DATASET}"
 done
 
 
