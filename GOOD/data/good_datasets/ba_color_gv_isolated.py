@@ -4,7 +4,7 @@ import random
 import torch
 from munch import Munch
 from torch_geometric.data import InMemoryDataset, Data
-from torch_geometric.utils import from_networkx, shuffle_node, barabasi_albert_graph, erdos_renyi_graph
+from torch_geometric.utils import from_networkx, shuffle_node, barabasi_albert_graph, erdos_renyi_graph, degree
 
 from sklearn.model_selection import train_test_split
 
@@ -12,7 +12,7 @@ from GOOD import register
 from GOOD.utils.synthetic_data.BA3_loc import *
 
 import networkx as nx
-import random
+from collections import defaultdict
 
 
 @register.dataset_register
@@ -59,6 +59,12 @@ class BAColorGVIsolated(InMemoryDataset):
             (0., 1., 0., 0.): "B",
             (0., 0., 1., 0.): "G",
             (0., 0., 0., 1.): "V",
+        }
+        self.color_map2 = {
+            0: "R",
+            1: "B",
+            2: "G",
+            3: "V",
         }
 
         super(BAColorGVIsolated, self).__init__(root, transform, pre_transform)
@@ -153,13 +159,22 @@ class BAColorGVIsolated(InMemoryDataset):
             )
             data_list.extend([data1, data2, data3, data4, data5, data6, data7])
 
-
+        data_zerocolored = Data(
+            x=torch.tensor([
+                [0., 0., 1., 0.],
+                [0., 0., 0., 1.],
+            ]),
+            edge_index=torch.empty(2, 0, dtype=torch.long),
+            y=torch.tensor([[0.]]),
+            node_is_spurious=torch.tensor([1, 1])
+        )
+        data_list.extend([data_zerocolored, data_zerocolored])
 
         for _ in range(self.num_graphs - len(data_list)):
             # Step 1: Generate a random number of nodes
             if self.domain == "basis":
-                num_blue_nodes = random.randint(self.num_nodes_min // 2, self.num_nodes_max // 2)
-                num_red_nodes = random.randint(self.num_nodes_min // 2, self.num_nodes_max // 2)
+                num_blue_nodes = random.randint(0, self.num_nodes_max // 2)
+                num_red_nodes = random.randint(0, self.num_nodes_max // 2)
 
                 x = torch.cat(
                     (
@@ -171,10 +186,13 @@ class BAColorGVIsolated(InMemoryDataset):
                 y = torch.tensor([[0.] if num_red_nodes >= num_blue_nodes else [1.]])
 
             # Step 2: Generate a graph
-            if self.graph_distribution == "BA":
-                edge_index = barabasi_albert_graph(num_nodes=num_blue_nodes + num_red_nodes, num_edges=2)
-            elif self.graph_distribution == "ER":
-                edge_index = erdos_renyi_graph(num_nodes=num_blue_nodes + num_red_nodes, edge_prob=0.2, directed=False)
+            if num_blue_nodes + num_red_nodes >= 3:
+                if self.graph_distribution == "BA":
+                    edge_index = barabasi_albert_graph(num_nodes=num_blue_nodes + num_red_nodes, num_edges=2)
+                elif self.graph_distribution == "ER":
+                    edge_index = erdos_renyi_graph(num_nodes=num_blue_nodes + num_red_nodes, edge_prob=0.2, directed=False)
+            else:
+                edge_index = torch.empty(2, 0, dtype=torch.long)
 
             # Step 3: Assign random node features (color)
             perm = torch.randperm(x.shape[0])
@@ -229,7 +247,7 @@ class BAColorGVIsolated(InMemoryDataset):
         return [f'data_{self.graph_distribution}_numgraphs{self.num_graphs}_min{self.num_nodes_min}_max{self.num_nodes_max}_shift{self.shift}.pt']
     
     @staticmethod
-    def load(dataset_root: str, domain: str= 'basis', shift: str = 'no_shift', generate: bool = False, debias: bool =False, model_name:str=None):
+    def load(dataset_root: str, domain: str= 'basis', shift: str = 'no_shift', generate: bool = False, debias: bool =False, model_name:str=None, add_pos_feat:bool=False):
         r"""
         A staticmethod for dataset loading. This method instantiates dataset class, constructing train, id_val, id_test,
         ood_val (val), and ood_test (test) splits. Besides, it collects several dataset meta information for further
@@ -255,6 +273,11 @@ class BAColorGVIsolated(InMemoryDataset):
         ood2_dataset = BAColorGVIsolated(dataset_root, domain=domain, shift="debug")
         # ood1_dataset = BAColorGVIsolated(dataset_root, domain=domain, shift="size")
         # ood2_dataset = BAColorGVIsolated(dataset_root, domain=domain, shift="ER")
+
+        # if add_pos_feat:
+        #     # Add information about the index of each node. Needed for pretrain sufficiency
+        #     for g in dataset:
+        #         g.x += 0.001 * torch.arange(g.x.shape[0]).reshape(-1, 1).repeat(1,4) * g.x
 
         if "DIR" in model_name:
             dataset._data.y = dataset._data.y.squeeze(-1).long()
