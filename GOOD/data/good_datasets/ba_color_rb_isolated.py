@@ -104,34 +104,52 @@ class BAColorRBIsolated(InMemoryDataset):
             perm = torch.randperm(x.shape[0])
             x = x[perm]
 
-            if y == 0:
-                x = torch.cat(
-                    (
-                        x,
-                        torch.tensor([[1., 0., 0., 0.]]),
-                    ), dim=0
-                )
-                node_is_spurious = torch.cat(
-                    (
-                        torch.tensor(0).repeat(num_blue_nodes + num_red_nodes),
-                        torch.tensor(1).repeat(1),
-                    ),
-                    dim=0
-                )
-            else:
-                x = torch.cat(
-                    (
-                        x,
-                        torch.tensor([[0., 1., 0., 0.]]),
-                    ), dim=0
-                )
-                node_is_spurious = torch.cat(
-                    (
-                        torch.tensor(0).repeat(num_blue_nodes + num_red_nodes),
-                        torch.tensor(1).repeat(1),
-                    ),
-                    dim=0
-                )
+            # COMMENTED IS HOW THE _OLD DATASET WAS GENERATED
+            # WE SWITCHED BECAUSE IT MIGHT HAVE INCLUDED A SPURIOUS CORRELATION BETWEEN ISOLATED
+            # NODES AND THE LABEL
+            # if y == 0:
+            #     x = torch.cat(
+            #         (
+            #             x,
+            #             torch.tensor([[1., 0., 0., 0.]]),
+            #         ), dim=0
+            #     )
+            #     node_is_spurious = torch.cat(
+            #         (
+            #             torch.tensor(0).repeat(num_blue_nodes + num_red_nodes),
+            #             torch.tensor(1).repeat(1),
+            #         ),
+            #         dim=0
+            #     )
+            # else:
+            #     x = torch.cat(
+            #         (
+            #             x,
+            #             torch.tensor([[0., 1., 0., 0.]]),
+            #         ), dim=0
+            #     )
+            #     node_is_spurious = torch.cat(
+            #         (
+            #             torch.tensor(0).repeat(num_blue_nodes + num_red_nodes),
+            #             torch.tensor(1).repeat(1),
+            #         ),
+            #         dim=0
+            #     )
+
+            x = torch.cat(
+                (
+                    x,
+                    torch.tensor([[1., 0., 0., 0.]]),
+                    torch.tensor([[0., 1., 0., 0.]]),
+                ), dim=0
+            )
+            node_is_spurious = torch.cat(
+                (
+                    torch.tensor(0).repeat(num_blue_nodes + num_red_nodes),
+                    torch.tensor(1).repeat(2),
+                ),
+                dim=0
+            )            
 
             # Step 6: Create a Data object
             data = Data(x=x, edge_index=edge_index, y=y, node_is_spurious=node_is_spurious)
