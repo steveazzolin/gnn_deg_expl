@@ -87,7 +87,11 @@ class MUTAG(InMemoryDataset):
         meta_info.model_level = 'graph'
 
         dataset = Mutagenicity(dataset_root + "/Mutagenicity/")
-        dataset.y = dataset.y.squeeze().float()
+
+        if "DIR" in model_name:
+            dataset._data.y = dataset._data.y.squeeze(-1).long()
+        else:
+            dataset.y = dataset.y.squeeze().float()
 
         idx = np.arange(len(dataset))
         np.random.shuffle(idx)
@@ -144,6 +148,14 @@ class MUTAG(InMemoryDataset):
         meta_info.num_envs = 1
         meta_info.num_classes = 1
 
+        # Define networks' output shape.
+        if "DIR" in model_name:
+            print("The task in 'Multi-label classification'")
+            meta_info.num_classes = torch.unique(train_dataset._data.y).shape[0]
+            task = 'Multi-label classification'
+        else:
+            task = 'Binary classification'
+
         train_dataset.minority_class = None
         id_val_dataset.minority_class = None
         id_test_dataset.minority_class = None
@@ -158,7 +170,7 @@ class MUTAG(InMemoryDataset):
             id_test_dataset._data_list = None
 
         return {'train': train_dataset, 'id_val': id_val_dataset, 'id_test': id_test_dataset,
-                'metric': 'Accuracy', 'task': 'Binary classification',
+                'metric': 'Accuracy', 'task': task,
                 'val': id_val_dataset, 'test': id_test_dataset}, meta_info
 
 class Mutagenicity(InMemoryDataset):
