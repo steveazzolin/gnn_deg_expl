@@ -2,6 +2,7 @@ includes:
   - base.yaml
 model:
   model_name: DIR
+  gnn_clf_layer: 2
 ood:
   ood_alg: DIR
   ood_param: 0.5 # Causal ratio

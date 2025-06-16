@@ -2,6 +2,7 @@ includes:
   - base.yaml
 model:
   model_name: SMGNN
+  gnn_clf_layer: 2
 ood:
   ood_alg: SMGNN
   ood_param: 1
