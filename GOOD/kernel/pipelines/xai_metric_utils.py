@@ -1,8 +1,8 @@
 import networkx as nx
 import torch
-from random import randint, shuffle
-from scipy.stats import bernoulli
+from random import randint
 import matplotlib.pyplot as plt
+from matplotlib.patches import Circle
 import numpy as np
 import os
 
@@ -260,7 +260,7 @@ def get_color_based_on_dataset(config, x):
             return "violet"
         else:
             return "orange"
-    elif config.dataset.dataset_name == "MNIST":
+    elif config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"]:
         return x[:3]
     elif config.dataset.dataset_name == "MUTAG":
         atom_type = np.argmax(x)  # Convert one-hot to indices
@@ -274,9 +274,9 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     node_gt = list(nx.get_node_attributes(G, "node_gt").values())
     node_attr = list(nx.get_node_attributes(G, "x").values())
     
-    if pos is None and config.dataset.dataset_name != "MNIST":
+    if pos is None and config.dataset.dataset_name not in ["MNIST", "CPatchMNIST", "CPatchMNIST2"]:
         pos = nx.kamada_kawai_layout(G)
-    elif config.dataset.dataset_name == "MNIST":
+    elif config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"]:
         pos = [ (x[4], -x[3])  for x in node_attr]
     
     node_colors = []
@@ -296,7 +296,7 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
         node_size=nodesize,
         node_color=node_colors,
         # edge_color=edge_color,
-        alpha=0.9 if config.dataset.dataset_name == "MNIST" else 0.5
+        alpha=0.9 if config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"] else 0.5
     )
 
 
@@ -319,7 +319,7 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
         pos,
         node_labels,
         font_size=12,
-        font_color="red" if config.dataset.dataset_name == "MNIST" else "black",
+        font_color="red" if config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"] else "black",
         alpha=0.6
     )
 
@@ -336,9 +336,9 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     # Annotate with node scores
     if node_expl is not None and pos is not None:
         if isinstance(pos, dict):
-            label_pos = {n: (x, y + 0.04) for n, (x, y) in pos.items()}  # vertical offset
+            label_pos = {n: (x, y + 0.03) for n, (x, y) in pos.items()}  # vertical offset
         else:
-            label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
+            label_pos = {n: (x, y + 0.03) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,
@@ -349,8 +349,6 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
         )
 
     if topk is not None:
-        from matplotlib.patches import Circle
-
         ax = plt.gca()
         for node in topk:
             x, y = pos[node]
