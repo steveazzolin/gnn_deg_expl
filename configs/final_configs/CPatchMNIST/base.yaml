@@ -1,0 +1,27 @@
+includes:
+  - ../base.yaml
+model:
+  backbone: ACR
+  model_layer: 2
+  gnn_clf_layer: 2
+  global_pool: sum
+  dim_hidden: 300
+  dim_ffn: 100
+  dropout_rate: 0.0
+train:
+  num_steps: 10
+  mile_stones: [150]
+  max_epoch: 200
+  train_bs: 256
+  val_bs: 512
+  test_bs: 512
+  lr: 0.001
+  weight_decay: 0.0
+dataset:
+  dataset_name: CPatchMNIST
+  domain: basis
+  generate: false
+use_norm: none
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted
