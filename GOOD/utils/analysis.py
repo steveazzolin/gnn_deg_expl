@@ -1146,8 +1146,8 @@ def plot_explanations(args):
                 print(model.classifierS.classifier[0].weight.detach())
 
             normalize = False
-            if "SMGNN" in config.model.model_name and "MNIST" in config.dataset.dataset_name:
-                print("Normalizing scores in [0,1]")
+            if "SMGNN" in config.model.model_name and config.dataset.dataset_name == "MNIST":
+                print("\n\nNormalizing scores in [0,1]\n\n")
                 normalize = True
 
             # GET EXPLANATIONS
@@ -1215,10 +1215,13 @@ def plot_explanations(args):
                     data.node_mask[topK_nodes_removed] = False
 
                 if compute_fid:
-                    fidm = pipeline.compute_metric(metric="fidm", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
-                    fidp = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
-                    suff_cause = pipeline.compute_metric(metric="suff_cause", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
-                    title += f" FIDM={fidm:.2f} FIDP={fidp:.2f} SUFF_CAUSE={suff_cause:.2f}"
+                    for metric in ["fidm", "fidp", "rfidm", "rfidp", "suff", "suff_cause"]:
+                        val = pipeline.compute_metric(metric=metric, graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                        title += f" {metric}={val:.2f}"
+                    # fidm = pipeline.compute_metric(metric="fidm", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                    # fidp = pipeline.compute_metric(metric="fidp", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                    # suff_cause = pipeline.compute_metric(metric="suff_cause", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
+                    # title += f" FIDM={fidm:.2f} FIDP={fidp:.2f} SUFF_CAUSE={suff_cause:.2f}"
 
                 g = to_networkx(data, node_attrs=["x", "node_mask"], to_undirected=True)
                 xai_utils.draw_colored(
