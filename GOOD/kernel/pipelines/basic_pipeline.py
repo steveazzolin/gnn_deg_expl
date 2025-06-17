@@ -119,7 +119,7 @@ class Pipeline:
                 # violet_nodes_for_negative = torch.logical_and(data.x[:, 3] == 1, graph_label_per_node == 1).float()
                 # green_nodes_for_positive = torch.logical_and(data.x[:, 2] == 1, graph_label_per_node == 1).float()                
                 # targets += green_nodes_for_positive + violet_nodes_for_negative
-            elif self.config.dataset.dataset_name == "MNIST":
+            elif self.config.dataset.dataset_name in ("MNIST", "CPatchMNIST", "CPatchMNIST2"):
                 # predict the pixel number C (in rast-scan order) for each sample of class C
                 # data.x[data.sp_order == 3, :3] = torch.tensor([1,1,1], device=data.x.device, dtype=data.x.dtype)
                 # targets = (data.sp_order == graph_label_per_node).float()
@@ -161,7 +161,7 @@ class Pipeline:
                 blue_nodes_for_positive = torch.logical_and(data.x[:, 1] == 1, graph_label_per_node == 1).float()
                 red_nodes_for_negative = torch.logical_and(data.x[:, 0] == 1, graph_label_per_node == 0).float()
                 targets += blue_nodes_for_positive + red_nodes_for_negative
-            elif self.config.dataset.dataset_name == "MNIST":
+            elif self.config.dataset.dataset_name in ("MNIST", "CPatchMNIST", "CPatchMNIST2"):
                 # just pick nodes labelled as "ground truth"
                 # targets = data.node_label.float()
                 
@@ -192,16 +192,20 @@ class Pipeline:
 
 
     def pretrain_model(self, loader: DataLoader, val_loader: DataLoader) -> dict:
+        performance_bar_det_loss = 100
         if self.config.train.pretrain == "suff":
             if self.config.dataset.dataset_name == "MNIST":
                 performance_bar = 0.95
                 performance_bar_clf_loss = 0.08
+            elif self.config.dataset.dataset_name == "CPatchMNIST" or self.config.dataset.dataset_name == "CPatchMNIST2":
+                performance_bar = 0.99
+                performance_bar_clf_loss = 0.01
+                performance_bar_det_loss = 0.005 # before 0.1
             else:
                 performance_bar = 0.95
                 performance_bar_clf_loss = 0.01
-            performance_bar_det_loss = 100
         elif self.config.train.pretrain == "degenerate":
-            if self.config.dataset.dataset_name == "MNIST":
+            if self.config.dataset.dataset_name in ("MNIST", "CPatchMNIST", "CPatchMNIST2"):
                 if self.config.model.model_name == "DIR":
                     performance_bar = 0.98
                     performance_bar_clf_loss = 0.01
@@ -218,7 +222,6 @@ class Pipeline:
                 else:
                     performance_bar = 0.99
                     performance_bar_clf_loss = 0.01
-            performance_bar_det_loss = 100
         elif self.config.train.pretrain == "sub":            
             if self.config.model.model_name == "DIR":
                 performance_bar = 0.98
@@ -320,7 +323,7 @@ class Pipeline:
             ##
             # EVALUATION ON VAL SPLIT
             ##
-            if epoch % 2 == 0:
+            if epoch % 4 == 0:
                 with torch.no_grad():
                     self.model.eval()
                     per_batch_metrics_val = defaultdict(list)
@@ -1412,7 +1415,15 @@ class Pipeline:
 
             loader = DataLoader(dataset, batch_size=512, shuffle=False, num_workers=2)
             for data in loader:
-                data: Batch = data.to(self.config.device)   
+                data: Batch = data.to(self.config.device)
+
+                # Manually manipulate colors (for plotting purposes, mainly)                
+                # data.x[data.sp_order == 0, :3] = 0.0
+                # num_max_sp_per_batch = scatter_max(data.sp_order, index=data.batch)[0][data.batch]
+                # data.x[data.sp_order == num_max_sp_per_batch, :3] = 0.0
+                # Manually manipulate digits (for plotting purposes, mainly)
+                # data.x[data.node_label.bool(), :3] = 0.0
+
                 edge_scores, node_scores, logits = self.model.get_subgraph(
                     data=data,
                     edge_weight=None,
