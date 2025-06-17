@@ -124,6 +124,20 @@ goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1" -
 
 
 
+
+
+
+# CPatchMNIST
+goodtg --config_path final_configs/CPatchMNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2
+
+
+
+
+
+
+
+
+
 # Mutagenicity (--backbone ACR2 by default)
 goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
 goodtg --config_path final_configs/MUTAG/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
