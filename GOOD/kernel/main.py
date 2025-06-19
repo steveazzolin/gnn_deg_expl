@@ -68,7 +68,7 @@ def main():
 
     run = None
     test_scores, test_losses, ckpt_losses = defaultdict(list), defaultdict(lambda: defaultdict(list)), defaultdict(list)
-    test_likelihoods_avg, test_likelihoods_prod, test_likelihoods_logprod, test_wious = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
+    test_likelihoods_avg, test_likelihoods_prod, test_likelihoods_logprod, test_auroc = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
     for i, seed in enumerate(args.seeds.split("/")):
         seed = int(seed)
         print(f"\n\n#D#Running with seed = {seed}")
@@ -118,13 +118,13 @@ def main():
             for s in ["train", "id_val", "id_test", "val", "test"]:
                 sa = pipeline.evaluate(
                     s,
-                    compute_wiou=False,
+                    compute_plaus=False,
                     compute_clf_only_pred=compute_clf_only_pred, 
                     epoch=ckpt["epoch"]
                 )
                 test_scores[s].append(sa['score'])
                 # test_losses[s].append(sa['loss'].item())
-                test_wious[s].append(sa['wiou'])
+                test_auroc[s].append(sa['aucroc'])
                 test_likelihoods_avg[s].append(sa['likelihood_avg'].item())
                 test_likelihoods_prod[s].append(sa['likelihood_prod'].item())
                 test_likelihoods_logprod[s].append(sa['likelihood_logprod'].item())
@@ -147,13 +147,10 @@ def main():
     for s in test_scores.keys():
         print(f"{s.upper():<10} = {np.mean(test_scores[s]):.3f} +- {np.std(test_scores[s]):.3f}")
 
-    if config.dataset.dataset_name in ("BAColor", "BAColorGV", "BAColorGVIsolated") and config.model.gnn_clf_layer == 0 and config.mitigation_sampling == "raw":
-        print(f"\n\nClassifier weights:")
-        print(model.classifierS.classifier[0].weight.detach())
-        if "DIR" in config.model.model_name:
-            print(f"\n\nConfounded Classifier weights:")
-            print(model.conf_classifierS.classifier[0].weight.detach())
-
+    if not np.isnan(test_auroc["train"][0]):
+        print("\n\nFinal AUCROC: ")
+        for s in test_auroc.keys():
+            print(f"{s.upper():<10} = {np.mean(test_auroc[s]):.3f} +- {np.std(test_auroc[s]):.3f}")
 
 
     print("\n\nFinal losses: ")

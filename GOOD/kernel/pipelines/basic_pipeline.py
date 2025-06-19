@@ -411,7 +411,7 @@ class Pipeline:
 
         epoch_train_stat = self.evaluate(
             'eval_train',
-            compute_wiou=False,
+            compute_plaus=False,
             epoch=self.config.train.max_epoch
         )
         id_val_stat = self.evaluate('id_val', epoch=self.config.train.max_epoch)
@@ -564,7 +564,7 @@ class Pipeline:
 
             epoch_train_stat = self.evaluate(
                 'eval_train',
-                compute_wiou=False,
+                compute_plaus=False,
                 epoch=epoch
             )
             id_val_stat = self.evaluate('id_val', epoch=epoch)
@@ -692,6 +692,10 @@ class Pipeline:
 
                         if is_node_expl:
                             node_expl = node_scores[data.batch == j].squeeze(1)
+
+                            # normalize explanation scores in [0,1]
+                            # node_expl = (node_expl - node_expl.min()) / (node_expl.max() - node_expl.min())
+
                             new_g.node_expl = node_expl
 
                             # compute binary node mask based on threshold here for convenience
@@ -1035,7 +1039,7 @@ class Pipeline:
         return dataset
 
     @torch.no_grad()
-    def evaluate(self, split: str, epoch:int, compute_wiou=False, compute_clf_only_pred=False):
+    def evaluate(self, split: str, epoch:int, compute_plaus=False, compute_clf_only_pred=False):
         r"""
         This function is design to collect data results and calculate scores and loss given a dataset subset.
         (For project use only)
@@ -1055,19 +1059,13 @@ class Pipeline:
         was_training = self.model.training
         self.model.eval()
 
-        # self.model.gnn.encoder.batch_norms.train()
-        # for conv in self.model.gnn.encoder.convs:
-        #     conv.mlp.train()
-        # self.model.gnn.eval()
-
-        # loss_all = []
         loss_per_batch_dict = defaultdict(list)
         mask_all = []
         pred_all = []
         pred_clf_only_all = []
         target_all = []
         likelihoods_all = []
-        wious_all = []
+        wious_all, aucroc_all = [], []
         pbar = tqdm(self.loader[split], desc=f'Eval {split.capitalize()}', total=len(self.loader[split]),
                     **pbar_setting)
         for data in pbar:
@@ -1133,15 +1131,22 @@ class Pipeline:
             target_all.append(target)
 
             # ------------- WIOU ------------------
-            if compute_wiou:
-                wious_mask = torch.ones(data.batch.max() + 1, dtype=torch.bool)
-                if self.config.dataset.dataset_name == "TopoFeature" or self.config.dataset.dataset_name == "SimpleMotif":
-                    wious_mask[data.pattern == 0] = False # Mask out examples without the motif
+            if compute_plaus:
+                # wious_mask = torch.ones(data.batch.max() + 1, dtype=torch.bool)
+                # if self.config.dataset.dataset_name == "TopoFeature" or self.config.dataset.dataset_name == "SimpleMotif":
+                #     wious_mask[data.pattern == 0] = False # Mask out examples without the motif
                 
-                _, explanation = to_undirected(data.edge_index, self.ood_algorithm.edge_att.squeeze(-1), reduce="mean")
-                wious_all.append(
-                    xai_utils.expl_acc_super_fast(data, explanation, reference_intersection=data.edge_gt)[wious_mask].mean().item()
-                )
+                # _, explanation = to_undirected(data.edge_index, self.ood_algorithm.edge_att.squeeze(-1), reduce="mean")
+                # wious_all.append(
+                #     xai_utils.expl_acc_super_fast(data, explanation, reference_intersection=data.edge_gt)[wious_mask].mean().item()
+                # )    
+                for j, g in enumerate(data.to_data_list()):
+                    node_expl = self.ood_algorithm.edge_att[data.batch == j].detach().cpu().squeeze(-1).numpy()
+                    aucroc_all.append(
+                        sk_roc_auc(g.node_label.cpu().numpy(), node_expl, average="macro")
+                    )
+
+                
 
         # ------- Loss calculate -------
         # loss_all = torch.tensor(loss_all)
@@ -1156,6 +1161,7 @@ class Pipeline:
         stat['likelihood_prod'] = torch.prod(likelihoods_all)
         stat['likelihood_logprod'] = torch.sum(likelihoods_all.log())
         stat['wiou'] = np.mean(wious_all) if len(wious_all) > 0 else np.nan
+        stat['aucroc'] = np.mean(aucroc_all) if len(aucroc_all) > 0 else np.nan
 
         # --------------- Metric calculation including ROC_AUC, Accuracy, AP.  --------------------
         stat['score'] = eval_score(pred_all, target_all, self.config, self.loader[split].dataset.minority_class)
@@ -1163,7 +1169,8 @@ class Pipeline:
         print(
             f'{split.capitalize()} {self.config.metric.score_name}: {stat["score"]:.4f} \t' + 
             f'{split.capitalize()} Loss: {loss_per_batch_dict["total_loss"]:.4f} \t' + 
-            (f'{split.capitalize()} WIoU: {stat["wiou"]:.3f} \t' if compute_wiou else '')
+            (f'{split.capitalize()} WIoU: {stat["wiou"]:.3f} \t' if compute_plaus else '') +
+            (f'{split.capitalize()} AUCROC: {stat["aucroc"]:.3f} \t' if compute_plaus else '')
         )
 
         if was_training:
@@ -1177,6 +1184,7 @@ class Pipeline:
             'likelihood_prod': stat['likelihood_prod'],
             'likelihood_logprod': stat['likelihood_logprod'],
             'wiou': stat['wiou'],
+            'aucroc': stat['aucroc'],
             'pred': pred_all,
             'pred_clf_only': pred_clf_only_all
         }
