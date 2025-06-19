@@ -1042,6 +1042,7 @@ def print_r_ge_b_hist(args):
             path += f"{config.load_split}_{config.dataset.dataset_name}_{config.dataset.domain}_{config.util_model_dirname}_{config.random_seed}"
             plt.savefig(path + ".png")
             plt.close()
+            print("File saved in ", path)
 
 def print_hist(args):
     load_splits = ["id"]
@@ -1156,11 +1157,14 @@ def plot_explanations(args):
 
             # PLOT GRAPHS
             thr = 0.5
-            compute_fid = True
+            compute_fid = False
             topK_nodes_kept = None
             for i in range(len(ret[split]["samples"])):
                 data = ret[split]["samples"][i].cpu()
                 expl = ret[split]["scores"][i]
+
+                if normalize:
+                    expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
 
                 data.node_expl = torch.tensor(expl, device=data.x.device)
                 data.node_mask = data.node_expl >= thr
@@ -1196,9 +1200,6 @@ def plot_explanations(args):
                         pred = round(ret[split]["pred"][i].sigmoid().item(), 3)
 
                 title = f"Idx: {i:<3} Class={int(data.y.item())} Pred={pred:<5}"
-
-                if normalize:
-                    expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
 
                 if "DIR" in config.model.model_name:
                     if i == 0:
@@ -1236,6 +1237,7 @@ def plot_explanations(args):
                     topk=topK_nodes_kept
                 )
                 print(f"graph {title}")
+            print("Plotted in ", f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}")
 
             
 
