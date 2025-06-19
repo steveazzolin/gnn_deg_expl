@@ -307,29 +307,6 @@ class CausalAttNet(nn.Module):
 
                 causal_edge_weight = lift_node_att_to_edge_att(causal_node_weight.unsqueeze(1), causal_edge_index)
                 conf_edge_weight = lift_node_att_to_edge_att(conf_node_weight.unsqueeze(1), conf_edge_index)
-
-                # S1 = Data(x=causal_x, edge_index=causal_edge_index, ori_node_idx=idx_keep)
-                # S2 = Data(x=conf_x, edge_index=conf_edge_index, ori_node_idx=idx_remove)
-                # debug_subgraph_plot(data, S1, S2)
-                
-                # print("att = ", att)
-                # print(causal_x)
-
-                # print("\nCausal edge_index")
-                # print(causal_edge_index)
-                # print("Conf edge_index")
-                # print(conf_edge_index)
-
-                # print("\nCausal node weights")
-                # print(causal_node_weight)
-                # print("Conf node weights")
-                # print(conf_node_weight)
-
-                # print("\nCausal edge weights")
-                # print(causal_edge_weight)
-                # print("Conf edge weights")
-                # print(conf_edge_weight)
-                # exit()
         else:
             raise ValueError(f"{data.x.shape} {data.edge_index.shape}")
             causal_x, causal_edge_index, causal_edge_attr, causal_edge_weight, causal_batch = \
