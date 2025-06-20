@@ -1425,10 +1425,18 @@ class Pipeline:
             for data in loader:
                 data: Batch = data.to(self.config.device)
 
-                # Manually manipulate colors (for plotting purposes, mainly)                
+                # Manually manipulate colors setting to black (for plotting purposes, mainly)                
                 # data.x[data.sp_order == 0, :3] = 0.0
                 # num_max_sp_per_batch = scatter_max(data.sp_order, index=data.batch)[0][data.batch]
                 # data.x[data.sp_order == num_max_sp_per_batch, :3] = 0.0
+
+                # Manually manipulate colors setting to the color of another class (for plotting purposes, mainly) 
+                # class_to_which_induce_color = 9
+                # new_color = torch.tensor(dataset.color_mapping[class_to_which_induce_color], dtype=data.x.dtype, device=data.x.device)
+                # data.x[data.sp_order == 0, :3] = new_color
+                # num_max_sp_per_batch = scatter_max(data.sp_order, index=data.batch)[0][data.batch]
+                # data.x[data.sp_order == num_max_sp_per_batch, :3] = new_color
+                
                 # Manually manipulate digits (for plotting purposes, mainly)
                 # data.x[data.node_label.bool(), :3] = 0.0
 
