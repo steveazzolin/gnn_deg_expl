@@ -1170,21 +1170,6 @@ def plot_explanations(args):
                 data.node_mask = data.node_expl >= thr
                 data.edge_mask = torch.ones_like(data.edge_index[0])
 
-                # data.x[data.sp_order == data.sp_order.max(), :3] = torch.tensor([1,0,0], device=data.x.device, dtype=data.x.dtype)
-                # def raster_scan_sort(coords: torch.Tensor) -> torch.Tensor:
-                #     # Invert y so that larger y comes first (top to bottom)
-                #     y_inv = coords[:, 1]
-
-                #     # Use lexicographic sort: sort first by y_inv, then by x
-                #     # argsort twice for lex sort
-                #     primary_sort = torch.argsort(y_inv, stable=True)
-                #     secondary_sort = torch.argsort(coords[primary_sort][:, 0], stable=True)
-                #     sorted_indices = primary_sort[secondary_sort]
-                    
-                #     return sorted_indices
-                # data.x[raster_scan_sort(data.x[:, 3:])[0], :3] = torch.tensor([1,1,1], device=data.x.device, dtype=data.x.dtype)
-                # data.x[raster_scan_sort(data.x[:, 3:])[-1], :3] = torch.tensor([1,1,1], device=data.x.device, dtype=data.x.dtype)
-
                 # data = Batch().from_data_list([data])
                 # graph_label_per_node = data.y[data.batch]
                 # num_max_sp_per_batch = scatter_max(data.sp_order, index=data.batch)[0][data.batch]
