@@ -109,6 +109,7 @@ def main():
             for s in ["train", "id_val", "id_test", "val", "test"]:
                 sa = pipeline.evaluate(s, epoch=ckpt["epoch"])
                 test_scores[s].append(sa['score'])
+                test_auroc[s].append(sa['aucroc'])
                 for l in ("spec_loss", "entr_loss", "l_norm_loss", "clf_loss", "total_loss"):
                     test_losses[s][l].append(sa["loss_dict"][l])
         elif config.task == 'test':

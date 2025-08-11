@@ -1209,20 +1209,26 @@ def plot_explanations(args):
                     # suff_cause = pipeline.compute_metric(metric="suff_cause", graphs=[data], graphs_nx=None, avg_graph_size=None, log_info=False)[0]["all_predicted"][0]
                     # title += f" FIDM={fidm:.2f} FIDP={fidp:.2f} SUFF_CAUSE={suff_cause:.2f}"
 
-                g = to_networkx(data, node_attrs=["x", "node_mask"], to_undirected=True)
-                xai_utils.draw_colored(
-                    config,
-                    g,
-                    node_expl=expl,
-                    subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
-                    name=f"graph_{split}_{i}",
-                    title=title,
-                    with_labels=False,
-                    figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8),
-                    topk=topK_nodes_kept
-                )
+                if "SST2" in config.dataset.dataset_name:
+                    xai_utils.plot_sentence_graph(
+                        G=data,
+                        name=f"graph_{split}_{i}",
+                        subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
+                        config=config,
+                        title=title,
+                    )
+                else:
+                    g = to_networkx(data, node_attrs=["x", "node_mask"], to_undirected=True)
+                    xai_utils.draw_colored(
+                        config,
+                        g,
+                        node_expl=expl,
+                        subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
+                        name=f"graph_{split}_{i}",
+                        title=title,
+                        with_labels=False,
+                        figsize=(12,10) if "AIDS" in config.dataset.dataset_name else (6.4, 4.8),
+                        topk=topK_nodes_kept
+                    )
                 print(f"graph {title}")
             print("Plotted in ", f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}")
-
-            
-

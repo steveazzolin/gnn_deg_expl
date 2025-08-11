@@ -1,0 +1,6 @@
+includes:
+  - ../base.yaml
+dataset:
+  dataset_name: GraphSST2Planted
+  domain: basis
+  shift_type: no_shift

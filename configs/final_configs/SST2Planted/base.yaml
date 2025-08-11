@@ -1,0 +1,24 @@
+includes:
+  - ../base.yaml
+model:
+  backbone: ACR2
+  global_pool: mean
+  model_layer: 2
+  gnn_clf_layer: 2
+  dim_hidden: 64
+  dim_ffn: 64
+  dropout_rate: 0.3
+train:
+  num_steps: 10
+  mile_stones: [150]
+  max_epoch: 100
+  train_bs: 256
+  val_bs: 512
+  test_bs: 512
+  lr: 0.001
+  weight_decay: 0.
+use_norm: none
+average_edge_attn: mean
+mitigation_sampling: raw
+mitigation_readout: weighted
+use_readout_norm: none

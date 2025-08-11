@@ -1,0 +1,11 @@
+includes:
+  - base.yaml
+model:
+  model_name: GIN
+ood:
+  ood_alg: ERM
+  ood_param: -1.0
+train:
+  weight_decay: 0.0
+log_file: exp_0
+use_norm: none

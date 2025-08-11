@@ -2,7 +2,7 @@ import networkx as nx
 import torch
 from random import randint
 import matplotlib.pyplot as plt
-from matplotlib.patches import Circle
+from matplotlib.patches import Circle, Arc
 import numpy as np
 import os
 
@@ -267,6 +267,8 @@ def get_color_based_on_dataset(config, x):
         # color_map = {atype: plt.cm.tab10(i % 10) for i, atype in enumerate(unique_atom_types)}
         # node_colors = [color_map[atype] for atype in atom_types]
         return plt.cm.tab10(atom_type % 14)
+    elif config.dataset.dataset_name == "GraphSST2Planted":
+        return "lightblue"
 
 def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfolder="", pos=None, save=True, figsize=(6.4, 4.8), nodesize=150, with_labels=True, title=None, ax=None, topk=None):
     plt.figure(figsize=figsize)
@@ -274,10 +276,12 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     node_gt = list(nx.get_node_attributes(G, "node_gt").values())
     node_attr = list(nx.get_node_attributes(G, "x").values())
     
-    if pos is None and config.dataset.dataset_name not in ["MNIST", "CPatchMNIST", "CPatchMNIST2"]:
+    if pos is None and config.dataset.dataset_name not in ["MNIST", "CPatchMNIST", "CPatchMNIST2", "GraphSST2Planted"]:
         pos = nx.kamada_kawai_layout(G)
     elif config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"]:
         pos = [ (x[4], -x[3])  for x in node_attr]
+    elif "SST2" in config.dataset.dataset_name:
+        pos = {i: (i*10, (-1)**(i)) for i in range(G.number_of_nodes())}
     
     node_colors = []
     for i in range(len(node_attr)):
@@ -300,7 +304,7 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     )
 
 
-    if config.dataset.dataset_name != "MUTAG":
+    if config.dataset.dataset_name != "MUTAG" and config.dataset.dataset_name != "GraphSST2Planted":
         if node_expl is not None:
             if thrs is not None:
                 node_labels = {u: "E" if score >= thrs else "" for u, score in enumerate(node_expl)}
@@ -310,6 +314,9 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
             assert False, "Not implemented"
             edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
             edge_color = ["red" if e >= thrs else "black" for e in edge_color]
+    if config.dataset.dataset_name == "GraphSST2Planted":
+        sentence_tokens = list(nx.get_node_attributes(G, "sentence_tokens").values())
+        node_labels = {i: sentence_tokens[i] for i in range(len(node_attr))}
     else:
         index_to_symbol = {0: 'C', 1: 'O', 2: 'Cl', 3: "H", 4: "N", 5: "F", 6: "Br", 7: "S", 8: "P", 9: "I", 10: "Na", 11: "K", 12: "Li", 13: "Ca"}
         node_labels = {i: index_to_symbol[np.argmax(node_attr[i])] for i in range(len(node_attr))}
@@ -371,6 +378,71 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
 
     plt.close()
     return pos
+
+def plot_sentence_graph(G, name, subfolder, config, title):
+    """
+    Plot a sentence graph (e.g., from GraphSST2).
+    
+    Args:
+        G: PyG Data object with attributes:
+           - sentence_tokens: list of strings
+           - edge_index: [2, E] tensor
+        node_importance: optional 1D array/tensor of length num_nodes
+        edge_importance: optional 1D array/tensor of length num_edges
+        highlight_threshold: nodes with importance >= threshold will be highlighted
+    """
+    tokens = list(G.sentence_tokens)
+    num_nodes = len(tokens)
+    edges = G.edge_index.t().tolist()
+
+    node_importance = G.node_expl
+
+    fig, ax = plt.subplots(figsize=(len(tokens) * 0.7, 2))
+    ax.set_axis_off()
+
+    # Horizontal positions
+    x_coords = np.arange(num_nodes)
+    y_coords = np.zeros(num_nodes)
+
+    # Draw words + highlights
+    for i, token in enumerate(tokens):
+        if G.node_mask[i]:
+            ax.add_patch(plt.Rectangle((x_coords[i] - 0.4, -0.2), 0.8, 0.4,
+                                       color='cyan', alpha=0.4, zorder=0))
+        ax.text(x_coords[i], 0, token, ha='center', va='center', fontsize=10)
+        ax.text(x_coords[i], -1, torch.round(node_importance[i], decimals=2).item(), ha='center', va='center', fontsize=6)
+
+    # Draw edges as arcs
+    for idx, (src, tgt) in enumerate(edges):
+        if src == tgt:  # skip self-loops
+            continue
+        # Ensure left-to-right arc
+        if src > tgt:
+            src, tgt = tgt, src
+        x1, x2 = x_coords[src], x_coords[tgt]
+        xm = (x1 + x2) / 2
+        width = abs(x2 - x1)
+        height = width / 2 + 1
+        # imp = float(edge_importance[idx])
+        arc = Arc((xm, 1), width=width, height=height,
+                      theta1=0, theta2=180, color='black',
+                      alpha=0.5, lw=0.5)
+        ax.add_patch(arc)
+
+    ax.set_xlim(-1, num_nodes)
+    ax.set_ylim(-1, max(2, num_nodes/2))
+    plt.suptitle(title)
+    plt.tight_layout()
+    path = f'{ROOT_DIR}/GOOD/kernel/pipelines/plots/{subfolder}/{config.load_split}_{config.util_model_dirname}_{config.random_seed}/'
+    
+    if not os.path.exists(path):
+        try:
+            os.makedirs(path)
+        except Exception as e:
+            print(e)
+            exit(e)
+    plt.savefig(f'{path}/{name}.pdf')
+    plt.close()
 
 def random_attach(S, T):
     # random attach frontier nodes in S and T
@@ -897,6 +969,45 @@ def suff_cause(graph, expval_budget):
             inplace=True
         )[0]
         ret.append(graph_node_edge_sampled)
+    return ret
+
+def suff_cause_soft(graph, expval_budget):
+    """
+        Soft version of SUFF_Cause.
+        It simply set to zero the nodea features of nodes to be removed
+    """
+    if graph.node_mask.sum() == 0: # discard empty explanations
+        return None
+    
+    ret = []
+    rnd_weights = torch.rand((expval_budget, graph.x.shape[0]), device=graph.x.device)
+    rnd_weights[:, graph.node_mask] = 1.0 # always keep nodes in R
+    nodes_to_keep_mask = rnd_weights >= 0.5 # keep nodes with a score >= 0.5 (thus R + other random nodes)
+    for i in range(expval_budget):
+        nodes_to_remove = torch.nonzero(torch.logical_not(nodes_to_keep_mask[i])).view(-1)
+        graph_node_sampled = graph.clone()
+        # graph_node_sampled.x *= nodes_to_keep_mask[i].unsqueeze(1)
+        graph_node_sampled.x[nodes_to_remove, :] = 0
+
+        # graph_node_sampled = Data(
+        #     x=graph.x[nodes_to_keep],
+        #     edge_index=edge_index,
+        #     edge_attr=edge_attr,
+        #     node_is_spurious=graph.node_is_spurious[nodes_to_keep] if has_node_is_spurious else None,
+        #     y=graph.y,
+        #     node_expl=graph.node_expl[nodes_to_keep],
+        #     node_mask=graph.node_mask[nodes_to_keep],
+        #     edge_mask=graph.edge_mask[edge_mask],
+        # )
+        # graph_node_edge_sampled = robust_fidelity(
+        #     graph_node_sampled,
+        #     type="rfidm",
+        #     p=0.5,
+        #     expval_budget=1,
+        #     inplace=True
+        # )[0]
+        # ret.append(graph_node_edge_sampled)
+        ret.append(graph_node_sampled)
     return ret
 
 
