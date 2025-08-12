@@ -41,8 +41,6 @@ class GIN(GNNBasic):
         self.classifier = Classifier(config)
         self.graph_repr = None
 
-        exit("here")
-
     def forward(self, *args, **kwargs) -> torch.Tensor:
         r"""
         The GIN model implementation.
