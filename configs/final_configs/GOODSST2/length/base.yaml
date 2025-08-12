@@ -1,5 +1,0 @@
-includes:
-  - ../base.yaml
-dataset:
-  dataset_name: GOODSST2
-  domain: length
