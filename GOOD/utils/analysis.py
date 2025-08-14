@@ -859,6 +859,11 @@ def evaluate_metric(args):
                 ]
                 print_metric(metric + f" class all_{div}", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_{div}"])
             print_metric(metric + "_acc_int", metrics_score[split][metric + "_acc_int"], results_aggregated, key=[config.dataset.dataset_name+" "+config.dataset.domain, config.complete_dirname, split, metric+"_acc_int"])
+            
+            s = [
+                metrics_score[split][metric][i][f"rejection"] for i in range(len(metrics_score[split][metric]))
+            ]
+            print_metric(metric + f" rejection", s, results_aggregated, key=[config.dataset.dataset_name + " " + config.dataset.domain, config.complete_dirname, split, metric+f"_rejection"])
             print()
 
     # print("\n\n", "-"*50, "\nComputing faithfulness")
@@ -1152,7 +1157,7 @@ def plot_explanations(args):
                 normalize = True
 
             # GET EXPLANATIONS
-            N = 20
+            N = 40
             ret = pipeline.get_node_explanations(num_samples=N)
 
             # PLOT GRAPHS
@@ -1161,7 +1166,7 @@ def plot_explanations(args):
             topK_nodes_kept = None
             for i in range(len(ret[split]["samples"])):
                 data = ret[split]["samples"][i].cpu()
-                expl = ret[split]["scores"][i]
+                expl = ret[split]["scores"][i]                
 
                 if normalize:
                     expl = (np.array(expl) - min(expl)) / (max(expl) - min(expl))
@@ -1213,7 +1218,7 @@ def plot_explanations(args):
                     xai_utils.plot_sentence_graph(
                         G=data,
                         name=f"graph_{split}_{i}",
-                        subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
+                        subfolder=f"plots_of_explanation_examples/{config.prefix}{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
                         config=config,
                         title=title,
                     )
@@ -1223,7 +1228,7 @@ def plot_explanations(args):
                         config,
                         g,
                         node_expl=expl,
-                        subfolder=f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
+                        subfolder=f"plots_of_explanation_examples/{config.prefix}{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}",
                         name=f"graph_{split}_{i}",
                         title=title,
                         with_labels=False,
@@ -1231,4 +1236,4 @@ def plot_explanations(args):
                         topk=topK_nodes_kept
                     )
                 print(f"graph {title}")
-            print("Plotted in ", f"plots_of_explanation_examples/{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}")
+            print("Plotted in ", f"plots_of_explanation_examples/{config.prefix}{config.ood_dirname}/{config.dataset.dataset_name}_{config.dataset.domain}")

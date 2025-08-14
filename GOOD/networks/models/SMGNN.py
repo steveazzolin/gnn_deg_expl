@@ -7,6 +7,7 @@ from torch_geometric.nn.conv import MessagePassing
 from torch_geometric.utils import is_undirected, to_undirected, degree, coalesce
 from torch_sparse import transpose
 from torch_geometric import __version__ as __pyg_version__
+from torch_scatter import scatter_softmax
 
 from GOOD import register
 from GOOD.utils.config_reader import Union, CommonArgs, Munch
@@ -63,7 +64,7 @@ class SMGNN(GNNBasic):
         
         emb = self.gnn(*args, without_readout=True, **kwargs)
         att_log_logits = self.extractor(emb, data.edge_index, data.batch)
-        att = self.sampling(att_log_logits, False, self.config.mitigation_expl_scores)
+        att = self.sampling(att_log_logits, False, self.config.mitigation_expl_scores, batch=data.batch)
 
         if self.learn_edge_att:
             if is_undirected(data.edge_index):
@@ -104,12 +105,12 @@ class SMGNN(GNNBasic):
         self.edge_mask = edge_att
         return logits, att_log_logits, att
 
-    def sampling(self, att_log_logits, training, mitigation_expl_scores):
-        att = self.concrete_sample(att_log_logits, temp=1, training=training)
+    def sampling(self, att_log_logits, training, mitigation_expl_scores, batch=None):
+        att = self.concrete_sample(att_log_logits, temp=1, training=training, batch=batch)
         return att
 
     @staticmethod
-    def concrete_sample(att_log_logit, temp, training):
+    def concrete_sample(att_log_logit, temp, training, batch):
         if training:
             random_noise = torch.empty_like(att_log_logit).uniform_(1e-10, 1 - 1e-10)
             random_noise = torch.log(random_noise) - torch.log(1.0 - random_noise)
@@ -120,6 +121,11 @@ class SMGNN(GNNBasic):
                 min=0.00001,
                 max=0.99999
             )
+        # if training:
+        #     random_noise = torch.empty_like(att_log_logit).uniform_(1e-10, 1 - 1e-10)
+        #     random_noise = torch.log(random_noise) - torch.log(1.0 - random_noise)
+        #     att_log_logit = ((att_log_logit + random_noise) / temp)
+        # att_bern = scatter_softmax(att_log_logit.squeeze(1) / 0.1, batch).unsqueeze(1)
         return att_bern
     
     @torch.no_grad()

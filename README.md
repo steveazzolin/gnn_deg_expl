@@ -201,4 +201,18 @@ goodtg --config_path final_configs/SST2Planted/basis/no_shift/GSAT.yaml --seeds 
 
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
+
+
+# natural degeneracy (trying with stronger sparsity loss)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task train --gpu_idx 1 --l_norm_coeff 2 # (nope)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task train --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 # (nope)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task train --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 --ood_param 1 # (no deg)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task train --gpu_idx 1 --ood_param 1 # (no deg; acc=82)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task train --gpu_idx 1 --ood_param 10 # (no deg; acc=81)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task train --gpu_idx 1 --ood_param 100 # (no deg; acc=60 +- 17; seed 1 has acc 0.81 but all scores equal and ~0)
+
+# natural degeneracy using softmax attention (config.prefix)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 # some deg
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 # (acc 0.82; flatten scores; no deg)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --ood_param 1 # (idx 0 something; idx 3 out; idx 6 make, idx 21 find; idx 28 is; idx 36 clear) -- check idx 30 'fun'/idx 34 'tosses' whose count is {1.0: 242, 0.0: 78}/{1.0: 5, 0.0: 14} but it was picked for a prediction of class 0 with GT 1
 ```

@@ -200,8 +200,9 @@ def process_configs(config: Union[CommonArgs, Munch], args=None):
     if config.dataset.shift_type:
         dataset_dirname += '_' + config.dataset.shift_type
 
-    tmp = ""
-    model_dirname = f'{tmp}{config.model.model_name}_' \
+    # softmaxattn_
+    config.prefix = ""
+    model_dirname = f'{config.prefix}{config.model.model_name}_' \
                     f'{config.model.backbone}_' \
                     f'{config.model.model_layer}l_' \
                     f'{config.model.gnn_clf_layer}clf_' \
