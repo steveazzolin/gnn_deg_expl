@@ -6,6 +6,7 @@ import os
 import os.path as osp
 import random
 from copy import deepcopy
+from collections import defaultdict
 
 import gdown
 import numpy as np
@@ -147,6 +148,23 @@ class GraphSST2Planted(InMemoryDataset):
         train_dataset = GraphSST2Planted(root=dataset_root, subset='train')
         id_val_dataset = GraphSST2Planted(root=dataset_root, subset='id_val')
         id_test_dataset = GraphSST2Planted(root=dataset_root, subset='id_test')
+
+        # Are bringing/movie/written/career a nice degenerate explanation to present?
+        # Idxs: 19, 24, 33, 36
+        # count = defaultdict(int)
+        # for d in train_dataset:            
+        #     if "is" in d.sentence_tokens:
+        #         print(d.y.item(), " ".join(d.sentence_tokens))
+        #         count[d.y.item()] += 1
+        # print("\n", count)
+        # exit("bringing")
+
+
+        if "DIR" in model_name:
+            train_dataset._data.y = train_dataset._data.y.squeeze(-1).long()
+            id_val_dataset._data.y = id_val_dataset._data.y.squeeze(-1).long()
+            id_test_dataset._data.y = id_test_dataset._data.y.squeeze(-1).long()
+
         val_dataset = id_val_dataset
         test_dataset = id_test_dataset
 
@@ -155,12 +173,13 @@ class GraphSST2Planted(InMemoryDataset):
         meta_info.num_envs = 0
 
         # Define networks' output shape.
-        if train_dataset.task == 'Binary classification':
-            meta_info.num_classes = train_dataset._data.y.shape[1]
-        elif train_dataset.task == 'Regression':
-            meta_info.num_classes = 1
-        elif train_dataset.task == 'Multi-label classification':
+        if "DIR" in model_name:
+            print("The task in 'Multi-label classification'")
             meta_info.num_classes = torch.unique(train_dataset._data.y).shape[0]
+            task = 'Multi-label classification'
+        else:
+            task = 'Binary classification'
+            meta_info.num_classes = 1
 
         # --- clear buffer dataset._data_list ---
         train_dataset._data_list = None
@@ -171,5 +190,5 @@ class GraphSST2Planted(InMemoryDataset):
         test_dataset._data_list = None
 
         return {'train': train_dataset, 'id_val': id_val_dataset, 'id_test': id_test_dataset,
-                'val': val_dataset, 'test': test_dataset, 'task': train_dataset.task,
+                'val': val_dataset, 'test': test_dataset, 'task': task,
                 'metric': train_dataset.metric}, meta_info
