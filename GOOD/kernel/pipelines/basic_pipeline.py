@@ -128,12 +128,14 @@ class Pipeline:
                     data.sp_order == graph_label_per_node,
                     data.sp_order == (num_max_sp_per_batch - graph_label_per_node)
                 ).float()
-                # print(pos_pixel_is_c_for_class_c.sum())
-                # exit()
             elif self.config.dataset.dataset_name == "MUTAG":
                 carbon_nodes_for_nonmutag = torch.logical_and(data.node_type == 0, graph_label_per_node == 1).float()
                 hydrogen_nodes_for_mutag = torch.logical_and(data.node_type == 3, graph_label_per_node == 0).float()
                 targets += carbon_nodes_for_nonmutag + hydrogen_nodes_for_mutag
+            elif self.config.dataset.dataset_name == "GraphSST2Planted":
+                period_for_class0 = torch.logical_and(data.node_type == 1, graph_label_per_node == 0).float()
+                comma_for_class0 = torch.logical_and(data.node_type == 2, graph_label_per_node == 1).float()
+                targets += period_for_class0 + comma_for_class0
             else:
                 raise ValueError(f"{self.config.dataset.dataset_name} not supported for pretrain")
         elif self.config.train.pretrain == "suff":
@@ -215,6 +217,13 @@ class Pipeline:
             elif self.config.dataset.dataset_name == "MUTAG":
                 performance_bar = 0.95
                 performance_bar_clf_loss = 0.08 #0.03
+            elif self.config.dataset.dataset_name == "GraphSST2Planted":
+                if self.config.model.model_name == "DIR":
+                    performance_bar = 0.99 # 0.98 is bcp_* checkpoints saved
+                    performance_bar_clf_loss = 0.015
+                else:
+                    performance_bar = 0.96
+                    performance_bar_clf_loss = 0.015
             else:
                 if self.config.model.model_name == "DIR":
                     performance_bar = 0.99
@@ -786,6 +795,11 @@ class Pipeline:
                     graphs[i],
                     expval_budget=self.config.expval_budget
                 )
+            elif metric == "suff_cause_soft":
+                intervened_graphs = xai_utils.suff_cause_soft(
+                    graphs[i],
+                    expval_budget=self.config.expval_budget
+                )
 
                 # if i not in [15, 97, 133] and graphs[i].x.shape[0] <= 12:
                 #     print(i, graphs[i])
@@ -947,24 +961,20 @@ class Pipeline:
             preds_perturbed_graphs,
             belonging
         )
-
-        # print(aggr["TV"][55])
-        # print(len(aggr["predicted"]))
-        # print(torch.nonzero(aggr["predicted"] < 0.4))
-        # print(aggr["predicted"][1])
-        # exit("vabbuo")
-        # print(graphs[1])
-        # print(graphs[1].y)
-        # exit()
         
         ##
         # Store and print metric values
         ##
         for m in ["TV", "predicted"]:
-            for c in labels_ori.long().unique():
+            # for c in labels_ori.long().unique():
+            for c in graph_database_labels.long().unique():
                 idx_class = np.arange(labels_ori.shape[0])[(labels_ori == c).numpy()]
-                scores[f"{c.item()}_{m}"].append(round(aggr[m][idx_class].mean().item(), 3))
+                if len(idx_class) <= 10:
+                    scores[f"{c.item()}_{m}"].append(np.nan)
+                else:    
+                    scores[f"{c.item()}_{m}"].append(round(aggr[m][idx_class].mean().item(), 3))
             scores[f"all_{m}"].append(round(aggr[m].mean().item(), 3))
+        scores[f"rejection"].append(round(aggr["rejection"].float().mean().item(), 3))
 
         acc_clean = eval_score(preds_clean_graphs_repeated, labels_ori_repeated, self.config, self.loader["id_val"].dataset.minority_class)
         acc_interven = eval_score(preds_perturbed_graphs, labels_ori_repeated, self.config, self.loader["id_val"].dataset.minority_class)
@@ -980,6 +990,7 @@ class Pipeline:
                 for c in labels_ori.long().unique().numpy().tolist():
                     print(f"{metric.upper()} for class {c}_{m} = {scores[str(c)+'_'+m][-1]} +- {aggr['predicted'].std():.3f} (in-sample avg dev_std = {(aggr['std_predicted']**2).mean().sqrt():.3f})")
                 print(f"{metric.upper()} all_classes {m} = {scores[f'all_{m}'][-1]} +- {aggr[f'{m}'].std():.3f} (in-sample avg dev_std =", torch.round((aggr[f"std_{m}"]**2).mean().sqrt(), decimals=3).item())
+            print(f"{metric.upper()} rejection = {scores[f'rejection'][-1]}")
         return scores, acc_ints
 
 
@@ -1016,6 +1027,32 @@ class Pipeline:
             ret["TV"] = scatter_mean(div_TV, belonging, dim=0)
             ret["predicted"] = scatter_mean(div_predicted, belonging, dim=0)
         
+        # Add div_rejection: whether the model prediction changed
+        if preds_clean.shape[1] == 1:
+            pred_class_clean = (preds_clean > 0.5)
+            pred_class_pert = (preds_perturb > 0.5)
+
+            uncertain_clean = (preds_clean >= 0.40) & (preds_clean <= 0.60)
+            uncertain_pert = (preds_perturb >= 0.40) & (preds_perturb <= 0.60)
+            uncertain_to_penalize = uncertain_pert & (~uncertain_clean)
+            # Force uncertain perturbed predictions for certain clean predictions to be treated as incorrect
+            pred_class_pert[uncertain_to_penalize] = ~pred_class_clean[uncertain_to_penalize]        
+            div_rejection = (pred_class_clean != pred_class_pert).long() # is 1 when predictions are different
+        else:
+            pred_class_clean = preds_clean.argmax(-1).unsqueeze(1)
+            pred_class_pert = preds_perturb.argmax(-1).unsqueeze(1)
+
+            if preds_clean.shape[1] == 2: # sill binary classification, but for DIR
+                uncertain_clean = (preds_clean.gather(1, pred_class_clean) >= 0.40) & (preds_clean.gather(1, pred_class_clean) <= 0.60)
+                uncertain_pert = (preds_perturb.gather(1, pred_class_pert) >= 0.40) & (preds_perturb.gather(1, pred_class_pert) <= 0.60)
+                uncertain_to_penalize = uncertain_pert & (~uncertain_clean)
+                # Force uncertain perturbed predictions for certain clean predictions to be treated as incorrect
+                pred_class_pert[uncertain_to_penalize] = ~pred_class_clean[uncertain_to_penalize]        
+                div_rejection = (pred_class_clean != pred_class_pert).long() # is 1 when predictions are different
+
+        # note that rejection is the worst-case for every metric (maybe fix?)
+        ret["rejection"], _ = scatter_max(div_rejection, belonging, dim=0) # if the predictions changed at least one across expval_budget
+
         ret["std_TV"] = scatter_std(div_TV, belonging, dim=0)
         ret["std_predicted"] = scatter_std(div_predicted, belonging, dim=0)
         return ret
@@ -1141,9 +1178,18 @@ class Pipeline:
                 #     xai_utils.expl_acc_super_fast(data, explanation, reference_intersection=data.edge_gt)[wious_mask].mean().item()
                 # )    
                 for j, g in enumerate(data.to_data_list()):
+                    if self.config.dataset.dataset_name == "MNIST":
+                        gt = g.node_label.cpu().numpy()
+                    elif self.config.dataset.dataset_name == "BAColorGVIsolated":
+                        gt = g.node_is_spurious.cpu().numpy()
+                        if np.all(gt == 1) or np.all(gt == 0): # sk_roc_auc breaks as only 1 class is present
+                            continue
+                    else:
+                        gt = None
+
                     node_expl = self.ood_algorithm.edge_att[data.batch == j].detach().cpu().squeeze(-1).numpy()
                     aucroc_all.append(
-                        sk_roc_auc(g.node_label.cpu().numpy(), node_expl, average="macro")
+                        sk_roc_auc(gt, node_expl, average="macro")
                     )
 
                 
