@@ -1,21 +1,21 @@
-set -e
+# set -e
 
 echo "Time to train models!"
 
-GPU=0
-SEEDS="1/2/3/4/5"
+GPU=1
+SEEDS="1/2/3"
 
 
 
-for DATASET in MNIST/basis/no_shift; do
-       goodtg --config_path final_configs/${DATASET}/DIR.yaml \
-              --seeds ${SEEDS} \
-              --task train \
-              --backbone ACR2 \
-              --ood_param 0.8 \
-              --use_readout_norm bn \
-              --gpu_idx ${GPU}
-       echo "DONE TRAIN DIR 0.8 ${DATASET}"
+# for DATASET in SST2/basis/no_shift; do
+       # goodtg --config_path final_configs/${DATASET}/DIR.yaml \
+       #        --seeds ${SEEDS} \
+       #        --task train \
+       #        --backbone ACR2 \
+       #        --ood_param 0.8 \
+       #        --use_readout_norm bn \
+       #        --gpu_idx ${GPU}
+       # echo "DONE TRAIN DIR 0.8 ${DATASET}"
 
        # goodtg --config_path final_configs/${DATASET}/DIR.yaml \
        #        --seeds ${SEEDS} \
@@ -43,11 +43,20 @@ for DATASET in MNIST/basis/no_shift; do
        #        --pretrain degenerate \
        #        --gpu_idx ${GPU}
        # echo "DONE TRAIN DIR 0.1 DEG ${DATASET}"
+# done
+
+
+DATASET=SST2Planted/basis/no_shift
+for ood_param in 1 10 100; do
+       goodtg --config_path final_configs/${DATASET}/SMGNN.yaml \
+              --seeds ${SEEDS} \
+              --task train \
+              --ood_param ${ood_param}  \
+              --gpu_idx ${GPU}              
+              # --l_norm_coeff: ${l_norm_coeff} \
+              # --entr_coeff: ${entr_coeff} \
+       echo "DONE TRAIN SMGNN ${ood_param}"
 done
-
-
-
-
 
 
 
