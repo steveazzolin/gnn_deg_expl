@@ -410,7 +410,7 @@ def plot_sentence_graph(G, name, subfolder, config, title):
             ax.add_patch(plt.Rectangle((x_coords[i] - 0.4, -0.2), 0.8, 0.4,
                                        color='cyan', alpha=0.4, zorder=0))
         ax.text(x_coords[i], 0, token, ha='center', va='center', fontsize=10)
-        ax.text(x_coords[i], -1, torch.round(node_importance[i], decimals=2).item(), ha='center', va='center', fontsize=6)
+        ax.text(x_coords[i], -1, round(node_importance[i].item(), 2), ha='center', va='center', fontsize=6)
 
     # Draw edges as arcs
     for idx, (src, tgt) in enumerate(edges):

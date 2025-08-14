@@ -480,7 +480,7 @@ class ACRConv(gnn.MessagePassing):
     
     def message(self, x_i, x_j):
         if self._fixed_explain and getattr(self, "_node_mask", None) is None:
-            exit("AIA")
+            exit("AIA BaseGNN message")
             edge_mask = self._edge_mask
             if self._apply_sigmoid:
                 edge_mask = edge_mask.sigmoid()
@@ -545,7 +545,7 @@ class ACRConv2(ACRConv):
     
     def message(self, x_i, x_j, node_mask_j):
         if self._fixed_explain and node_mask_j is None:
-            exit("AIA")
+            exit("AIA ACRConv2 message")
             edge_mask = self._edge_mask
             if self._apply_sigmoid:
                 edge_mask = edge_mask.sigmoid()
