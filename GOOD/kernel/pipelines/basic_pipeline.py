@@ -1048,7 +1048,7 @@ class Pipeline:
                 uncertain_to_penalize = uncertain_pert & (~uncertain_clean)
                 # Force uncertain perturbed predictions for certain clean predictions to be treated as incorrect
                 pred_class_pert[uncertain_to_penalize] = ~pred_class_clean[uncertain_to_penalize]        
-                div_rejection = (pred_class_clean != pred_class_pert).long() # is 1 when predictions are different
+            div_rejection = (pred_class_clean != pred_class_pert).long() # is 1 when predictions are different
 
         # note that rejection is the worst-case for every metric (maybe fix?)
         ret["rejection"], _ = scatter_max(div_rejection, belonging, dim=0) # if the predictions changed at least one across expval_budget

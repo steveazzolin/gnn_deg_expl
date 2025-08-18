@@ -1,0 +1,6271 @@
+nohup: ignoring input
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Wed Aug 13 18:00:23 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset GraphSST2Planted
+[0m[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mDataset: {'train': GraphSST2Planted(28327), 'id_val': GraphSST2Planted(3147), 'id_test': GraphSST2Planted(12305), 'val': GraphSST2Planted(3147), 'test': GraphSST2Planted(12305), 'task': 'Binary classification', 'metric': 'Accuracy'}
+[0m[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1m Data(x=[17, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[17], sentence_tokens=[17], num_nodes=17)
+[0mData(x=[14, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[14], sentence_tokens=[14], num_nodes=14)
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:00:24 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+Before training:
+Eval_train ACCURACY: 0.4782 	Eval_train Loss: 0.7192 	
+Id_val ACCURACY: 0.4801 	Id_val Loss: 0.7194 	
+Id_test ACCURACY: 0.3879 	Id_test Loss: 0.7605 	
+
+Epoch 0:
+Evaluating...
+Clf loss: 0.5608
+Spec loss: 0.0071
+Mean loss: 0.5608
+Total loss: 0.5679
+Eval_train ACCURACY: 0.8279 	Eval_train Loss: 0.4047 	
+Id_val ACCURACY: 0.8198 	Id_val Loss: 0.4379 	
+Id_test ACCURACY: 0.8001 	Id_test Loss: 0.5503 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:00:33 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:00:33 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 1:
+Evaluating...
+Clf loss: 0.4032
+Spec loss: 0.0087
+Mean loss: 0.4032
+Total loss: 0.4119
+Eval_train ACCURACY: 0.8627 	Eval_train Loss: 0.3466 	
+Id_val ACCURACY: 0.8475 	Id_val Loss: 0.3695 	
+Id_test ACCURACY: 0.8295 	Id_test Loss: 0.4751 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:00:37 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:00:37 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 2:
+Evaluating...
+Clf loss: 0.3512
+Spec loss: 0.0130
+Mean loss: 0.3512
+Total loss: 0.3642
+Eval_train ACCURACY: 0.8782 	Eval_train Loss: 0.3109 	
+Id_val ACCURACY: 0.8586 	Id_val Loss: 0.3525 	
+Id_test ACCURACY: 0.8170 	Id_test Loss: 0.5277 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:00:41 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:00:41 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 3:
+Evaluating...
+Clf loss: 0.2937
+Spec loss: 0.0189
+Mean loss: 0.2937
+Total loss: 0.3126
+Eval_train ACCURACY: 0.9014 	Eval_train Loss: 0.2629 	
+Id_val ACCURACY: 0.8735 	Id_val Loss: 0.3252 	
+Id_test ACCURACY: 0.8268 	Id_test Loss: 0.4927 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:00:45 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:00:45 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 4:
+Evaluating...
+Clf loss: 0.2499
+Spec loss: 0.0213
+Mean loss: 0.2499
+Total loss: 0.2712
+Eval_train ACCURACY: 0.9227 	Eval_train Loss: 0.2128 	
+Id_val ACCURACY: 0.8948 	Id_val Loss: 0.3126 	
+Id_test ACCURACY: 0.8334 	Id_test Loss: 0.5847 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:00:49 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:00:49 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 5:
+Evaluating...
+Clf loss: 0.2164
+Spec loss: 0.0217
+Mean loss: 0.2164
+Total loss: 0.2381
+Eval_train ACCURACY: 0.9301 	Eval_train Loss: 0.1985 	
+Id_val ACCURACY: 0.8881 	Id_val Loss: 0.2996 	
+Id_test ACCURACY: 0.7926 	Id_test Loss: 0.7157 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:00:53 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:00:53 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 6:
+Evaluating...
+Clf loss: 0.1828
+Spec loss: 0.0224
+Mean loss: 0.1828
+Total loss: 0.2052
+Eval_train ACCURACY: 0.9323 	Eval_train Loss: 0.1828 	
+Id_val ACCURACY: 0.8907 	Id_val Loss: 0.3260 	
+Id_test ACCURACY: 0.7651 	Id_test Loss: 0.9462 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 7:
+Evaluating...
+Clf loss: 0.1614
+Spec loss: 0.0226
+Mean loss: 0.1614
+Total loss: 0.1840
+Eval_train ACCURACY: 0.9510 	Eval_train Loss: 0.1548 	
+Id_val ACCURACY: 0.8993 	Id_val Loss: 0.3381 	
+Id_test ACCURACY: 0.7908 	Id_test Loss: 0.9789 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 8:
+Evaluating...
+Clf loss: 0.1328
+Spec loss: 0.0227
+Mean loss: 0.1328
+Total loss: 0.1555
+Eval_train ACCURACY: 0.9681 	Eval_train Loss: 0.1168 	
+Id_val ACCURACY: 0.9104 	Id_val Loss: 0.2936 	
+Id_test ACCURACY: 0.8281 	Id_test Loss: 0.8796 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:01:06 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:01:06 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 9:
+Evaluating...
+Clf loss: 0.1070
+Spec loss: 0.0228
+Mean loss: 0.1070
+Total loss: 0.1298
+Eval_train ACCURACY: 0.9655 	Eval_train Loss: 0.1132 	
+Id_val ACCURACY: 0.9072 	Id_val Loss: 0.3225 	
+Id_test ACCURACY: 0.8164 	Id_test Loss: 1.1423 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 10:
+Evaluating...
+Clf loss: 0.0993
+Spec loss: 0.0229
+Mean loss: 0.0993
+Total loss: 0.1222
+Eval_train ACCURACY: 0.9768 	Eval_train Loss: 0.0923 	
+Id_val ACCURACY: 0.9148 	Id_val Loss: 0.3017 	
+Id_test ACCURACY: 0.8055 	Id_test Loss: 1.5053 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 11:
+Evaluating...
+Clf loss: 0.0820
+Spec loss: 0.0228
+Mean loss: 0.0820
+Total loss: 0.1048
+Eval_train ACCURACY: 0.9822 	Eval_train Loss: 0.0796 	
+Id_val ACCURACY: 0.9209 	Id_val Loss: 0.3087 	
+Id_test ACCURACY: 0.8015 	Id_test Loss: 1.5157 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 12:
+Evaluating...
+Clf loss: 0.0716
+Spec loss: 0.0227
+Mean loss: 0.0716
+Total loss: 0.0943
+Eval_train ACCURACY: 0.9845 	Eval_train Loss: 0.0732 	
+Id_val ACCURACY: 0.9161 	Id_val Loss: 0.3229 	
+Id_test ACCURACY: 0.8144 	Id_test Loss: 1.4567 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 13:
+Evaluating...
+Clf loss: 0.0644
+Spec loss: 0.0225
+Mean loss: 0.0644
+Total loss: 0.0870
+Eval_train ACCURACY: 0.9848 	Eval_train Loss: 0.0634 	
+Id_val ACCURACY: 0.9212 	Id_val Loss: 0.3743 	
+Id_test ACCURACY: 0.8072 	Id_test Loss: 2.6347 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 14:
+Evaluating...
+Clf loss: 0.0617
+Spec loss: 0.0228
+Mean loss: 0.0617
+Total loss: 0.0845
+Eval_train ACCURACY: 0.9902 	Eval_train Loss: 0.0532 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.3936 	
+Id_test ACCURACY: 0.8171 	Id_test Loss: 2.1960 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 15:
+Evaluating...
+Clf loss: 0.0572
+Spec loss: 0.0228
+Mean loss: 0.0572
+Total loss: 0.0800
+Eval_train ACCURACY: 0.9911 	Eval_train Loss: 0.0506 	
+Id_val ACCURACY: 0.9196 	Id_val Loss: 0.4082 	
+Id_test ACCURACY: 0.8074 	Id_test Loss: 2.5482 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 16:
+Evaluating...
+Clf loss: 0.0474
+Spec loss: 0.0227
+Mean loss: 0.0474
+Total loss: 0.0701
+Eval_train ACCURACY: 0.9898 	Eval_train Loss: 0.0544 	
+Id_val ACCURACY: 0.9177 	Id_val Loss: 0.4115 	
+Id_test ACCURACY: 0.8297 	Id_test Loss: 2.0569 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 17:
+Evaluating...
+Clf loss: 0.0424
+Spec loss: 0.0225
+Mean loss: 0.0424
+Total loss: 0.0649
+Eval_train ACCURACY: 0.9894 	Eval_train Loss: 0.0500 	
+Id_val ACCURACY: 0.9196 	Id_val Loss: 0.4223 	
+Id_test ACCURACY: 0.7920 	Id_test Loss: 4.0336 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 18:
+Evaluating...
+Clf loss: 0.0450
+Spec loss: 0.0220
+Mean loss: 0.0450
+Total loss: 0.0669
+Eval_train ACCURACY: 0.9930 	Eval_train Loss: 0.0432 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.4479 	
+Id_test ACCURACY: 0.8243 	Id_test Loss: 2.6222 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 19:
+Evaluating...
+Clf loss: 0.0385
+Spec loss: 0.0223
+Mean loss: 0.0385
+Total loss: 0.0609
+Eval_train ACCURACY: 0.9940 	Eval_train Loss: 0.0401 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.4430 	
+Id_test ACCURACY: 0.8081 	Id_test Loss: 2.8106 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 20:
+Evaluating...
+Clf loss: 0.0347
+Spec loss: 0.0224
+Mean loss: 0.0347
+Total loss: 0.0571
+Eval_train ACCURACY: 0.9906 	Eval_train Loss: 0.0512 	
+Id_val ACCURACY: 0.9171 	Id_val Loss: 0.5070 	
+Id_test ACCURACY: 0.7980 	Id_test Loss: 3.2813 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 21:
+Evaluating...
+Clf loss: 0.0345
+Spec loss: 0.0223
+Mean loss: 0.0345
+Total loss: 0.0568
+Eval_train ACCURACY: 0.9938 	Eval_train Loss: 0.0413 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.4342 	
+Id_test ACCURACY: 0.8249 	Id_test Loss: 2.4432 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 22:
+Evaluating...
+Clf loss: 0.0317
+Spec loss: 0.0224
+Mean loss: 0.0317
+Total loss: 0.0541
+Eval_train ACCURACY: 0.9941 	Eval_train Loss: 0.0413 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.4202 	
+Id_test ACCURACY: 0.8234 	Id_test Loss: 2.5776 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 23:
+Evaluating...
+Clf loss: 0.0364
+Spec loss: 0.0222
+Mean loss: 0.0364
+Total loss: 0.0587
+Eval_train ACCURACY: 0.9750 	Eval_train Loss: 0.0909 	
+Id_val ACCURACY: 0.9152 	Id_val Loss: 0.4474 	
+Id_test ACCURACY: 0.8267 	Id_test Loss: 1.7028 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 24:
+Evaluating...
+Clf loss: 0.0318
+Spec loss: 0.0221
+Mean loss: 0.0318
+Total loss: 0.0539
+Eval_train ACCURACY: 0.9954 	Eval_train Loss: 0.0388 	
+Id_val ACCURACY: 0.9196 	Id_val Loss: 0.4759 	
+Id_test ACCURACY: 0.8115 	Id_test Loss: 2.5359 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 25:
+Evaluating...
+Clf loss: 0.0271
+Spec loss: 0.0220
+Mean loss: 0.0271
+Total loss: 0.0491
+Eval_train ACCURACY: 0.9893 	Eval_train Loss: 0.0534 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.5028 	
+Id_test ACCURACY: 0.8111 	Id_test Loss: 2.5582 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 26:
+Evaluating...
+Clf loss: 0.0346
+Spec loss: 0.0217
+Mean loss: 0.0346
+Total loss: 0.0563
+Eval_train ACCURACY: 0.9935 	Eval_train Loss: 0.0416 	
+Id_val ACCURACY: 0.9212 	Id_val Loss: 0.5221 	
+Id_test ACCURACY: 0.8007 	Id_test Loss: 3.2018 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 27:
+Evaluating...
+Clf loss: 0.0326
+Spec loss: 0.0219
+Mean loss: 0.0326
+Total loss: 0.0545
+Eval_train ACCURACY: 0.9880 	Eval_train Loss: 0.0589 	
+Id_val ACCURACY: 0.9148 	Id_val Loss: 0.4768 	
+Id_test ACCURACY: 0.8071 	Id_test Loss: 1.9984 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 28:
+Evaluating...
+Clf loss: 0.0431
+Spec loss: 0.0215
+Mean loss: 0.0431
+Total loss: 0.0646
+Eval_train ACCURACY: 0.9953 	Eval_train Loss: 0.0400 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.4539 	
+Id_test ACCURACY: 0.8232 	Id_test Loss: 1.8456 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 29:
+Evaluating...
+Clf loss: 0.0260
+Spec loss: 0.0223
+Mean loss: 0.0260
+Total loss: 0.0483
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0355 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.4782 	
+Id_test ACCURACY: 0.8007 	Id_test Loss: 2.4908 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 30:
+Evaluating...
+Clf loss: 0.0256
+Spec loss: 0.0222
+Mean loss: 0.0256
+Total loss: 0.0478
+Eval_train ACCURACY: 0.9945 	Eval_train Loss: 0.0389 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.3887 	
+Id_test ACCURACY: 0.8222 	Id_test Loss: 1.9095 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 31:
+Evaluating...
+Clf loss: 0.0199
+Spec loss: 0.0223
+Mean loss: 0.0199
+Total loss: 0.0422
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0310 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.6255 	
+Id_test ACCURACY: 0.8151 	Id_test Loss: 3.9044 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 32:
+Evaluating...
+Clf loss: 0.0253
+Spec loss: 0.0223
+Mean loss: 0.0253
+Total loss: 0.0476
+Eval_train ACCURACY: 0.9970 	Eval_train Loss: 0.0336 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.5415 	
+Id_test ACCURACY: 0.8116 	Id_test Loss: 3.3416 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 33:
+Evaluating...
+Clf loss: 0.0255
+Spec loss: 0.0223
+Mean loss: 0.0255
+Total loss: 0.0477
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0329 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.5264 	
+Id_test ACCURACY: 0.8023 	Id_test Loss: 3.0380 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 34:
+Evaluating...
+Clf loss: 0.0212
+Spec loss: 0.0219
+Mean loss: 0.0212
+Total loss: 0.0432
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0295 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.5631 	
+Id_test ACCURACY: 0.8169 	Id_test Loss: 3.0170 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 35:
+Evaluating...
+Clf loss: 0.0205
+Spec loss: 0.0219
+Mean loss: 0.0205
+Total loss: 0.0425
+Eval_train ACCURACY: 0.9975 	Eval_train Loss: 0.0300 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.6545 	
+Id_test ACCURACY: 0.8213 	Id_test Loss: 3.3146 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 36:
+Evaluating...
+Clf loss: 0.0184
+Spec loss: 0.0220
+Mean loss: 0.0184
+Total loss: 0.0404
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0327 	
+Id_val ACCURACY: 0.9215 	Id_val Loss: 0.5549 	
+Id_test ACCURACY: 0.8137 	Id_test Loss: 3.1507 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 37:
+Evaluating...
+Clf loss: 0.0207
+Spec loss: 0.0220
+Mean loss: 0.0207
+Total loss: 0.0427
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0293 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.5617 	
+Id_test ACCURACY: 0.8223 	Id_test Loss: 3.0795 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 38:
+Evaluating...
+Clf loss: 0.0187
+Spec loss: 0.0222
+Mean loss: 0.0187
+Total loss: 0.0408
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0294 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.6440 	
+Id_test ACCURACY: 0.8166 	Id_test Loss: 3.8509 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 39:
+Evaluating...
+Clf loss: 0.0191
+Spec loss: 0.0221
+Mean loss: 0.0191
+Total loss: 0.0412
+Eval_train ACCURACY: 0.9963 	Eval_train Loss: 0.0337 	
+Id_val ACCURACY: 0.9237 	Id_val Loss: 0.9661 	
+Id_test ACCURACY: 0.8122 	Id_test Loss: 5.7211 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 40:
+Evaluating...
+Clf loss: 0.0182
+Spec loss: 0.0220
+Mean loss: 0.0182
+Total loss: 0.0402
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0287 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.6594 	
+Id_test ACCURACY: 0.8037 	Id_test Loss: 4.3460 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 41:
+Evaluating...
+Clf loss: 0.0166
+Spec loss: 0.0221
+Mean loss: 0.0166
+Total loss: 0.0387
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0292 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.5815 	
+Id_test ACCURACY: 0.8225 	Id_test Loss: 3.6142 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 42:
+Evaluating...
+Clf loss: 0.0158
+Spec loss: 0.0219
+Mean loss: 0.0158
+Total loss: 0.0377
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.6156 	
+Id_test ACCURACY: 0.8134 	Id_test Loss: 3.9970 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 43:
+Evaluating...
+Clf loss: 0.0143
+Spec loss: 0.0219
+Mean loss: 0.0143
+Total loss: 0.0362
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0309 	
+Id_val ACCURACY: 0.9190 	Id_val Loss: 0.5570 	
+Id_test ACCURACY: 0.8115 	Id_test Loss: 3.2617 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 44:
+Evaluating...
+Clf loss: 0.0150
+Spec loss: 0.0220
+Mean loss: 0.0150
+Total loss: 0.0370
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0282 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.6062 	
+Id_test ACCURACY: 0.8190 	Id_test Loss: 3.6217 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 45:
+Evaluating...
+Clf loss: 0.0134
+Spec loss: 0.0221
+Mean loss: 0.0134
+Total loss: 0.0355
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0286 	
+Id_val ACCURACY: 0.9212 	Id_val Loss: 0.6249 	
+Id_test ACCURACY: 0.8137 	Id_test Loss: 3.7489 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 46:
+Evaluating...
+Clf loss: 0.0165
+Spec loss: 0.0218
+Mean loss: 0.0165
+Total loss: 0.0383
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0328 	
+Id_val ACCURACY: 0.9215 	Id_val Loss: 0.6505 	
+Id_test ACCURACY: 0.8067 	Id_test Loss: 3.9034 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 47:
+Evaluating...
+Clf loss: 0.0167
+Spec loss: 0.0220
+Mean loss: 0.0167
+Total loss: 0.0387
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0336 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.5445 	
+Id_test ACCURACY: 0.8197 	Id_test Loss: 2.7991 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 48:
+Evaluating...
+Clf loss: 0.0146
+Spec loss: 0.0220
+Mean loss: 0.0146
+Total loss: 0.0366
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0282 	
+Id_val ACCURACY: 0.9190 	Id_val Loss: 0.7516 	
+Id_test ACCURACY: 0.8265 	Id_test Loss: 4.0213 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 49:
+Evaluating...
+Clf loss: 0.0243
+Spec loss: 0.0219
+Mean loss: 0.0243
+Total loss: 0.0463
+Eval_train ACCURACY: 0.9946 	Eval_train Loss: 0.0389 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.5544 	
+Id_test ACCURACY: 0.8135 	Id_test Loss: 3.3479 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 50:
+Evaluating...
+Clf loss: 0.0230
+Spec loss: 0.0220
+Mean loss: 0.0230
+Total loss: 0.0450
+Eval_train ACCURACY: 0.9938 	Eval_train Loss: 0.0446 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.4533 	
+Id_test ACCURACY: 0.8245 	Id_test Loss: 2.3527 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 51:
+Evaluating...
+Clf loss: 0.0232
+Spec loss: 0.0222
+Mean loss: 0.0232
+Total loss: 0.0453
+Eval_train ACCURACY: 0.9963 	Eval_train Loss: 0.0337 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.5712 	
+Id_test ACCURACY: 0.8170 	Id_test Loss: 3.4415 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 52:
+Evaluating...
+Clf loss: 0.0172
+Spec loss: 0.0223
+Mean loss: 0.0172
+Total loss: 0.0394
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0293 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.5208 	
+Id_test ACCURACY: 0.8187 	Id_test Loss: 3.5421 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 53:
+Evaluating...
+Clf loss: 0.0106
+Spec loss: 0.0222
+Mean loss: 0.0106
+Total loss: 0.0328
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.6247 	
+Id_test ACCURACY: 0.8134 	Id_test Loss: 5.3582 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 54:
+Evaluating...
+Clf loss: 0.0120
+Spec loss: 0.0221
+Mean loss: 0.0120
+Total loss: 0.0341
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0277 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.5425 	
+Id_test ACCURACY: 0.8150 	Id_test Loss: 3.6293 	
+edge_weight:  tensor(0.) tensor(0.9994) tensor(0.0541)
+
+Epoch 55:
+Evaluating...
+Clf loss: 0.0124
+Spec loss: 0.0219
+Mean loss: 0.0124
+Total loss: 0.0343
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0282 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.5824 	
+Id_test ACCURACY: 0.8273 	Id_test Loss: 4.6898 	
+edge_weight:  tensor(0.) tensor(0.9815) tensor(0.0541)
+
+Epoch 56:
+Evaluating...
+Clf loss: 0.0142
+Spec loss: 0.0220
+Mean loss: 0.0142
+Total loss: 0.0362
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0263 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.6749 	
+Id_test ACCURACY: 0.8287 	Id_test Loss: 4.9091 	
+edge_weight:  tensor(0.) tensor(0.7820) tensor(0.0540)
+
+Epoch 57:
+Evaluating...
+Clf loss: 0.0150
+Spec loss: 0.0221
+Mean loss: 0.0150
+Total loss: 0.0371
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0286 	
+Id_val ACCURACY: 0.9215 	Id_val Loss: 0.6809 	
+Id_test ACCURACY: 0.8135 	Id_test Loss: 4.5768 	
+edge_weight:  tensor(0.) tensor(0.9363) tensor(0.0540)
+
+Epoch 58:
+Evaluating...
+Clf loss: 0.0112
+Spec loss: 0.0218
+Mean loss: 0.0112
+Total loss: 0.0330
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0274 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.6882 	
+Id_test ACCURACY: 0.8206 	Id_test Loss: 4.7745 	
+edge_weight:  tensor(0.) tensor(0.9581) tensor(0.0541)
+
+Epoch 59:
+Evaluating...
+Clf loss: 0.0103
+Spec loss: 0.0221
+Mean loss: 0.0103
+Total loss: 0.0323
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0273 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.6511 	
+Id_test ACCURACY: 0.8193 	Id_test Loss: 4.6823 	
+edge_weight:  tensor(0.) tensor(0.9721) tensor(0.0541)
+
+Epoch 60:
+Evaluating...
+Clf loss: 0.0117
+Spec loss: 0.0219
+Mean loss: 0.0117
+Total loss: 0.0336
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0317 	
+Id_val ACCURACY: 0.9209 	Id_val Loss: 0.6429 	
+Id_test ACCURACY: 0.8107 	Id_test Loss: 4.2023 	
+edge_weight:  tensor(0.) tensor(0.9960) tensor(0.0541)
+
+Epoch 61:
+Evaluating...
+Clf loss: 0.0179
+Spec loss: 0.0216
+Mean loss: 0.0179
+Total loss: 0.0396
+Eval_train ACCURACY: 0.9963 	Eval_train Loss: 0.0395 	
+Id_val ACCURACY: 0.9187 	Id_val Loss: 0.5727 	
+Id_test ACCURACY: 0.7891 	Id_test Loss: 5.0752 	
+edge_weight:  tensor(0.) tensor(0.9984) tensor(0.0540)
+
+Epoch 62:
+Evaluating...
+Clf loss: 0.0139
+Spec loss: 0.0219
+Mean loss: 0.0139
+Total loss: 0.0358
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0249 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.6421 	
+Id_test ACCURACY: 0.8275 	Id_test Loss: 4.1060 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 63:
+Evaluating...
+Clf loss: 0.0095
+Spec loss: 0.0217
+Mean loss: 0.0095
+Total loss: 0.0312
+Eval_train ACCURACY: 0.9972 	Eval_train Loss: 0.0309 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.6514 	
+Id_test ACCURACY: 0.8139 	Id_test Loss: 4.4109 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 64:
+Evaluating...
+Clf loss: 0.0115
+Spec loss: 0.0217
+Mean loss: 0.0115
+Total loss: 0.0332
+Eval_train ACCURACY: 0.9972 	Eval_train Loss: 0.0319 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.7537 	
+Id_test ACCURACY: 0.8323 	Id_test Loss: 5.0120 	
+edge_weight:  tensor(0.) tensor(0.9993) tensor(0.0540)
+
+Epoch 65:
+Evaluating...
+Clf loss: 0.0140
+Spec loss: 0.0219
+Mean loss: 0.0140
+Total loss: 0.0359
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9221 	Id_val Loss: 0.5845 	
+Id_test ACCURACY: 0.8139 	Id_test Loss: 4.2123 	
+edge_weight:  tensor(0.) tensor(0.9744) tensor(0.0541)
+
+Epoch 66:
+Evaluating...
+Clf loss: 0.0079
+Spec loss: 0.0219
+Mean loss: 0.0079
+Total loss: 0.0298
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9237 	Id_val Loss: 0.8688 	
+Id_test ACCURACY: 0.8261 	Id_test Loss: 6.2609 	
+edge_weight:  tensor(0.) tensor(0.9595) tensor(0.0541)
+
+Epoch 67:
+Evaluating...
+Clf loss: 0.0113
+Spec loss: 0.0219
+Mean loss: 0.0113
+Total loss: 0.0331
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0249 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.7808 	
+Id_test ACCURACY: 0.8210 	Id_test Loss: 5.9496 	
+edge_weight:  tensor(0.) tensor(0.8182) tensor(0.0540)
+
+Epoch 68:
+Evaluating...
+Clf loss: 0.0129
+Spec loss: 0.0219
+Mean loss: 0.0129
+Total loss: 0.0347
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0252 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.7495 	
+Id_test ACCURACY: 0.8211 	Id_test Loss: 4.6262 	
+edge_weight:  tensor(0.) tensor(0.9499) tensor(0.0541)
+
+Epoch 69:
+Evaluating...
+Clf loss: 0.0103
+Spec loss: 0.0216
+Mean loss: 0.0103
+Total loss: 0.0319
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0277 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.5441 	
+Id_test ACCURACY: 0.8274 	Id_test Loss: 3.2429 	
+edge_weight:  tensor(0.) tensor(0.9883) tensor(0.0541)
+
+Epoch 70:
+Evaluating...
+Clf loss: 0.0081
+Spec loss: 0.0214
+Mean loss: 0.0081
+Total loss: 0.0295
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0244 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.8221 	
+Id_test ACCURACY: 0.8174 	Id_test Loss: 5.5367 	
+edge_weight:  tensor(0.) tensor(0.9624) tensor(0.0541)
+
+Epoch 71:
+Evaluating...
+Clf loss: 0.0127
+Spec loss: 0.0213
+Mean loss: 0.0127
+Total loss: 0.0340
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0243 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.7471 	
+Id_test ACCURACY: 0.8325 	Id_test Loss: 4.1769 	
+edge_weight:  tensor(0.) tensor(0.8882) tensor(0.0541)
+
+Epoch 72:
+Evaluating...
+Clf loss: 0.0149
+Spec loss: 0.0217
+Mean loss: 0.0149
+Total loss: 0.0366
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0271 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.6590 	
+Id_test ACCURACY: 0.8218 	Id_test Loss: 4.0305 	
+edge_weight:  tensor(0.) tensor(0.9552) tensor(0.0541)
+
+Epoch 73:
+Evaluating...
+Clf loss: 0.0098
+Spec loss: 0.0216
+Mean loss: 0.0098
+Total loss: 0.0314
+Eval_train ACCURACY: 0.9998 	Eval_train Loss: 0.0230 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.7665 	
+Id_test ACCURACY: 0.8195 	Id_test Loss: 5.3992 	
+edge_weight:  tensor(0.) tensor(0.9570) tensor(0.0540)
+
+Epoch 74:
+Evaluating...
+Clf loss: 0.0077
+Spec loss: 0.0216
+Mean loss: 0.0077
+Total loss: 0.0294
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0249 	
+Id_val ACCURACY: 0.9231 	Id_val Loss: 0.7014 	
+Id_test ACCURACY: 0.8221 	Id_test Loss: 5.0679 	
+edge_weight:  tensor(0.) tensor(0.9905) tensor(0.0541)
+
+Epoch 75:
+Evaluating...
+Clf loss: 0.0096
+Spec loss: 0.0217
+Mean loss: 0.0096
+Total loss: 0.0313
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0324 	
+Id_val ACCURACY: 0.9202 	Id_val Loss: 0.5680 	
+Id_test ACCURACY: 0.8057 	Id_test Loss: 4.0124 	
+edge_weight:  tensor(0.) tensor(0.8847) tensor(0.0541)
+
+Epoch 76:
+Evaluating...
+Clf loss: 0.0117
+Spec loss: 0.0218
+Mean loss: 0.0117
+Total loss: 0.0334
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0277 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.6967 	
+Id_test ACCURACY: 0.8063 	Id_test Loss: 4.9340 	
+edge_weight:  tensor(0.) tensor(0.9868) tensor(0.0540)
+
+Epoch 77:
+Evaluating...
+Clf loss: 0.0104
+Spec loss: 0.0217
+Mean loss: 0.0104
+Total loss: 0.0320
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0260 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.9158 	
+Id_test ACCURACY: 0.8148 	Id_test Loss: 6.8538 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0540)
+
+Epoch 78:
+Evaluating...
+Clf loss: 0.0071
+Spec loss: 0.0215
+Mean loss: 0.0071
+Total loss: 0.0286
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0237 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.8372 	
+Id_test ACCURACY: 0.8229 	Id_test Loss: 5.5815 	
+edge_weight:  tensor(0.) tensor(0.8411) tensor(0.0541)
+
+Epoch 79:
+Evaluating...
+Clf loss: 0.0103
+Spec loss: 0.0218
+Mean loss: 0.0103
+Total loss: 0.0321
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.5780 	
+Id_test ACCURACY: 0.8228 	Id_test Loss: 4.0830 	
+edge_weight:  tensor(0.) tensor(0.9956) tensor(0.0541)
+
+Epoch 80:
+Evaluating...
+Clf loss: 0.0137
+Spec loss: 0.0218
+Mean loss: 0.0137
+Total loss: 0.0355
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9237 	Id_val Loss: 0.6798 	
+Id_test ACCURACY: 0.8249 	Id_test Loss: 4.2140 	
+edge_weight:  tensor(0.) tensor(0.9491) tensor(0.0540)
+
+Epoch 81:
+Evaluating...
+Clf loss: 0.0097
+Spec loss: 0.0216
+Mean loss: 0.0097
+Total loss: 0.0313
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0254 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.6526 	
+Id_test ACCURACY: 0.8186 	Id_test Loss: 4.6836 	
+edge_weight:  tensor(0.) tensor(0.9031) tensor(0.0540)
+
+Epoch 82:
+Evaluating...
+Clf loss: 0.0071
+Spec loss: 0.0214
+Mean loss: 0.0071
+Total loss: 0.0285
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0242 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.8845 	
+Id_test ACCURACY: 0.8253 	Id_test Loss: 6.5805 	
+edge_weight:  tensor(0.) tensor(0.9682) tensor(0.0540)
+
+Epoch 83:
+Evaluating...
+Clf loss: 0.0062
+Spec loss: 0.0217
+Mean loss: 0.0062
+Total loss: 0.0279
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.8492 	
+Id_test ACCURACY: 0.8259 	Id_test Loss: 6.3733 	
+edge_weight:  tensor(0.) tensor(0.9664) tensor(0.0541)
+
+Epoch 84:
+Evaluating...
+Clf loss: 0.0141
+Spec loss: 0.0215
+Mean loss: 0.0141
+Total loss: 0.0357
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0248 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.7303 	
+Id_test ACCURACY: 0.8199 	Id_test Loss: 5.3780 	
+edge_weight:  tensor(0.) tensor(0.9907) tensor(0.0541)
+
+Epoch 85:
+Evaluating...
+Clf loss: 0.0135
+Spec loss: 0.0217
+Mean loss: 0.0135
+Total loss: 0.0352
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0283 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.5280 	
+Id_test ACCURACY: 0.8183 	Id_test Loss: 3.6701 	
+edge_weight:  tensor(0.) tensor(0.8081) tensor(0.0541)
+
+Epoch 86:
+Evaluating...
+Clf loss: 0.0092
+Spec loss: 0.0217
+Mean loss: 0.0092
+Total loss: 0.0308
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0233 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.8561 	
+Id_test ACCURACY: 0.8259 	Id_test Loss: 5.4278 	
+edge_weight:  tensor(0.) tensor(0.9994) tensor(0.0540)
+
+Epoch 87:
+Evaluating...
+Clf loss: 0.0099
+Spec loss: 0.0217
+Mean loss: 0.0099
+Total loss: 0.0316
+Eval_train ACCURACY: 0.9967 	Eval_train Loss: 0.0318 	
+Id_val ACCURACY: 0.9244 	Id_val Loss: 0.8749 	
+Id_test ACCURACY: 0.8226 	Id_test Loss: 6.2261 	
+edge_weight:  tensor(0.) tensor(0.8054) tensor(0.0541)
+
+Epoch 88:
+Evaluating...
+Clf loss: 0.0105
+Spec loss: 0.0214
+Mean loss: 0.0105
+Total loss: 0.0319
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.8043 	
+Id_test ACCURACY: 0.8171 	Id_test Loss: 4.6317 	
+edge_weight:  tensor(0.) tensor(0.9812) tensor(0.0540)
+
+Epoch 89:
+Evaluating...
+Clf loss: 0.0055
+Spec loss: 0.0216
+Mean loss: 0.0055
+Total loss: 0.0271
+Eval_train ACCURACY: 0.9995 	Eval_train Loss: 0.0237 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.9880 	
+Id_test ACCURACY: 0.8295 	Id_test Loss: 6.5651 	
+edge_weight:  tensor(0.) tensor(0.9626) tensor(0.0540)
+
+Epoch 90:
+Evaluating...
+Clf loss: 0.0041
+Spec loss: 0.0215
+Mean loss: 0.0041
+Total loss: 0.0256
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0239 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.7471 	
+Id_test ACCURACY: 0.8252 	Id_test Loss: 4.3918 	
+edge_weight:  tensor(0.) tensor(0.9914) tensor(0.0540)
+
+Epoch 91:
+Evaluating...
+Clf loss: 0.0075
+Spec loss: 0.0216
+Mean loss: 0.0075
+Total loss: 0.0291
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0243 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.7945 	
+Id_test ACCURACY: 0.8267 	Id_test Loss: 4.9575 	
+edge_weight:  tensor(0.) tensor(0.8378) tensor(0.0541)
+
+Epoch 92:
+Evaluating...
+Clf loss: 0.0095
+Spec loss: 0.0214
+Mean loss: 0.0095
+Total loss: 0.0309
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0269 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.7366 	
+Id_test ACCURACY: 0.8039 	Id_test Loss: 5.5511 	
+edge_weight:  tensor(0.) tensor(0.8780) tensor(0.0541)
+
+Epoch 93:
+Evaluating...
+Clf loss: 0.0079
+Spec loss: 0.0212
+Mean loss: 0.0079
+Total loss: 0.0291
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0245 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.7946 	
+Id_test ACCURACY: 0.8160 	Id_test Loss: 6.1873 	
+edge_weight:  tensor(0.) tensor(0.9994) tensor(0.0541)
+
+Epoch 94:
+Evaluating...
+Clf loss: 0.0098
+Spec loss: 0.0215
+Mean loss: 0.0098
+Total loss: 0.0312
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.6959 	
+Id_test ACCURACY: 0.8085 	Id_test Loss: 5.5704 	
+edge_weight:  tensor(0.) tensor(0.9982) tensor(0.0540)
+
+Epoch 95:
+Evaluating...
+Clf loss: 0.0082
+Spec loss: 0.0213
+Mean loss: 0.0082
+Total loss: 0.0295
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0256 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.7197 	
+Id_test ACCURACY: 0.7984 	Id_test Loss: 6.0202 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0540)
+
+Epoch 96:
+Evaluating...
+Clf loss: 0.0089
+Spec loss: 0.0214
+Mean loss: 0.0089
+Total loss: 0.0303
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.8738 	
+Id_test ACCURACY: 0.8187 	Id_test Loss: 7.7071 	
+edge_weight:  tensor(0.) tensor(0.9979) tensor(0.0540)
+
+Epoch 97:
+Evaluating...
+Clf loss: 0.0095
+Spec loss: 0.0213
+Mean loss: 0.0095
+Total loss: 0.0309
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0292 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.7993 	
+Id_test ACCURACY: 0.7944 	Id_test Loss: 6.5963 	
+edge_weight:  tensor(0.) tensor(0.9998) tensor(0.0540)
+
+Epoch 98:
+Evaluating...
+Clf loss: 0.0094
+Spec loss: 0.0216
+Mean loss: 0.0094
+Total loss: 0.0310
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0247 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.8085 	
+Id_test ACCURACY: 0.7977 	Id_test Loss: 7.7206 	
+edge_weight:  tensor(0.) tensor(0.9939) tensor(0.0541)
+
+Epoch 99:
+Evaluating...
+Clf loss: 0.0099
+Spec loss: 0.0216
+Mean loss: 0.0099
+Total loss: 0.0316
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0273 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.5153 	
+Id_test ACCURACY: 0.8096 	Id_test Loss: 4.4541 	
+edge_weight:  tensor(0.) tensor(0.9996) tensor(0.0540)
+
+Training end (0:07:10.506504).
+
+[1;34mDEBUG[0m: 08/13/2025 06:07:35 PM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 8 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round1/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 8: 
+-----------------------------------
+Train ACCURACY: 0.9681
+Train Loss: 0.1168
+Spec Loss: 0.0227
+Mean Loss: 0.1328
+Total Loss: 0.1555
+ID Validation ACCURACY: 0.9104
+ID Validation Loss: 0.2936
+ID Test ACCURACY: 0.8281
+ID Test Loss: 0.8796
+OOD Validation ACCURACY: 0.9104
+OOD Validation Loss: 0.2936
+OOD Test ACCURACY: 0.8281
+OOD Test Loss: 0.8796
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 8...
+[0m[1;37mINFO[0m: [1mCheckpoint 8: 
+-----------------------------------
+Train ACCURACY: 0.9681
+Train Loss: 0.1168
+ID Validation ACCURACY: 0.9104
+ID Validation Loss: 0.2936
+ID Test ACCURACY: 0.8281
+ID Test Loss: 0.8796
+OOD Validation ACCURACY: 0.9104
+OOD Validation Loss: 0.2936
+OOD Test ACCURACY: 0.8281
+OOD Test Loss: 0.8796
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8281 0.8281 0.8281 0.8281 0.9104 0.9104[0mTrain ACCURACY: 0.9681 	Train Loss: 0.1159 	
+Id_val ACCURACY: 0.9104 	Id_val Loss: 0.2936 	
+Id_test ACCURACY: 0.8281 	Id_test Loss: 0.8796 	
+Val ACCURACY: 0.9104 	Val Loss: 0.2936 	
+Test ACCURACY: 0.8281 	Test Loss: 0.8796 	
+
+
+#D#Running with seed = 2
+model_dirname= softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted
+207 2
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/SST2Planted/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 2,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 2,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Wed Aug 13 18:07:38 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset GraphSST2Planted
+[0m[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mDataset: {'train': GraphSST2Planted(28327), 'id_val': GraphSST2Planted(3147), 'id_test': GraphSST2Planted(12305), 'val': GraphSST2Planted(3147), 'test': GraphSST2Planted(12305), 'task': 'Binary classification', 'metric': 'Accuracy'}
+[0m[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1m Data(x=[17, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[17], sentence_tokens=[17], num_nodes=17)
+[0mData(x=[14, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[14], sentence_tokens=[14], num_nodes=14)
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:07:39 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+Before training:
+Eval_train ACCURACY: 0.4905 	Eval_train Loss: 0.7192 	
+Id_val ACCURACY: 0.4919 	Id_val Loss: 0.7194 	
+Id_test ACCURACY: 0.4059 	Id_test Loss: 0.7605 	
+
+Epoch 0:
+Evaluating...
+Clf loss: 0.5498
+Spec loss: 0.0081
+Mean loss: 0.5498
+Total loss: 0.5578
+Eval_train ACCURACY: 0.8251 	Eval_train Loss: 0.3980 	
+Id_val ACCURACY: 0.8262 	Id_val Loss: 0.4182 	
+Id_test ACCURACY: 0.8214 	Id_test Loss: 0.4848 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round2/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:07:48 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:07:48 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 1:
+Evaluating...
+Clf loss: 0.3491
+Spec loss: 0.0181
+Mean loss: 0.3491
+Total loss: 0.3673
+Eval_train ACCURACY: 0.8816 	Eval_train Loss: 0.3005 	
+Id_val ACCURACY: 0.8662 	Id_val Loss: 0.3396 	
+Id_test ACCURACY: 0.8283 	Id_test Loss: 0.4877 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:07:52 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:07:52 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 2:
+Evaluating...
+Clf loss: 0.2855
+Spec loss: 0.0208
+Mean loss: 0.2855
+Total loss: 0.3064
+Eval_train ACCURACY: 0.8985 	Eval_train Loss: 0.2673 	
+Id_val ACCURACY: 0.8726 	Id_val Loss: 0.3298 	
+Id_test ACCURACY: 0.8434 	Id_test Loss: 0.4583 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:07:57 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:07:57 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 3:
+Evaluating...
+Clf loss: 0.2482
+Spec loss: 0.0223
+Mean loss: 0.2482
+Total loss: 0.2705
+Eval_train ACCURACY: 0.9215 	Eval_train Loss: 0.2268 	
+Id_val ACCURACY: 0.8920 	Id_val Loss: 0.3018 	
+Id_test ACCURACY: 0.8337 	Id_test Loss: 0.4686 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:08:01 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:08:01 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 4:
+Evaluating...
+Clf loss: 0.2112
+Spec loss: 0.0224
+Mean loss: 0.2112
+Total loss: 0.2336
+Eval_train ACCURACY: 0.9343 	Eval_train Loss: 0.1940 	
+Id_val ACCURACY: 0.8964 	Id_val Loss: 0.2772 	
+Id_test ACCURACY: 0.8182 	Id_test Loss: 0.6710 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:08:06 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:08:06 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 5:
+Evaluating...
+Clf loss: 0.1825
+Spec loss: 0.0225
+Mean loss: 0.1825
+Total loss: 0.2050
+Eval_train ACCURACY: 0.9483 	Eval_train Loss: 0.1512 	
+Id_val ACCURACY: 0.9110 	Id_val Loss: 0.2829 	
+Id_test ACCURACY: 0.8402 	Id_test Loss: 0.6781 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 6:
+Evaluating...
+Clf loss: 0.1522
+Spec loss: 0.0223
+Mean loss: 0.1522
+Total loss: 0.1745
+Eval_train ACCURACY: 0.9535 	Eval_train Loss: 0.1411 	
+Id_val ACCURACY: 0.9075 	Id_val Loss: 0.3139 	
+Id_test ACCURACY: 0.7518 	Id_test Loss: 1.5849 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 7:
+Evaluating...
+Clf loss: 0.1294
+Spec loss: 0.0223
+Mean loss: 0.1294
+Total loss: 0.1517
+Eval_train ACCURACY: 0.9659 	Eval_train Loss: 0.1164 	
+Id_val ACCURACY: 0.9183 	Id_val Loss: 0.2930 	
+Id_test ACCURACY: 0.7664 	Id_test Loss: 1.2567 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 8:
+Evaluating...
+Clf loss: 0.1090
+Spec loss: 0.0221
+Mean loss: 0.1090
+Total loss: 0.1310
+Eval_train ACCURACY: 0.9744 	Eval_train Loss: 0.0960 	
+Id_val ACCURACY: 0.9113 	Id_val Loss: 0.3434 	
+Id_test ACCURACY: 0.7932 	Id_test Loss: 1.5303 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 9:
+Evaluating...
+Clf loss: 0.0954
+Spec loss: 0.0221
+Mean loss: 0.0954
+Total loss: 0.1176
+Eval_train ACCURACY: 0.9811 	Eval_train Loss: 0.0798 	
+Id_val ACCURACY: 0.9158 	Id_val Loss: 0.3040 	
+Id_test ACCURACY: 0.8164 	Id_test Loss: 1.1877 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 10:
+Evaluating...
+Clf loss: 0.0939
+Spec loss: 0.0220
+Mean loss: 0.0939
+Total loss: 0.1159
+Eval_train ACCURACY: 0.9777 	Eval_train Loss: 0.0872 	
+Id_val ACCURACY: 0.9183 	Id_val Loss: 0.3112 	
+Id_test ACCURACY: 0.7411 	Id_test Loss: 2.2216 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 11:
+Evaluating...
+Clf loss: 0.0970
+Spec loss: 0.0220
+Mean loss: 0.0970
+Total loss: 0.1190
+Eval_train ACCURACY: 0.9798 	Eval_train Loss: 0.0808 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.3131 	
+Id_test ACCURACY: 0.8189 	Id_test Loss: 1.1599 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 12:
+Evaluating...
+Clf loss: 0.0726
+Spec loss: 0.0220
+Mean loss: 0.0726
+Total loss: 0.0946
+Eval_train ACCURACY: 0.9847 	Eval_train Loss: 0.0704 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.3216 	
+Id_test ACCURACY: 0.8158 	Id_test Loss: 1.2260 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 13:
+Evaluating...
+Clf loss: 0.0645
+Spec loss: 0.0221
+Mean loss: 0.0645
+Total loss: 0.0865
+Eval_train ACCURACY: 0.9866 	Eval_train Loss: 0.0679 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.4314 	
+Id_test ACCURACY: 0.8106 	Id_test Loss: 2.2198 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 14:
+Evaluating...
+Clf loss: 0.0549
+Spec loss: 0.0221
+Mean loss: 0.0549
+Total loss: 0.0770
+Eval_train ACCURACY: 0.9911 	Eval_train Loss: 0.0497 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.3684 	
+Id_test ACCURACY: 0.8289 	Id_test Loss: 1.4847 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 15:
+Evaluating...
+Clf loss: 0.0466
+Spec loss: 0.0220
+Mean loss: 0.0466
+Total loss: 0.0685
+Eval_train ACCURACY: 0.9917 	Eval_train Loss: 0.0468 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.4007 	
+Id_test ACCURACY: 0.8257 	Id_test Loss: 2.0584 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 16:
+Evaluating...
+Clf loss: 0.0423
+Spec loss: 0.0220
+Mean loss: 0.0423
+Total loss: 0.0643
+Eval_train ACCURACY: 0.9932 	Eval_train Loss: 0.0447 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.4169 	
+Id_test ACCURACY: 0.8018 	Id_test Loss: 2.0592 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 17:
+Evaluating...
+Clf loss: 0.0393
+Spec loss: 0.0219
+Mean loss: 0.0393
+Total loss: 0.0612
+Eval_train ACCURACY: 0.9931 	Eval_train Loss: 0.0447 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.4207 	
+Id_test ACCURACY: 0.8010 	Id_test Loss: 2.6165 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 18:
+Evaluating...
+Clf loss: 0.0357
+Spec loss: 0.0219
+Mean loss: 0.0357
+Total loss: 0.0576
+Eval_train ACCURACY: 0.9923 	Eval_train Loss: 0.0451 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.4093 	
+Id_test ACCURACY: 0.8226 	Id_test Loss: 1.9433 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 19:
+Evaluating...
+Clf loss: 0.0460
+Spec loss: 0.0218
+Mean loss: 0.0460
+Total loss: 0.0677
+Eval_train ACCURACY: 0.9937 	Eval_train Loss: 0.0419 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.4154 	
+Id_test ACCURACY: 0.7724 	Id_test Loss: 3.1064 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 20:
+Evaluating...
+Clf loss: 0.0322
+Spec loss: 0.0215
+Mean loss: 0.0322
+Total loss: 0.0537
+Eval_train ACCURACY: 0.9946 	Eval_train Loss: 0.0414 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.4105 	
+Id_test ACCURACY: 0.7954 	Id_test Loss: 2.6107 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 21:
+Evaluating...
+Clf loss: 0.0286
+Spec loss: 0.0215
+Mean loss: 0.0286
+Total loss: 0.0501
+Eval_train ACCURACY: 0.9956 	Eval_train Loss: 0.0368 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.4325 	
+Id_test ACCURACY: 0.8197 	Id_test Loss: 2.2584 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 22:
+Evaluating...
+Clf loss: 0.0288
+Spec loss: 0.0219
+Mean loss: 0.0288
+Total loss: 0.0507
+Eval_train ACCURACY: 0.9968 	Eval_train Loss: 0.0334 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.5211 	
+Id_test ACCURACY: 0.8004 	Id_test Loss: 2.9600 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 23:
+Evaluating...
+Clf loss: 0.0321
+Spec loss: 0.0218
+Mean loss: 0.0321
+Total loss: 0.0539
+Eval_train ACCURACY: 0.9970 	Eval_train Loss: 0.0333 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.5533 	
+Id_test ACCURACY: 0.8252 	Id_test Loss: 2.6483 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 24:
+Evaluating...
+Clf loss: 0.0258
+Spec loss: 0.0218
+Mean loss: 0.0258
+Total loss: 0.0476
+Eval_train ACCURACY: 0.9966 	Eval_train Loss: 0.0321 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.5569 	
+Id_test ACCURACY: 0.8261 	Id_test Loss: 3.1797 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 25:
+Evaluating...
+Clf loss: 0.0226
+Spec loss: 0.0217
+Mean loss: 0.0226
+Total loss: 0.0443
+Eval_train ACCURACY: 0.9959 	Eval_train Loss: 0.0382 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.4864 	
+Id_test ACCURACY: 0.8171 	Id_test Loss: 2.2482 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 26:
+Evaluating...
+Clf loss: 0.0354
+Spec loss: 0.0216
+Mean loss: 0.0354
+Total loss: 0.0569
+Eval_train ACCURACY: 0.9926 	Eval_train Loss: 0.0487 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.4242 	
+Id_test ACCURACY: 0.8375 	Id_test Loss: 1.8901 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 27:
+Evaluating...
+Clf loss: 0.0348
+Spec loss: 0.0222
+Mean loss: 0.0348
+Total loss: 0.0570
+Eval_train ACCURACY: 0.9946 	Eval_train Loss: 0.0394 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.5118 	
+Id_test ACCURACY: 0.8236 	Id_test Loss: 2.6429 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 28:
+Evaluating...
+Clf loss: 0.0269
+Spec loss: 0.0219
+Mean loss: 0.0269
+Total loss: 0.0488
+Eval_train ACCURACY: 0.9949 	Eval_train Loss: 0.0418 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.5076 	
+Id_test ACCURACY: 0.7902 	Id_test Loss: 3.6532 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 29:
+Evaluating...
+Clf loss: 0.0267
+Spec loss: 0.0218
+Mean loss: 0.0267
+Total loss: 0.0485
+Eval_train ACCURACY: 0.9939 	Eval_train Loss: 0.0379 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.6422 	
+Id_test ACCURACY: 0.8105 	Id_test Loss: 3.9083 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 30:
+Evaluating...
+Clf loss: 0.0245
+Spec loss: 0.0218
+Mean loss: 0.0245
+Total loss: 0.0464
+Eval_train ACCURACY: 0.9959 	Eval_train Loss: 0.0346 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.4982 	
+Id_test ACCURACY: 0.8141 	Id_test Loss: 3.2355 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 31:
+Evaluating...
+Clf loss: 0.0183
+Spec loss: 0.0217
+Mean loss: 0.0183
+Total loss: 0.0400
+Eval_train ACCURACY: 0.9979 	Eval_train Loss: 0.0296 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.5767 	
+Id_test ACCURACY: 0.8219 	Id_test Loss: 3.5614 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 32:
+Evaluating...
+Clf loss: 0.0159
+Spec loss: 0.0217
+Mean loss: 0.0159
+Total loss: 0.0377
+Eval_train ACCURACY: 0.9975 	Eval_train Loss: 0.0302 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.5638 	
+Id_test ACCURACY: 0.8170 	Id_test Loss: 2.9367 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 33:
+Evaluating...
+Clf loss: 0.0160
+Spec loss: 0.0216
+Mean loss: 0.0160
+Total loss: 0.0376
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0311 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.5181 	
+Id_test ACCURACY: 0.8262 	Id_test Loss: 2.9029 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 34:
+Evaluating...
+Clf loss: 0.0182
+Spec loss: 0.0217
+Mean loss: 0.0182
+Total loss: 0.0399
+Eval_train ACCURACY: 0.9966 	Eval_train Loss: 0.0340 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.5628 	
+Id_test ACCURACY: 0.8309 	Id_test Loss: 3.2934 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 35:
+Evaluating...
+Clf loss: 0.0204
+Spec loss: 0.0216
+Mean loss: 0.0204
+Total loss: 0.0419
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0311 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.5037 	
+Id_test ACCURACY: 0.8241 	Id_test Loss: 2.7876 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 36:
+Evaluating...
+Clf loss: 0.0191
+Spec loss: 0.0217
+Mean loss: 0.0191
+Total loss: 0.0408
+Eval_train ACCURACY: 0.9979 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9326 	Id_val Loss: 0.4583 	
+Id_test ACCURACY: 0.8128 	Id_test Loss: 2.8349 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 37:
+Evaluating...
+Clf loss: 0.0195
+Spec loss: 0.0217
+Mean loss: 0.0195
+Total loss: 0.0412
+Eval_train ACCURACY: 0.9979 	Eval_train Loss: 0.0288 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.5010 	
+Id_test ACCURACY: 0.8295 	Id_test Loss: 2.2977 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 38:
+Evaluating...
+Clf loss: 0.0155
+Spec loss: 0.0215
+Mean loss: 0.0155
+Total loss: 0.0370
+Eval_train ACCURACY: 0.9966 	Eval_train Loss: 0.0324 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.5595 	
+Id_test ACCURACY: 0.8337 	Id_test Loss: 2.6157 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 39:
+Evaluating...
+Clf loss: 0.0191
+Spec loss: 0.0214
+Mean loss: 0.0191
+Total loss: 0.0406
+Eval_train ACCURACY: 0.9948 	Eval_train Loss: 0.0401 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.4992 	
+Id_test ACCURACY: 0.8278 	Id_test Loss: 2.5723 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 40:
+Evaluating...
+Clf loss: 0.0206
+Spec loss: 0.0214
+Mean loss: 0.0206
+Total loss: 0.0420
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0284 	
+Id_val ACCURACY: 0.9199 	Id_val Loss: 0.6099 	
+Id_test ACCURACY: 0.8160 	Id_test Loss: 2.4915 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 41:
+Evaluating...
+Clf loss: 0.0186
+Spec loss: 0.0215
+Mean loss: 0.0186
+Total loss: 0.0400
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0263 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.7235 	
+Id_test ACCURACY: 0.8228 	Id_test Loss: 3.1948 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 42:
+Evaluating...
+Clf loss: 0.0178
+Spec loss: 0.0216
+Mean loss: 0.0178
+Total loss: 0.0394
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0311 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.5445 	
+Id_test ACCURACY: 0.8158 	Id_test Loss: 3.1378 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 43:
+Evaluating...
+Clf loss: 0.0196
+Spec loss: 0.0218
+Mean loss: 0.0196
+Total loss: 0.0413
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0307 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.4911 	
+Id_test ACCURACY: 0.8203 	Id_test Loss: 2.9745 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 44:
+Evaluating...
+Clf loss: 0.0139
+Spec loss: 0.0214
+Mean loss: 0.0139
+Total loss: 0.0353
+Eval_train ACCURACY: 0.9971 	Eval_train Loss: 0.0309 	
+Id_val ACCURACY: 0.9228 	Id_val Loss: 0.5622 	
+Id_test ACCURACY: 0.8089 	Id_test Loss: 3.2743 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 45:
+Evaluating...
+Clf loss: 0.0190
+Spec loss: 0.0214
+Mean loss: 0.0190
+Total loss: 0.0404
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0295 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.5030 	
+Id_test ACCURACY: 0.8109 	Id_test Loss: 3.4079 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 46:
+Evaluating...
+Clf loss: 0.0144
+Spec loss: 0.0216
+Mean loss: 0.0144
+Total loss: 0.0360
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.5685 	
+Id_test ACCURACY: 0.7989 	Id_test Loss: 3.7796 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 47:
+Evaluating...
+Clf loss: 0.0105
+Spec loss: 0.0214
+Mean loss: 0.0105
+Total loss: 0.0320
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0278 	
+Id_val ACCURACY: 0.9228 	Id_val Loss: 0.6433 	
+Id_test ACCURACY: 0.8357 	Id_test Loss: 3.1840 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 48:
+Evaluating...
+Clf loss: 0.0137
+Spec loss: 0.0214
+Mean loss: 0.0137
+Total loss: 0.0351
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0282 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.5912 	
+Id_test ACCURACY: 0.8217 	Id_test Loss: 2.9624 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 49:
+Evaluating...
+Clf loss: 0.0134
+Spec loss: 0.0213
+Mean loss: 0.0134
+Total loss: 0.0348
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0320 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.5360 	
+Id_test ACCURACY: 0.8208 	Id_test Loss: 2.8949 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 50:
+Evaluating...
+Clf loss: 0.0157
+Spec loss: 0.0213
+Mean loss: 0.0157
+Total loss: 0.0370
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0272 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.5782 	
+Id_test ACCURACY: 0.8341 	Id_test Loss: 3.0292 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 51:
+Evaluating...
+Clf loss: 0.0150
+Spec loss: 0.0211
+Mean loss: 0.0150
+Total loss: 0.0362
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.5807 	
+Id_test ACCURACY: 0.8254 	Id_test Loss: 2.6197 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 52:
+Evaluating...
+Clf loss: 0.0110
+Spec loss: 0.0210
+Mean loss: 0.0110
+Total loss: 0.0320
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.6658 	
+Id_test ACCURACY: 0.8225 	Id_test Loss: 3.5262 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 53:
+Evaluating...
+Clf loss: 0.0119
+Spec loss: 0.0211
+Mean loss: 0.0119
+Total loss: 0.0330
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0270 	
+Id_val ACCURACY: 0.9237 	Id_val Loss: 0.6812 	
+Id_test ACCURACY: 0.8241 	Id_test Loss: 3.7681 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 54:
+Evaluating...
+Clf loss: 0.0114
+Spec loss: 0.0211
+Mean loss: 0.0114
+Total loss: 0.0325
+Eval_train ACCURACY: 0.9972 	Eval_train Loss: 0.0285 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.7733 	
+Id_test ACCURACY: 0.8037 	Id_test Loss: 4.7871 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 55:
+Evaluating...
+Clf loss: 0.0149
+Spec loss: 0.0210
+Mean loss: 0.0149
+Total loss: 0.0360
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9237 	Id_val Loss: 0.6383 	
+Id_test ACCURACY: 0.8204 	Id_test Loss: 3.7756 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 56:
+Evaluating...
+Clf loss: 0.0116
+Spec loss: 0.0209
+Mean loss: 0.0116
+Total loss: 0.0326
+Eval_train ACCURACY: 0.9952 	Eval_train Loss: 0.0365 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.7694 	
+Id_test ACCURACY: 0.7991 	Id_test Loss: 4.9388 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 57:
+Evaluating...
+Clf loss: 0.0126
+Spec loss: 0.0216
+Mean loss: 0.0126
+Total loss: 0.0341
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0296 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.5961 	
+Id_test ACCURACY: 0.8208 	Id_test Loss: 3.8810 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 58:
+Evaluating...
+Clf loss: 0.0114
+Spec loss: 0.0213
+Mean loss: 0.0114
+Total loss: 0.0327
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0285 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.8721 	
+Id_test ACCURACY: 0.8287 	Id_test Loss: 5.3482 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 59:
+Evaluating...
+Clf loss: 0.0158
+Spec loss: 0.0210
+Mean loss: 0.0158
+Total loss: 0.0368
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0291 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.5922 	
+Id_test ACCURACY: 0.8242 	Id_test Loss: 3.0939 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 60:
+Evaluating...
+Clf loss: 0.0128
+Spec loss: 0.0213
+Mean loss: 0.0128
+Total loss: 0.0341
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0251 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.6265 	
+Id_test ACCURACY: 0.8167 	Id_test Loss: 4.2699 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 61:
+Evaluating...
+Clf loss: 0.0083
+Spec loss: 0.0214
+Mean loss: 0.0083
+Total loss: 0.0297
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.8103 	
+Id_test ACCURACY: 0.8055 	Id_test Loss: 6.2426 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 62:
+Evaluating...
+Clf loss: 0.0099
+Spec loss: 0.0212
+Mean loss: 0.0099
+Total loss: 0.0311
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0256 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.7549 	
+Id_test ACCURACY: 0.8217 	Id_test Loss: 4.3363 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 63:
+Evaluating...
+Clf loss: 0.0117
+Spec loss: 0.0210
+Mean loss: 0.0117
+Total loss: 0.0327
+Eval_train ACCURACY: 0.9968 	Eval_train Loss: 0.0371 	
+Id_val ACCURACY: 0.9209 	Id_val Loss: 0.7208 	
+Id_test ACCURACY: 0.8229 	Id_test Loss: 4.3622 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 64:
+Evaluating...
+Clf loss: 0.0133
+Spec loss: 0.0211
+Mean loss: 0.0133
+Total loss: 0.0343
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.5961 	
+Id_test ACCURACY: 0.8321 	Id_test Loss: 3.2956 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 65:
+Evaluating...
+Clf loss: 0.0098
+Spec loss: 0.0211
+Mean loss: 0.0098
+Total loss: 0.0309
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0273 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.6883 	
+Id_test ACCURACY: 0.8231 	Id_test Loss: 3.8522 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 66:
+Evaluating...
+Clf loss: 0.0096
+Spec loss: 0.0211
+Mean loss: 0.0096
+Total loss: 0.0307
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.7843 	
+Id_test ACCURACY: 0.8373 	Id_test Loss: 4.1537 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 67:
+Evaluating...
+Clf loss: 0.0118
+Spec loss: 0.0210
+Mean loss: 0.0118
+Total loss: 0.0328
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.7015 	
+Id_test ACCURACY: 0.8287 	Id_test Loss: 3.7335 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 68:
+Evaluating...
+Clf loss: 0.0165
+Spec loss: 0.0213
+Mean loss: 0.0165
+Total loss: 0.0378
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0283 	
+Id_val ACCURACY: 0.9209 	Id_val Loss: 0.5612 	
+Id_test ACCURACY: 0.8351 	Id_test Loss: 3.0681 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 69:
+Evaluating...
+Clf loss: 0.0143
+Spec loss: 0.0211
+Mean loss: 0.0143
+Total loss: 0.0354
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0296 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.6679 	
+Id_test ACCURACY: 0.8378 	Id_test Loss: 3.8716 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 70:
+Evaluating...
+Clf loss: 0.0116
+Spec loss: 0.0213
+Mean loss: 0.0116
+Total loss: 0.0330
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0272 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.5348 	
+Id_test ACCURACY: 0.7952 	Id_test Loss: 3.0608 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 71:
+Evaluating...
+Clf loss: 0.0195
+Spec loss: 0.0213
+Mean loss: 0.0195
+Total loss: 0.0408
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0272 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.5929 	
+Id_test ACCURACY: 0.7816 	Id_test Loss: 4.3507 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 72:
+Evaluating...
+Clf loss: 0.0173
+Spec loss: 0.0212
+Mean loss: 0.0173
+Total loss: 0.0385
+Eval_train ACCURACY: 0.9974 	Eval_train Loss: 0.0283 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.6717 	
+Id_test ACCURACY: 0.8221 	Id_test Loss: 3.2505 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 73:
+Evaluating...
+Clf loss: 0.0126
+Spec loss: 0.0212
+Mean loss: 0.0126
+Total loss: 0.0338
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0259 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.7210 	
+Id_test ACCURACY: 0.7760 	Id_test Loss: 8.0241 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 74:
+Evaluating...
+Clf loss: 0.0119
+Spec loss: 0.0214
+Mean loss: 0.0119
+Total loss: 0.0333
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0237 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.8448 	
+Id_test ACCURACY: 0.8287 	Id_test Loss: 5.2925 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 75:
+Evaluating...
+Clf loss: 0.0089
+Spec loss: 0.0212
+Mean loss: 0.0089
+Total loss: 0.0301
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0248 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.7225 	
+Id_test ACCURACY: 0.8308 	Id_test Loss: 4.9212 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 76:
+Evaluating...
+Clf loss: 0.0101
+Spec loss: 0.0213
+Mean loss: 0.0101
+Total loss: 0.0313
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0244 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.7006 	
+Id_test ACCURACY: 0.8080 	Id_test Loss: 5.7800 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 77:
+Evaluating...
+Clf loss: 0.0087
+Spec loss: 0.0210
+Mean loss: 0.0087
+Total loss: 0.0296
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0298 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.6898 	
+Id_test ACCURACY: 0.8247 	Id_test Loss: 4.9271 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 78:
+Evaluating...
+Clf loss: 0.0150
+Spec loss: 0.0214
+Mean loss: 0.0150
+Total loss: 0.0364
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0270 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.5390 	
+Id_test ACCURACY: 0.8265 	Id_test Loss: 2.9223 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 79:
+Evaluating...
+Clf loss: 0.0136
+Spec loss: 0.0213
+Mean loss: 0.0136
+Total loss: 0.0349
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0270 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.5872 	
+Id_test ACCURACY: 0.8046 	Id_test Loss: 3.6519 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 80:
+Evaluating...
+Clf loss: 0.0111
+Spec loss: 0.0213
+Mean loss: 0.0111
+Total loss: 0.0323
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0276 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.5780 	
+Id_test ACCURACY: 0.8197 	Id_test Loss: 3.6784 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 81:
+Evaluating...
+Clf loss: 0.0133
+Spec loss: 0.0212
+Mean loss: 0.0133
+Total loss: 0.0345
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.6411 	
+Id_test ACCURACY: 0.8280 	Id_test Loss: 3.4526 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 82:
+Evaluating...
+Clf loss: 0.0086
+Spec loss: 0.0211
+Mean loss: 0.0086
+Total loss: 0.0296
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.5679 	
+Id_test ACCURACY: 0.8110 	Id_test Loss: 4.0649 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 83:
+Evaluating...
+Clf loss: 0.0101
+Spec loss: 0.0209
+Mean loss: 0.0101
+Total loss: 0.0310
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0233 	
+Id_val ACCURACY: 0.9320 	Id_val Loss: 0.5626 	
+Id_test ACCURACY: 0.8273 	Id_test Loss: 3.8490 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 84:
+Evaluating...
+Clf loss: 0.0059
+Spec loss: 0.0208
+Mean loss: 0.0059
+Total loss: 0.0267
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0245 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.7163 	
+Id_test ACCURACY: 0.8265 	Id_test Loss: 4.9889 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 85:
+Evaluating...
+Clf loss: 0.0163
+Spec loss: 0.0210
+Mean loss: 0.0163
+Total loss: 0.0373
+Eval_train ACCURACY: 0.9968 	Eval_train Loss: 0.0312 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.5759 	
+Id_test ACCURACY: 0.8279 	Id_test Loss: 3.1753 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 86:
+Evaluating...
+Clf loss: 0.0123
+Spec loss: 0.0214
+Mean loss: 0.0123
+Total loss: 0.0337
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0251 	
+Id_val ACCURACY: 0.9345 	Id_val Loss: 0.6569 	
+Id_test ACCURACY: 0.8259 	Id_test Loss: 3.8849 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 87:
+Evaluating...
+Clf loss: 0.0097
+Spec loss: 0.0214
+Mean loss: 0.0097
+Total loss: 0.0311
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0264 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.6170 	
+Id_test ACCURACY: 0.7883 	Id_test Loss: 4.5507 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 88:
+Evaluating...
+Clf loss: 0.0065
+Spec loss: 0.0212
+Mean loss: 0.0065
+Total loss: 0.0277
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0239 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.8164 	
+Id_test ACCURACY: 0.8224 	Id_test Loss: 5.6727 	
+edge_weight:  tensor(0.) tensor(0.9888) tensor(0.0541)
+
+Epoch 89:
+Evaluating...
+Clf loss: 0.0073
+Spec loss: 0.0213
+Mean loss: 0.0073
+Total loss: 0.0286
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0243 	
+Id_val ACCURACY: 0.9345 	Id_val Loss: 0.6355 	
+Id_test ACCURACY: 0.8245 	Id_test Loss: 4.3190 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 90:
+Evaluating...
+Clf loss: 0.0062
+Spec loss: 0.0210
+Mean loss: 0.0062
+Total loss: 0.0272
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0252 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.6580 	
+Id_test ACCURACY: 0.8236 	Id_test Loss: 4.2372 	
+edge_weight:  tensor(0.) tensor(0.9945) tensor(0.0541)
+
+Epoch 91:
+Evaluating...
+Clf loss: 0.0074
+Spec loss: 0.0210
+Mean loss: 0.0074
+Total loss: 0.0284
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0242 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.8573 	
+Id_test ACCURACY: 0.7976 	Id_test Loss: 7.8779 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 92:
+Evaluating...
+Clf loss: 0.0071
+Spec loss: 0.0212
+Mean loss: 0.0071
+Total loss: 0.0284
+Eval_train ACCURACY: 0.9966 	Eval_train Loss: 0.0326 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.7488 	
+Id_test ACCURACY: 0.8109 	Id_test Loss: 5.3777 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0540)
+
+Epoch 93:
+Evaluating...
+Clf loss: 0.0107
+Spec loss: 0.0213
+Mean loss: 0.0107
+Total loss: 0.0320
+Eval_train ACCURACY: 0.9995 	Eval_train Loss: 0.0227 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.7134 	
+Id_test ACCURACY: 0.8262 	Id_test Loss: 4.6520 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 94:
+Evaluating...
+Clf loss: 0.0080
+Spec loss: 0.0211
+Mean loss: 0.0080
+Total loss: 0.0290
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0244 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.6566 	
+Id_test ACCURACY: 0.8080 	Id_test Loss: 4.0313 	
+edge_weight:  tensor(0.) tensor(0.9979) tensor(0.0541)
+
+Epoch 95:
+Evaluating...
+Clf loss: 0.0047
+Spec loss: 0.0210
+Mean loss: 0.0047
+Total loss: 0.0257
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.8162 	
+Id_test ACCURACY: 0.8043 	Id_test Loss: 8.2064 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0541)
+
+Epoch 96:
+Evaluating...
+Clf loss: 0.0088
+Spec loss: 0.0210
+Mean loss: 0.0088
+Total loss: 0.0299
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0255 	
+Id_val ACCURACY: 0.9244 	Id_val Loss: 0.5324 	
+Id_test ACCURACY: 0.8062 	Id_test Loss: 4.2487 	
+edge_weight:  tensor(0.) tensor(0.9980) tensor(0.0540)
+
+Epoch 97:
+Evaluating...
+Clf loss: 0.0103
+Spec loss: 0.0208
+Mean loss: 0.0103
+Total loss: 0.0311
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.6867 	
+Id_test ACCURACY: 0.8095 	Id_test Loss: 3.5113 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 98:
+Evaluating...
+Clf loss: 0.0089
+Spec loss: 0.0210
+Mean loss: 0.0089
+Total loss: 0.0300
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0291 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.6405 	
+Id_test ACCURACY: 0.8384 	Id_test Loss: 3.2857 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 99:
+Evaluating...
+Clf loss: 0.0110
+Spec loss: 0.0206
+Mean loss: 0.0110
+Total loss: 0.0317
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0236 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.6369 	
+Id_test ACCURACY: 0.8202 	Id_test Loss: 3.1519 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0541)
+
+Training end (0:07:24.273527).
+
+[1;34mDEBUG[0m: 08/13/2025 06:15:03 PM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 4 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round2/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 4: 
+-----------------------------------
+Train ACCURACY: 0.9343
+Train Loss: 0.1940
+Spec Loss: 0.0224
+Mean Loss: 0.2112
+Total Loss: 0.2336
+ID Validation ACCURACY: 0.8964
+ID Validation Loss: 0.2772
+ID Test ACCURACY: 0.8182
+ID Test Loss: 0.6710
+OOD Validation ACCURACY: 0.8964
+OOD Validation Loss: 0.2772
+OOD Test ACCURACY: 0.8182
+OOD Test Loss: 0.6710
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 4...
+[0m[1;37mINFO[0m: [1mCheckpoint 4: 
+-----------------------------------
+Train ACCURACY: 0.9343
+Train Loss: 0.1940
+ID Validation ACCURACY: 0.8964
+ID Validation Loss: 0.2772
+ID Test ACCURACY: 0.8182
+ID Test Loss: 0.6710
+OOD Validation ACCURACY: 0.8964
+OOD Validation Loss: 0.2772
+OOD Test ACCURACY: 0.8182
+OOD Test Loss: 0.6710
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8182 0.8182 0.8182 0.8182 0.8964 0.8964[0mTrain ACCURACY: 0.9343 	Train Loss: 0.1928 	
+Id_val ACCURACY: 0.8964 	Id_val Loss: 0.2772 	
+Id_test ACCURACY: 0.8182 	Id_test Loss: 0.6710 	
+Val ACCURACY: 0.8964 	Val Loss: 0.2772 	
+Test ACCURACY: 0.8182 	Test Loss: 0.6710 	
+
+
+#D#Running with seed = 3
+model_dirname= softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted
+304 3
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/SST2Planted/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 3,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 3,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Wed Aug 13 18:15:06 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset GraphSST2Planted
+[0m[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mDataset: {'train': GraphSST2Planted(28327), 'id_val': GraphSST2Planted(3147), 'id_test': GraphSST2Planted(12305), 'val': GraphSST2Planted(3147), 'test': GraphSST2Planted(12305), 'task': 'Binary classification', 'metric': 'Accuracy'}
+[0m[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1m Data(x=[17, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[17], sentence_tokens=[17], num_nodes=17)
+[0mData(x=[14, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[14], sentence_tokens=[14], num_nodes=14)
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:15:07 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+Before training:
+Eval_train ACCURACY: 0.4878 	Eval_train Loss: 0.7192 	
+Id_val ACCURACY: 0.4751 	Id_val Loss: 0.7194 	
+Id_test ACCURACY: 0.4195 	Id_test Loss: 0.7605 	
+
+Epoch 0:
+Evaluating...
+Clf loss: 0.5522
+Spec loss: 0.0077
+Mean loss: 0.5522
+Total loss: 0.5599
+Eval_train ACCURACY: 0.8382 	Eval_train Loss: 0.3843 	
+Id_val ACCURACY: 0.8376 	Id_val Loss: 0.3986 	
+Id_test ACCURACY: 0.8028 	Id_test Loss: 0.5040 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round3/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:16 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:16 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 1:
+Evaluating...
+Clf loss: 0.3828
+Spec loss: 0.0125
+Mean loss: 0.3828
+Total loss: 0.3952
+Eval_train ACCURACY: 0.8750 	Eval_train Loss: 0.3159 	
+Id_val ACCURACY: 0.8624 	Id_val Loss: 0.3443 	
+Id_test ACCURACY: 0.8228 	Id_test Loss: 0.4615 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:15:20 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:20 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 2:
+Evaluating...
+Clf loss: 0.3061
+Spec loss: 0.0179
+Mean loss: 0.3061
+Total loss: 0.3240
+Eval_train ACCURACY: 0.8947 	Eval_train Loss: 0.2721 	
+Id_val ACCURACY: 0.8777 	Id_val Loss: 0.3194 	
+Id_test ACCURACY: 0.8362 	Id_test Loss: 0.4746 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:15:24 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:24 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 3:
+Evaluating...
+Clf loss: 0.2651
+Spec loss: 0.0183
+Mean loss: 0.2651
+Total loss: 0.2834
+Eval_train ACCURACY: 0.9095 	Eval_train Loss: 0.2440 	
+Id_val ACCURACY: 0.8821 	Id_val Loss: 0.3110 	
+Id_test ACCURACY: 0.8138 	Id_test Loss: 0.5171 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:15:29 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:29 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 4:
+Evaluating...
+Clf loss: 0.2291
+Spec loss: 0.0198
+Mean loss: 0.2291
+Total loss: 0.2489
+Eval_train ACCURACY: 0.9209 	Eval_train Loss: 0.2098 	
+Id_val ACCURACY: 0.8910 	Id_val Loss: 0.3054 	
+Id_test ACCURACY: 0.7789 	Id_test Loss: 0.6780 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:15:33 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:33 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 5:
+Evaluating...
+Clf loss: 0.2126
+Spec loss: 0.0189
+Mean loss: 0.2126
+Total loss: 0.2316
+Eval_train ACCURACY: 0.9327 	Eval_train Loss: 0.1956 	
+Id_val ACCURACY: 0.8955 	Id_val Loss: 0.2874 	
+Id_test ACCURACY: 0.8290 	Id_test Loss: 0.5303 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:15:38 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:38 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 6:
+Evaluating...
+Clf loss: 0.1823
+Spec loss: 0.0198
+Mean loss: 0.1823
+Total loss: 0.2021
+Eval_train ACCURACY: 0.9520 	Eval_train Loss: 0.1449 	
+Id_val ACCURACY: 0.9082 	Id_val Loss: 0.2931 	
+Id_test ACCURACY: 0.8254 	Id_test Loss: 0.7307 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 7:
+Evaluating...
+Clf loss: 0.1589
+Spec loss: 0.0204
+Mean loss: 0.1589
+Total loss: 0.1793
+Eval_train ACCURACY: 0.9580 	Eval_train Loss: 0.1326 	
+Id_val ACCURACY: 0.9129 	Id_val Loss: 0.2806 	
+Id_test ACCURACY: 0.8315 	Id_test Loss: 0.8786 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:15:47 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:15:47 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 8:
+Evaluating...
+Clf loss: 0.1350
+Spec loss: 0.0207
+Mean loss: 0.1350
+Total loss: 0.1557
+Eval_train ACCURACY: 0.9664 	Eval_train Loss: 0.1168 	
+Id_val ACCURACY: 0.9120 	Id_val Loss: 0.2852 	
+Id_test ACCURACY: 0.8099 	Id_test Loss: 1.0160 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 9:
+Evaluating...
+Clf loss: 0.1179
+Spec loss: 0.0207
+Mean loss: 0.1179
+Total loss: 0.1386
+Eval_train ACCURACY: 0.9622 	Eval_train Loss: 0.1215 	
+Id_val ACCURACY: 0.9040 	Id_val Loss: 0.2972 	
+Id_test ACCURACY: 0.7794 	Id_test Loss: 1.2897 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 10:
+Evaluating...
+Clf loss: 0.1205
+Spec loss: 0.0204
+Mean loss: 0.1205
+Total loss: 0.1409
+Eval_train ACCURACY: 0.9675 	Eval_train Loss: 0.1102 	
+Id_val ACCURACY: 0.9158 	Id_val Loss: 0.2891 	
+Id_test ACCURACY: 0.8091 	Id_test Loss: 1.1482 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 11:
+Evaluating...
+Clf loss: 0.0952
+Spec loss: 0.0207
+Mean loss: 0.0952
+Total loss: 0.1159
+Eval_train ACCURACY: 0.9785 	Eval_train Loss: 0.0801 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.2927 	
+Id_test ACCURACY: 0.7895 	Id_test Loss: 1.7065 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 12:
+Evaluating...
+Clf loss: 0.0840
+Spec loss: 0.0209
+Mean loss: 0.0840
+Total loss: 0.1049
+Eval_train ACCURACY: 0.9833 	Eval_train Loss: 0.0705 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.2871 	
+Id_test ACCURACY: 0.8284 	Id_test Loss: 1.1542 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 13:
+Evaluating...
+Clf loss: 0.0782
+Spec loss: 0.0209
+Mean loss: 0.0782
+Total loss: 0.0991
+Eval_train ACCURACY: 0.9855 	Eval_train Loss: 0.0628 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.3316 	
+Id_test ACCURACY: 0.8138 	Id_test Loss: 1.5521 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 14:
+Evaluating...
+Clf loss: 0.0662
+Spec loss: 0.0206
+Mean loss: 0.0662
+Total loss: 0.0868
+Eval_train ACCURACY: 0.9875 	Eval_train Loss: 0.0547 	
+Id_val ACCURACY: 0.9206 	Id_val Loss: 0.3833 	
+Id_test ACCURACY: 0.8066 	Id_test Loss: 1.8336 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 15:
+Evaluating...
+Clf loss: 0.0637
+Spec loss: 0.0212
+Mean loss: 0.0637
+Total loss: 0.0849
+Eval_train ACCURACY: 0.9911 	Eval_train Loss: 0.0491 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.3778 	
+Id_test ACCURACY: 0.8119 	Id_test Loss: 1.5624 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 16:
+Evaluating...
+Clf loss: 0.0515
+Spec loss: 0.0209
+Mean loss: 0.0515
+Total loss: 0.0724
+Eval_train ACCURACY: 0.9909 	Eval_train Loss: 0.0525 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.3469 	
+Id_test ACCURACY: 0.8113 	Id_test Loss: 1.7145 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 17:
+Evaluating...
+Clf loss: 0.0500
+Spec loss: 0.0210
+Mean loss: 0.0500
+Total loss: 0.0710
+Eval_train ACCURACY: 0.9888 	Eval_train Loss: 0.0600 	
+Id_val ACCURACY: 0.9221 	Id_val Loss: 0.3392 	
+Id_test ACCURACY: 0.8192 	Id_test Loss: 1.8104 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 18:
+Evaluating...
+Clf loss: 0.0497
+Spec loss: 0.0207
+Mean loss: 0.0497
+Total loss: 0.0704
+Eval_train ACCURACY: 0.9916 	Eval_train Loss: 0.0473 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.3849 	
+Id_test ACCURACY: 0.8101 	Id_test Loss: 1.8568 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 19:
+Evaluating...
+Clf loss: 0.0457
+Spec loss: 0.0206
+Mean loss: 0.0457
+Total loss: 0.0663
+Eval_train ACCURACY: 0.9931 	Eval_train Loss: 0.0452 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.3579 	
+Id_test ACCURACY: 0.8126 	Id_test Loss: 1.8866 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 20:
+Evaluating...
+Clf loss: 0.0417
+Spec loss: 0.0207
+Mean loss: 0.0417
+Total loss: 0.0624
+Eval_train ACCURACY: 0.9946 	Eval_train Loss: 0.0384 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.3884 	
+Id_test ACCURACY: 0.8125 	Id_test Loss: 2.1216 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 21:
+Evaluating...
+Clf loss: 0.0372
+Spec loss: 0.0204
+Mean loss: 0.0372
+Total loss: 0.0576
+Eval_train ACCURACY: 0.9925 	Eval_train Loss: 0.0444 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.4431 	
+Id_test ACCURACY: 0.7528 	Id_test Loss: 3.1815 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 22:
+Evaluating...
+Clf loss: 0.0427
+Spec loss: 0.0207
+Mean loss: 0.0427
+Total loss: 0.0634
+Eval_train ACCURACY: 0.9926 	Eval_train Loss: 0.0454 	
+Id_val ACCURACY: 0.9244 	Id_val Loss: 0.3731 	
+Id_test ACCURACY: 0.8218 	Id_test Loss: 1.8978 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 23:
+Evaluating...
+Clf loss: 0.0366
+Spec loss: 0.0205
+Mean loss: 0.0366
+Total loss: 0.0570
+Eval_train ACCURACY: 0.9931 	Eval_train Loss: 0.0428 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.3778 	
+Id_test ACCURACY: 0.7898 	Id_test Loss: 2.2655 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 24:
+Evaluating...
+Clf loss: 0.0394
+Spec loss: 0.0203
+Mean loss: 0.0394
+Total loss: 0.0597
+Eval_train ACCURACY: 0.9938 	Eval_train Loss: 0.0405 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.3596 	
+Id_test ACCURACY: 0.8179 	Id_test Loss: 2.1204 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 25:
+Evaluating...
+Clf loss: 0.0332
+Spec loss: 0.0204
+Mean loss: 0.0332
+Total loss: 0.0536
+Eval_train ACCURACY: 0.9935 	Eval_train Loss: 0.0419 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.3963 	
+Id_test ACCURACY: 0.8177 	Id_test Loss: 2.3483 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 26:
+Evaluating...
+Clf loss: 0.0320
+Spec loss: 0.0203
+Mean loss: 0.0320
+Total loss: 0.0523
+Eval_train ACCURACY: 0.9963 	Eval_train Loss: 0.0329 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.4310 	
+Id_test ACCURACY: 0.8047 	Id_test Loss: 2.4220 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 27:
+Evaluating...
+Clf loss: 0.0290
+Spec loss: 0.0202
+Mean loss: 0.0290
+Total loss: 0.0491
+Eval_train ACCURACY: 0.9955 	Eval_train Loss: 0.0351 	
+Id_val ACCURACY: 0.9320 	Id_val Loss: 0.4312 	
+Id_test ACCURACY: 0.7307 	Id_test Loss: 3.3609 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 28:
+Evaluating...
+Clf loss: 0.0270
+Spec loss: 0.0203
+Mean loss: 0.0270
+Total loss: 0.0473
+Eval_train ACCURACY: 0.9964 	Eval_train Loss: 0.0350 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.4626 	
+Id_test ACCURACY: 0.7988 	Id_test Loss: 2.5569 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 29:
+Evaluating...
+Clf loss: 0.0324
+Spec loss: 0.0203
+Mean loss: 0.0324
+Total loss: 0.0528
+Eval_train ACCURACY: 0.9964 	Eval_train Loss: 0.0326 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.4163 	
+Id_test ACCURACY: 0.8137 	Id_test Loss: 2.1810 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 30:
+Evaluating...
+Clf loss: 0.0246
+Spec loss: 0.0203
+Mean loss: 0.0246
+Total loss: 0.0449
+Eval_train ACCURACY: 0.9972 	Eval_train Loss: 0.0306 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.4569 	
+Id_test ACCURACY: 0.8119 	Id_test Loss: 2.4322 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 31:
+Evaluating...
+Clf loss: 0.0251
+Spec loss: 0.0204
+Mean loss: 0.0251
+Total loss: 0.0455
+Eval_train ACCURACY: 0.9966 	Eval_train Loss: 0.0319 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.4583 	
+Id_test ACCURACY: 0.8171 	Id_test Loss: 2.3440 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 32:
+Evaluating...
+Clf loss: 0.0204
+Spec loss: 0.0203
+Mean loss: 0.0204
+Total loss: 0.0406
+Eval_train ACCURACY: 0.9964 	Eval_train Loss: 0.0322 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.5436 	
+Id_test ACCURACY: 0.8011 	Id_test Loss: 2.7736 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 33:
+Evaluating...
+Clf loss: 0.0239
+Spec loss: 0.0202
+Mean loss: 0.0239
+Total loss: 0.0441
+Eval_train ACCURACY: 0.9963 	Eval_train Loss: 0.0305 	
+Id_val ACCURACY: 0.9339 	Id_val Loss: 0.5028 	
+Id_test ACCURACY: 0.8186 	Id_test Loss: 2.6382 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 34:
+Evaluating...
+Clf loss: 0.0230
+Spec loss: 0.0203
+Mean loss: 0.0230
+Total loss: 0.0433
+Eval_train ACCURACY: 0.9972 	Eval_train Loss: 0.0294 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.4700 	
+Id_test ACCURACY: 0.8245 	Id_test Loss: 2.8655 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 35:
+Evaluating...
+Clf loss: 0.0202
+Spec loss: 0.0199
+Mean loss: 0.0202
+Total loss: 0.0401
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0270 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.4786 	
+Id_test ACCURACY: 0.8043 	Id_test Loss: 2.8607 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 36:
+Evaluating...
+Clf loss: 0.0183
+Spec loss: 0.0205
+Mean loss: 0.0183
+Total loss: 0.0388
+Eval_train ACCURACY: 0.9962 	Eval_train Loss: 0.0334 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.4397 	
+Id_test ACCURACY: 0.8279 	Id_test Loss: 2.0217 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 37:
+Evaluating...
+Clf loss: 0.0222
+Spec loss: 0.0200
+Mean loss: 0.0222
+Total loss: 0.0423
+Eval_train ACCURACY: 0.9938 	Eval_train Loss: 0.0366 	
+Id_val ACCURACY: 0.9330 	Id_val Loss: 0.3738 	
+Id_test ACCURACY: 0.8176 	Id_test Loss: 1.8097 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 38:
+Evaluating...
+Clf loss: 0.0208
+Spec loss: 0.0202
+Mean loss: 0.0208
+Total loss: 0.0410
+Eval_train ACCURACY: 0.9969 	Eval_train Loss: 0.0342 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.4681 	
+Id_test ACCURACY: 0.8124 	Id_test Loss: 2.0147 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 39:
+Evaluating...
+Clf loss: 0.0192
+Spec loss: 0.0202
+Mean loss: 0.0192
+Total loss: 0.0393
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0315 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.4779 	
+Id_test ACCURACY: 0.8163 	Id_test Loss: 2.1154 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 40:
+Evaluating...
+Clf loss: 0.0265
+Spec loss: 0.0202
+Mean loss: 0.0265
+Total loss: 0.0467
+Eval_train ACCURACY: 0.9958 	Eval_train Loss: 0.0329 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.5498 	
+Id_test ACCURACY: 0.8233 	Id_test Loss: 2.8934 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 41:
+Evaluating...
+Clf loss: 0.0238
+Spec loss: 0.0205
+Mean loss: 0.0238
+Total loss: 0.0443
+Eval_train ACCURACY: 0.9952 	Eval_train Loss: 0.0347 	
+Id_val ACCURACY: 0.9244 	Id_val Loss: 0.5044 	
+Id_test ACCURACY: 0.8047 	Id_test Loss: 2.7604 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 42:
+Evaluating...
+Clf loss: 0.0216
+Spec loss: 0.0201
+Mean loss: 0.0216
+Total loss: 0.0417
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0259 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.5712 	
+Id_test ACCURACY: 0.8081 	Id_test Loss: 3.4439 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 43:
+Evaluating...
+Clf loss: 0.0150
+Spec loss: 0.0202
+Mean loss: 0.0150
+Total loss: 0.0352
+Eval_train ACCURACY: 0.9971 	Eval_train Loss: 0.0306 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.5211 	
+Id_test ACCURACY: 0.8153 	Id_test Loss: 2.7477 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 44:
+Evaluating...
+Clf loss: 0.0208
+Spec loss: 0.0205
+Mean loss: 0.0208
+Total loss: 0.0412
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0368 	
+Id_val ACCURACY: 0.9231 	Id_val Loss: 0.4665 	
+Id_test ACCURACY: 0.8144 	Id_test Loss: 2.0279 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 45:
+Evaluating...
+Clf loss: 0.0219
+Spec loss: 0.0201
+Mean loss: 0.0219
+Total loss: 0.0420
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0290 	
+Id_val ACCURACY: 0.9320 	Id_val Loss: 0.4889 	
+Id_test ACCURACY: 0.8128 	Id_test Loss: 2.0558 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 46:
+Evaluating...
+Clf loss: 0.0317
+Spec loss: 0.0203
+Mean loss: 0.0317
+Total loss: 0.0520
+Eval_train ACCURACY: 0.9968 	Eval_train Loss: 0.0328 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.3682 	
+Id_test ACCURACY: 0.8283 	Id_test Loss: 1.2138 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 47:
+Evaluating...
+Clf loss: 0.0358
+Spec loss: 0.0200
+Mean loss: 0.0358
+Total loss: 0.0558
+Eval_train ACCURACY: 0.9971 	Eval_train Loss: 0.0328 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.4677 	
+Id_test ACCURACY: 0.8211 	Id_test Loss: 1.8677 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 48:
+Evaluating...
+Clf loss: 0.0191
+Spec loss: 0.0202
+Mean loss: 0.0191
+Total loss: 0.0393
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0278 	
+Id_val ACCURACY: 0.9364 	Id_val Loss: 0.5284 	
+Id_test ACCURACY: 0.8297 	Id_test Loss: 2.5020 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 49:
+Evaluating...
+Clf loss: 0.0161
+Spec loss: 0.0205
+Mean loss: 0.0161
+Total loss: 0.0366
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0272 	
+Id_val ACCURACY: 0.9336 	Id_val Loss: 0.4242 	
+Id_test ACCURACY: 0.8302 	Id_test Loss: 2.0188 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 50:
+Evaluating...
+Clf loss: 0.0161
+Spec loss: 0.0201
+Mean loss: 0.0161
+Total loss: 0.0363
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0279 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.5299 	
+Id_test ACCURACY: 0.8111 	Id_test Loss: 2.1482 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 51:
+Evaluating...
+Clf loss: 0.0158
+Spec loss: 0.0202
+Mean loss: 0.0158
+Total loss: 0.0360
+Eval_train ACCURACY: 0.9948 	Eval_train Loss: 0.0360 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.4911 	
+Id_test ACCURACY: 0.8110 	Id_test Loss: 2.0039 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 52:
+Evaluating...
+Clf loss: 0.0170
+Spec loss: 0.0200
+Mean loss: 0.0170
+Total loss: 0.0370
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0264 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.5252 	
+Id_test ACCURACY: 0.8341 	Id_test Loss: 2.2193 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 53:
+Evaluating...
+Clf loss: 0.0141
+Spec loss: 0.0198
+Mean loss: 0.0141
+Total loss: 0.0339
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.4944 	
+Id_test ACCURACY: 0.8128 	Id_test Loss: 2.1474 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 54:
+Evaluating...
+Clf loss: 0.0122
+Spec loss: 0.0199
+Mean loss: 0.0122
+Total loss: 0.0321
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0283 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.6235 	
+Id_test ACCURACY: 0.8249 	Id_test Loss: 3.9748 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 55:
+Evaluating...
+Clf loss: 0.0155
+Spec loss: 0.0203
+Mean loss: 0.0155
+Total loss: 0.0357
+Eval_train ACCURACY: 0.9975 	Eval_train Loss: 0.0290 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.4110 	
+Id_test ACCURACY: 0.8279 	Id_test Loss: 2.3096 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 56:
+Evaluating...
+Clf loss: 0.0180
+Spec loss: 0.0202
+Mean loss: 0.0180
+Total loss: 0.0383
+Eval_train ACCURACY: 0.9970 	Eval_train Loss: 0.0305 	
+Id_val ACCURACY: 0.9320 	Id_val Loss: 0.4710 	
+Id_test ACCURACY: 0.8197 	Id_test Loss: 1.9443 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 57:
+Evaluating...
+Clf loss: 0.0175
+Spec loss: 0.0202
+Mean loss: 0.0175
+Total loss: 0.0377
+Eval_train ACCURACY: 0.9960 	Eval_train Loss: 0.0310 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.4505 	
+Id_test ACCURACY: 0.8033 	Id_test Loss: 1.7936 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 58:
+Evaluating...
+Clf loss: 0.0168
+Spec loss: 0.0200
+Mean loss: 0.0168
+Total loss: 0.0368
+Eval_train ACCURACY: 0.9954 	Eval_train Loss: 0.0349 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.4352 	
+Id_test ACCURACY: 0.7733 	Id_test Loss: 3.0624 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 59:
+Evaluating...
+Clf loss: 0.0155
+Spec loss: 0.0201
+Mean loss: 0.0155
+Total loss: 0.0356
+Eval_train ACCURACY: 0.9967 	Eval_train Loss: 0.0316 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.6356 	
+Id_test ACCURACY: 0.7739 	Id_test Loss: 4.1190 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 60:
+Evaluating...
+Clf loss: 0.0147
+Spec loss: 0.0200
+Mean loss: 0.0147
+Total loss: 0.0348
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0257 	
+Id_val ACCURACY: 0.9364 	Id_val Loss: 0.4091 	
+Id_test ACCURACY: 0.8027 	Id_test Loss: 2.2510 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 61:
+Evaluating...
+Clf loss: 0.0112
+Spec loss: 0.0199
+Mean loss: 0.0112
+Total loss: 0.0312
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0254 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.5207 	
+Id_test ACCURACY: 0.8333 	Id_test Loss: 2.4487 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 62:
+Evaluating...
+Clf loss: 0.0122
+Spec loss: 0.0199
+Mean loss: 0.0122
+Total loss: 0.0321
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0327 	
+Id_val ACCURACY: 0.9209 	Id_val Loss: 0.5191 	
+Id_test ACCURACY: 0.8160 	Id_test Loss: 2.6022 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 63:
+Evaluating...
+Clf loss: 0.0154
+Spec loss: 0.0198
+Mean loss: 0.0154
+Total loss: 0.0352
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.4490 	
+Id_test ACCURACY: 0.8041 	Id_test Loss: 2.5086 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 64:
+Evaluating...
+Clf loss: 0.0132
+Spec loss: 0.0200
+Mean loss: 0.0132
+Total loss: 0.0332
+Eval_train ACCURACY: 0.9979 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9361 	Id_val Loss: 0.5194 	
+Id_test ACCURACY: 0.8184 	Id_test Loss: 2.6202 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 65:
+Evaluating...
+Clf loss: 0.0160
+Spec loss: 0.0197
+Mean loss: 0.0160
+Total loss: 0.0357
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0254 	
+Id_val ACCURACY: 0.9358 	Id_val Loss: 0.4484 	
+Id_test ACCURACY: 0.8090 	Id_test Loss: 2.7379 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 66:
+Evaluating...
+Clf loss: 0.0137
+Spec loss: 0.0200
+Mean loss: 0.0137
+Total loss: 0.0337
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0252 	
+Id_val ACCURACY: 0.9361 	Id_val Loss: 0.5570 	
+Id_test ACCURACY: 0.8182 	Id_test Loss: 3.1619 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 67:
+Evaluating...
+Clf loss: 0.0153
+Spec loss: 0.0197
+Mean loss: 0.0153
+Total loss: 0.0350
+Eval_train ACCURACY: 0.9975 	Eval_train Loss: 0.0300 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.4327 	
+Id_test ACCURACY: 0.7360 	Id_test Loss: 4.1844 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 68:
+Evaluating...
+Clf loss: 0.0137
+Spec loss: 0.0198
+Mean loss: 0.0137
+Total loss: 0.0335
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0273 	
+Id_val ACCURACY: 0.9326 	Id_val Loss: 0.6526 	
+Id_test ACCURACY: 0.8232 	Id_test Loss: 3.2765 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 69:
+Evaluating...
+Clf loss: 0.0137
+Spec loss: 0.0197
+Mean loss: 0.0137
+Total loss: 0.0334
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0261 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.4324 	
+Id_test ACCURACY: 0.8191 	Id_test Loss: 2.3143 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 70:
+Evaluating...
+Clf loss: 0.0123
+Spec loss: 0.0195
+Mean loss: 0.0123
+Total loss: 0.0318
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0251 	
+Id_val ACCURACY: 0.9342 	Id_val Loss: 0.4851 	
+Id_test ACCURACY: 0.8241 	Id_test Loss: 2.3227 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 71:
+Evaluating...
+Clf loss: 0.0121
+Spec loss: 0.0195
+Mean loss: 0.0121
+Total loss: 0.0317
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0224 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.5862 	
+Id_test ACCURACY: 0.8239 	Id_test Loss: 3.1820 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 72:
+Evaluating...
+Clf loss: 0.0102
+Spec loss: 0.0198
+Mean loss: 0.0102
+Total loss: 0.0300
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0232 	
+Id_val ACCURACY: 0.9355 	Id_val Loss: 0.5589 	
+Id_test ACCURACY: 0.8161 	Id_test Loss: 2.7090 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 73:
+Evaluating...
+Clf loss: 0.0137
+Spec loss: 0.0196
+Mean loss: 0.0137
+Total loss: 0.0333
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0260 	
+Id_val ACCURACY: 0.9333 	Id_val Loss: 0.4955 	
+Id_test ACCURACY: 0.8243 	Id_test Loss: 2.1447 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 74:
+Evaluating...
+Clf loss: 0.0117
+Spec loss: 0.0198
+Mean loss: 0.0117
+Total loss: 0.0315
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0241 	
+Id_val ACCURACY: 0.9374 	Id_val Loss: 0.4337 	
+Id_test ACCURACY: 0.8123 	Id_test Loss: 2.0611 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 75:
+Evaluating...
+Clf loss: 0.0104
+Spec loss: 0.0196
+Mean loss: 0.0104
+Total loss: 0.0300
+Eval_train ACCURACY: 0.9964 	Eval_train Loss: 0.0291 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.5223 	
+Id_test ACCURACY: 0.8251 	Id_test Loss: 2.3568 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 76:
+Evaluating...
+Clf loss: 0.0105
+Spec loss: 0.0198
+Mean loss: 0.0105
+Total loss: 0.0303
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0230 	
+Id_val ACCURACY: 0.9330 	Id_val Loss: 0.5319 	
+Id_test ACCURACY: 0.8172 	Id_test Loss: 2.8691 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 77:
+Evaluating...
+Clf loss: 0.0119
+Spec loss: 0.0198
+Mean loss: 0.0119
+Total loss: 0.0317
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0253 	
+Id_val ACCURACY: 0.9342 	Id_val Loss: 0.5955 	
+Id_test ACCURACY: 0.7794 	Id_test Loss: 5.1881 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 78:
+Evaluating...
+Clf loss: 0.0134
+Spec loss: 0.0198
+Mean loss: 0.0134
+Total loss: 0.0332
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0261 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.4381 	
+Id_test ACCURACY: 0.8055 	Id_test Loss: 2.3396 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 79:
+Evaluating...
+Clf loss: 0.0110
+Spec loss: 0.0197
+Mean loss: 0.0110
+Total loss: 0.0307
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0256 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.4934 	
+Id_test ACCURACY: 0.7976 	Id_test Loss: 3.4679 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 80:
+Evaluating...
+Clf loss: 0.0139
+Spec loss: 0.0198
+Mean loss: 0.0139
+Total loss: 0.0337
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.5421 	
+Id_test ACCURACY: 0.8225 	Id_test Loss: 2.7928 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 81:
+Evaluating...
+Clf loss: 0.0114
+Spec loss: 0.0200
+Mean loss: 0.0114
+Total loss: 0.0315
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0249 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.5084 	
+Id_test ACCURACY: 0.7807 	Id_test Loss: 3.2745 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 82:
+Evaluating...
+Clf loss: 0.0112
+Spec loss: 0.0195
+Mean loss: 0.0112
+Total loss: 0.0308
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0241 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.5219 	
+Id_test ACCURACY: 0.7847 	Id_test Loss: 3.0981 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 83:
+Evaluating...
+Clf loss: 0.0092
+Spec loss: 0.0196
+Mean loss: 0.0092
+Total loss: 0.0288
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0220 	
+Id_val ACCURACY: 0.9333 	Id_val Loss: 0.6555 	
+Id_test ACCURACY: 0.8071 	Id_test Loss: 4.3871 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 84:
+Evaluating...
+Clf loss: 0.0091
+Spec loss: 0.0196
+Mean loss: 0.0091
+Total loss: 0.0287
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9364 	Id_val Loss: 0.5670 	
+Id_test ACCURACY: 0.8328 	Id_test Loss: 2.8873 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 85:
+Evaluating...
+Clf loss: 0.0102
+Spec loss: 0.0196
+Mean loss: 0.0102
+Total loss: 0.0298
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0249 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.5580 	
+Id_test ACCURACY: 0.8247 	Id_test Loss: 2.7093 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 86:
+Evaluating...
+Clf loss: 0.0104
+Spec loss: 0.0198
+Mean loss: 0.0104
+Total loss: 0.0302
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0246 	
+Id_val ACCURACY: 0.9326 	Id_val Loss: 0.4645 	
+Id_test ACCURACY: 0.8240 	Id_test Loss: 2.1178 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 87:
+Evaluating...
+Clf loss: 0.0072
+Spec loss: 0.0196
+Mean loss: 0.0072
+Total loss: 0.0268
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0230 	
+Id_val ACCURACY: 0.9345 	Id_val Loss: 0.6296 	
+Id_test ACCURACY: 0.8072 	Id_test Loss: 3.6231 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 88:
+Evaluating...
+Clf loss: 0.0093
+Spec loss: 0.0195
+Mean loss: 0.0093
+Total loss: 0.0288
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.5852 	
+Id_test ACCURACY: 0.8261 	Id_test Loss: 3.8437 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 89:
+Evaluating...
+Clf loss: 0.0110
+Spec loss: 0.0197
+Mean loss: 0.0110
+Total loss: 0.0307
+Eval_train ACCURACY: 0.9995 	Eval_train Loss: 0.0222 	
+Id_val ACCURACY: 0.9403 	Id_val Loss: 0.4982 	
+Id_test ACCURACY: 0.8264 	Id_test Loss: 3.4659 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 90:
+Evaluating...
+Clf loss: 0.0103
+Spec loss: 0.0197
+Mean loss: 0.0103
+Total loss: 0.0300
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9333 	Id_val Loss: 0.3904 	
+Id_test ACCURACY: 0.8261 	Id_test Loss: 2.4292 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 91:
+Evaluating...
+Clf loss: 0.0133
+Spec loss: 0.0196
+Mean loss: 0.0133
+Total loss: 0.0328
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0223 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.5613 	
+Id_test ACCURACY: 0.8262 	Id_test Loss: 3.3429 	
+edge_weight:  tensor(0.) tensor(0.9979) tensor(0.0541)
+
+Epoch 92:
+Evaluating...
+Clf loss: 0.0094
+Spec loss: 0.0197
+Mean loss: 0.0094
+Total loss: 0.0291
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0216 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.7113 	
+Id_test ACCURACY: 0.8308 	Id_test Loss: 4.0122 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 93:
+Evaluating...
+Clf loss: 0.0074
+Spec loss: 0.0196
+Mean loss: 0.0074
+Total loss: 0.0269
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0219 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.5895 	
+Id_test ACCURACY: 0.8214 	Id_test Loss: 3.4563 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 94:
+Evaluating...
+Clf loss: 0.0069
+Spec loss: 0.0191
+Mean loss: 0.0069
+Total loss: 0.0261
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0226 	
+Id_val ACCURACY: 0.9355 	Id_val Loss: 0.6634 	
+Id_test ACCURACY: 0.8007 	Id_test Loss: 3.2944 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 95:
+Evaluating...
+Clf loss: 0.0115
+Spec loss: 0.0197
+Mean loss: 0.0115
+Total loss: 0.0312
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0256 	
+Id_val ACCURACY: 0.9380 	Id_val Loss: 0.7301 	
+Id_test ACCURACY: 0.8093 	Id_test Loss: 4.7554 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 96:
+Evaluating...
+Clf loss: 0.0119
+Spec loss: 0.0202
+Mean loss: 0.0119
+Total loss: 0.0321
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0230 	
+Id_val ACCURACY: 0.9349 	Id_val Loss: 0.6050 	
+Id_test ACCURACY: 0.8154 	Id_test Loss: 3.6831 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 97:
+Evaluating...
+Clf loss: 0.0071
+Spec loss: 0.0198
+Mean loss: 0.0071
+Total loss: 0.0269
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0269 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.7149 	
+Id_test ACCURACY: 0.8267 	Id_test Loss: 4.4088 	
+edge_weight:  tensor(0.) tensor(0.9995) tensor(0.0541)
+
+Epoch 98:
+Evaluating...
+Clf loss: 0.0129
+Spec loss: 0.0196
+Mean loss: 0.0129
+Total loss: 0.0325
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0217 	
+Id_val ACCURACY: 0.9374 	Id_val Loss: 0.6456 	
+Id_test ACCURACY: 0.8277 	Id_test Loss: 3.4722 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 99:
+Evaluating...
+Clf loss: 0.0104
+Spec loss: 0.0197
+Mean loss: 0.0104
+Total loss: 0.0301
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0224 	
+Id_val ACCURACY: 0.9361 	Id_val Loss: 0.5963 	
+Id_test ACCURACY: 0.8314 	Id_test Loss: 3.0835 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Training end (0:07:30.760279).
+
+[1;34mDEBUG[0m: 08/13/2025 06:22:38 PM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 7 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round3/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 7: 
+-----------------------------------
+Train ACCURACY: 0.9580
+Train Loss: 0.1326
+Spec Loss: 0.0204
+Mean Loss: 0.1589
+Total Loss: 0.1793
+ID Validation ACCURACY: 0.9129
+ID Validation Loss: 0.2806
+ID Test ACCURACY: 0.8315
+ID Test Loss: 0.8786
+OOD Validation ACCURACY: 0.9129
+OOD Validation Loss: 0.2806
+OOD Test ACCURACY: 0.8315
+OOD Test Loss: 0.8786
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 7...
+[0m[1;37mINFO[0m: [1mCheckpoint 7: 
+-----------------------------------
+Train ACCURACY: 0.9580
+Train Loss: 0.1326
+ID Validation ACCURACY: 0.9129
+ID Validation Loss: 0.2806
+ID Test ACCURACY: 0.8315
+ID Test Loss: 0.8786
+OOD Validation ACCURACY: 0.9129
+OOD Validation Loss: 0.2806
+OOD Test ACCURACY: 0.8315
+OOD Test Loss: 0.8786
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8315 0.8315 0.8315 0.8315 0.9129 0.9129[0mTrain ACCURACY: 0.9580 	Train Loss: 0.1319 	
+Id_val ACCURACY: 0.9129 	Id_val Loss: 0.2806 	
+Id_test ACCURACY: 0.8315 	Id_test Loss: 0.8786 	
+Val ACCURACY: 0.9129 	Val Loss: 0.2806 	
+Test ACCURACY: 0.8315 	Test Loss: 0.8786 	
+
+
+#D#Running with seed = 4
+model_dirname= softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted
+401 4
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/SST2Planted/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 4,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 4,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Wed Aug 13 18:22:41 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset GraphSST2Planted
+[0m[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mDataset: {'train': GraphSST2Planted(28327), 'id_val': GraphSST2Planted(3147), 'id_test': GraphSST2Planted(12305), 'val': GraphSST2Planted(3147), 'test': GraphSST2Planted(12305), 'task': 'Binary classification', 'metric': 'Accuracy'}
+[0m[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1m Data(x=[17, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[17], sentence_tokens=[17], num_nodes=17)
+[0mData(x=[14, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[14], sentence_tokens=[14], num_nodes=14)
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:22:42 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+Before training:
+Eval_train ACCURACY: 0.4841 	Eval_train Loss: 0.7192 	
+Id_val ACCURACY: 0.4865 	Id_val Loss: 0.7194 	
+Id_test ACCURACY: 0.4068 	Id_test Loss: 0.7605 	
+
+Epoch 0:
+Evaluating...
+Clf loss: 0.5433
+Spec loss: 0.0071
+Mean loss: 0.5433
+Total loss: 0.5504
+Eval_train ACCURACY: 0.8230 	Eval_train Loss: 0.4124 	
+Id_val ACCURACY: 0.8112 	Id_val Loss: 0.4285 	
+Id_test ACCURACY: 0.7855 	Id_test Loss: 0.5433 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round4/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:22:51 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:22:51 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 1:
+Evaluating...
+Clf loss: 0.3756
+Spec loss: 0.0138
+Mean loss: 0.3756
+Total loss: 0.3894
+Eval_train ACCURACY: 0.8754 	Eval_train Loss: 0.3195 	
+Id_val ACCURACY: 0.8526 	Id_val Loss: 0.3618 	
+Id_test ACCURACY: 0.8037 	Id_test Loss: 0.6103 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:22:55 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:22:55 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 2:
+Evaluating...
+Clf loss: 0.3205
+Spec loss: 0.0169
+Mean loss: 0.3205
+Total loss: 0.3374
+Eval_train ACCURACY: 0.8940 	Eval_train Loss: 0.2770 	
+Id_val ACCURACY: 0.8773 	Id_val Loss: 0.3167 	
+Id_test ACCURACY: 0.8054 	Id_test Loss: 0.5927 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:23:00 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:23:00 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 3:
+Evaluating...
+Clf loss: 0.2679
+Spec loss: 0.0210
+Mean loss: 0.2679
+Total loss: 0.2889
+Eval_train ACCURACY: 0.9135 	Eval_train Loss: 0.2327 	
+Id_val ACCURACY: 0.8881 	Id_val Loss: 0.2988 	
+Id_test ACCURACY: 0.8245 	Id_test Loss: 0.6403 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:23:05 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:23:05 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 4:
+Evaluating...
+Clf loss: 0.2294
+Spec loss: 0.0218
+Mean loss: 0.2294
+Total loss: 0.2512
+Eval_train ACCURACY: 0.9323 	Eval_train Loss: 0.2050 	
+Id_val ACCURACY: 0.8980 	Id_val Loss: 0.2852 	
+Id_test ACCURACY: 0.8098 	Id_test Loss: 0.6442 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:23:09 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:23:09 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 5:
+Evaluating...
+Clf loss: 0.1976
+Spec loss: 0.0217
+Mean loss: 0.1976
+Total loss: 0.2193
+Eval_train ACCURACY: 0.9395 	Eval_train Loss: 0.1879 	
+Id_val ACCURACY: 0.8942 	Id_val Loss: 0.2891 	
+Id_test ACCURACY: 0.8192 	Id_test Loss: 0.6191 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 6:
+Evaluating...
+Clf loss: 0.1703
+Spec loss: 0.0218
+Mean loss: 0.1703
+Total loss: 0.1921
+Eval_train ACCURACY: 0.9549 	Eval_train Loss: 0.1476 	
+Id_val ACCURACY: 0.9034 	Id_val Loss: 0.2856 	
+Id_test ACCURACY: 0.8120 	Id_test Loss: 0.7928 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 7:
+Evaluating...
+Clf loss: 0.1481
+Spec loss: 0.0215
+Mean loss: 0.1481
+Total loss: 0.1695
+Eval_train ACCURACY: 0.9602 	Eval_train Loss: 0.1294 	
+Id_val ACCURACY: 0.9056 	Id_val Loss: 0.3147 	
+Id_test ACCURACY: 0.8084 	Id_test Loss: 0.9277 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 8:
+Evaluating...
+Clf loss: 0.1213
+Spec loss: 0.0218
+Mean loss: 0.1213
+Total loss: 0.1431
+Eval_train ACCURACY: 0.9720 	Eval_train Loss: 0.1077 	
+Id_val ACCURACY: 0.9126 	Id_val Loss: 0.2986 	
+Id_test ACCURACY: 0.7994 	Id_test Loss: 1.2020 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 9:
+Evaluating...
+Clf loss: 0.1190
+Spec loss: 0.0224
+Mean loss: 0.1190
+Total loss: 0.1413
+Eval_train ACCURACY: 0.9706 	Eval_train Loss: 0.1035 	
+Id_val ACCURACY: 0.9136 	Id_val Loss: 0.2983 	
+Id_test ACCURACY: 0.7925 	Id_test Loss: 1.4525 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 10:
+Evaluating...
+Clf loss: 0.1054
+Spec loss: 0.0221
+Mean loss: 0.1054
+Total loss: 0.1275
+Eval_train ACCURACY: 0.9728 	Eval_train Loss: 0.0930 	
+Id_val ACCURACY: 0.9155 	Id_val Loss: 0.3414 	
+Id_test ACCURACY: 0.8007 	Id_test Loss: 1.6387 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 11:
+Evaluating...
+Clf loss: 0.0875
+Spec loss: 0.0221
+Mean loss: 0.0875
+Total loss: 0.1096
+Eval_train ACCURACY: 0.9762 	Eval_train Loss: 0.0901 	
+Id_val ACCURACY: 0.9158 	Id_val Loss: 0.3592 	
+Id_test ACCURACY: 0.7742 	Id_test Loss: 1.9361 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 12:
+Evaluating...
+Clf loss: 0.0762
+Spec loss: 0.0219
+Mean loss: 0.0762
+Total loss: 0.0981
+Eval_train ACCURACY: 0.9798 	Eval_train Loss: 0.0795 	
+Id_val ACCURACY: 0.9174 	Id_val Loss: 0.3659 	
+Id_test ACCURACY: 0.7864 	Id_test Loss: 1.8783 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 13:
+Evaluating...
+Clf loss: 0.0700
+Spec loss: 0.0221
+Mean loss: 0.0700
+Total loss: 0.0921
+Eval_train ACCURACY: 0.9783 	Eval_train Loss: 0.0811 	
+Id_val ACCURACY: 0.9158 	Id_val Loss: 0.3877 	
+Id_test ACCURACY: 0.7917 	Id_test Loss: 3.0792 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 14:
+Evaluating...
+Clf loss: 0.0613
+Spec loss: 0.0220
+Mean loss: 0.0613
+Total loss: 0.0833
+Eval_train ACCURACY: 0.9882 	Eval_train Loss: 0.0605 	
+Id_val ACCURACY: 0.9260 	Id_val Loss: 0.3512 	
+Id_test ACCURACY: 0.8019 	Id_test Loss: 2.0170 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 15:
+Evaluating...
+Clf loss: 0.0584
+Spec loss: 0.0222
+Mean loss: 0.0584
+Total loss: 0.0806
+Eval_train ACCURACY: 0.9873 	Eval_train Loss: 0.0573 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.4136 	
+Id_test ACCURACY: 0.8011 	Id_test Loss: 2.1142 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 16:
+Evaluating...
+Clf loss: 0.0538
+Spec loss: 0.0222
+Mean loss: 0.0538
+Total loss: 0.0759
+Eval_train ACCURACY: 0.9917 	Eval_train Loss: 0.0465 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.4373 	
+Id_test ACCURACY: 0.8135 	Id_test Loss: 2.7590 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 17:
+Evaluating...
+Clf loss: 0.0501
+Spec loss: 0.0221
+Mean loss: 0.0501
+Total loss: 0.0722
+Eval_train ACCURACY: 0.9928 	Eval_train Loss: 0.0445 	
+Id_val ACCURACY: 0.9218 	Id_val Loss: 0.5141 	
+Id_test ACCURACY: 0.8078 	Id_test Loss: 3.6997 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 18:
+Evaluating...
+Clf loss: 0.0443
+Spec loss: 0.0218
+Mean loss: 0.0443
+Total loss: 0.0660
+Eval_train ACCURACY: 0.9930 	Eval_train Loss: 0.0453 	
+Id_val ACCURACY: 0.9244 	Id_val Loss: 0.4689 	
+Id_test ACCURACY: 0.8184 	Id_test Loss: 3.2457 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 19:
+Evaluating...
+Clf loss: 0.0418
+Spec loss: 0.0220
+Mean loss: 0.0418
+Total loss: 0.0638
+Eval_train ACCURACY: 0.9899 	Eval_train Loss: 0.0500 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.4301 	
+Id_test ACCURACY: 0.8076 	Id_test Loss: 2.1574 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 20:
+Evaluating...
+Clf loss: 0.0416
+Spec loss: 0.0224
+Mean loss: 0.0416
+Total loss: 0.0640
+Eval_train ACCURACY: 0.9929 	Eval_train Loss: 0.0439 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.4477 	
+Id_test ACCURACY: 0.8096 	Id_test Loss: 2.7679 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 21:
+Evaluating...
+Clf loss: 0.0550
+Spec loss: 0.0218
+Mean loss: 0.0550
+Total loss: 0.0768
+Eval_train ACCURACY: 0.9846 	Eval_train Loss: 0.0639 	
+Id_val ACCURACY: 0.9193 	Id_val Loss: 0.4129 	
+Id_test ACCURACY: 0.7849 	Id_test Loss: 2.2762 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 22:
+Evaluating...
+Clf loss: 0.0439
+Spec loss: 0.0224
+Mean loss: 0.0439
+Total loss: 0.0663
+Eval_train ACCURACY: 0.9927 	Eval_train Loss: 0.0459 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.4215 	
+Id_test ACCURACY: 0.8137 	Id_test Loss: 2.2155 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 23:
+Evaluating...
+Clf loss: 0.0373
+Spec loss: 0.0225
+Mean loss: 0.0373
+Total loss: 0.0598
+Eval_train ACCURACY: 0.9938 	Eval_train Loss: 0.0419 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.4885 	
+Id_test ACCURACY: 0.8082 	Id_test Loss: 2.7391 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 24:
+Evaluating...
+Clf loss: 0.0303
+Spec loss: 0.0226
+Mean loss: 0.0303
+Total loss: 0.0528
+Eval_train ACCURACY: 0.9940 	Eval_train Loss: 0.0441 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.4901 	
+Id_test ACCURACY: 0.7950 	Id_test Loss: 2.9357 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 25:
+Evaluating...
+Clf loss: 0.0340
+Spec loss: 0.0223
+Mean loss: 0.0340
+Total loss: 0.0563
+Eval_train ACCURACY: 0.9957 	Eval_train Loss: 0.0382 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.4060 	
+Id_test ACCURACY: 0.8114 	Id_test Loss: 2.4317 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 26:
+Evaluating...
+Clf loss: 0.0275
+Spec loss: 0.0223
+Mean loss: 0.0275
+Total loss: 0.0498
+Eval_train ACCURACY: 0.9968 	Eval_train Loss: 0.0336 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.5109 	
+Id_test ACCURACY: 0.8103 	Id_test Loss: 3.1708 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 27:
+Evaluating...
+Clf loss: 0.0304
+Spec loss: 0.0222
+Mean loss: 0.0304
+Total loss: 0.0526
+Eval_train ACCURACY: 0.9954 	Eval_train Loss: 0.0352 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.5208 	
+Id_test ACCURACY: 0.8028 	Id_test Loss: 3.5829 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 28:
+Evaluating...
+Clf loss: 0.0289
+Spec loss: 0.0220
+Mean loss: 0.0289
+Total loss: 0.0510
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0325 	
+Id_val ACCURACY: 0.9336 	Id_val Loss: 0.4403 	
+Id_test ACCURACY: 0.8168 	Id_test Loss: 2.8751 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 29:
+Evaluating...
+Clf loss: 0.0231
+Spec loss: 0.0222
+Mean loss: 0.0231
+Total loss: 0.0453
+Eval_train ACCURACY: 0.9955 	Eval_train Loss: 0.0361 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.5656 	
+Id_test ACCURACY: 0.8139 	Id_test Loss: 3.8583 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 30:
+Evaluating...
+Clf loss: 0.0250
+Spec loss: 0.0221
+Mean loss: 0.0250
+Total loss: 0.0471
+Eval_train ACCURACY: 0.9971 	Eval_train Loss: 0.0314 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.5447 	
+Id_test ACCURACY: 0.8181 	Id_test Loss: 3.4558 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 31:
+Evaluating...
+Clf loss: 0.0262
+Spec loss: 0.0221
+Mean loss: 0.0262
+Total loss: 0.0483
+Eval_train ACCURACY: 0.9950 	Eval_train Loss: 0.0391 	
+Id_val ACCURACY: 0.9221 	Id_val Loss: 0.5238 	
+Id_test ACCURACY: 0.8186 	Id_test Loss: 3.3246 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 32:
+Evaluating...
+Clf loss: 0.0258
+Spec loss: 0.0221
+Mean loss: 0.0258
+Total loss: 0.0480
+Eval_train ACCURACY: 0.9962 	Eval_train Loss: 0.0352 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.4994 	
+Id_test ACCURACY: 0.7804 	Id_test Loss: 3.1829 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 33:
+Evaluating...
+Clf loss: 0.0214
+Spec loss: 0.0222
+Mean loss: 0.0214
+Total loss: 0.0436
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0308 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.5811 	
+Id_test ACCURACY: 0.8089 	Id_test Loss: 3.3460 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 34:
+Evaluating...
+Clf loss: 0.0267
+Spec loss: 0.0221
+Mean loss: 0.0267
+Total loss: 0.0488
+Eval_train ACCURACY: 0.9963 	Eval_train Loss: 0.0360 	
+Id_val ACCURACY: 0.9225 	Id_val Loss: 0.4197 	
+Id_test ACCURACY: 0.8130 	Id_test Loss: 2.1933 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 35:
+Evaluating...
+Clf loss: 0.0272
+Spec loss: 0.0221
+Mean loss: 0.0272
+Total loss: 0.0493
+Eval_train ACCURACY: 0.9964 	Eval_train Loss: 0.0343 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.5585 	
+Id_test ACCURACY: 0.7704 	Id_test Loss: 3.9529 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 36:
+Evaluating...
+Clf loss: 0.0225
+Spec loss: 0.0221
+Mean loss: 0.0225
+Total loss: 0.0446
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0314 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.4901 	
+Id_test ACCURACY: 0.7920 	Id_test Loss: 2.7678 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 37:
+Evaluating...
+Clf loss: 0.0197
+Spec loss: 0.0222
+Mean loss: 0.0197
+Total loss: 0.0419
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0334 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.4168 	
+Id_test ACCURACY: 0.8143 	Id_test Loss: 1.8552 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 38:
+Evaluating...
+Clf loss: 0.0251
+Spec loss: 0.0222
+Mean loss: 0.0251
+Total loss: 0.0473
+Eval_train ACCURACY: 0.9964 	Eval_train Loss: 0.0339 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.7427 	
+Id_test ACCURACY: 0.7863 	Id_test Loss: 4.8779 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 39:
+Evaluating...
+Clf loss: 0.0467
+Spec loss: 0.0220
+Mean loss: 0.0467
+Total loss: 0.0687
+Eval_train ACCURACY: 0.9940 	Eval_train Loss: 0.0416 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.4558 	
+Id_test ACCURACY: 0.8124 	Id_test Loss: 2.3363 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 40:
+Evaluating...
+Clf loss: 0.0349
+Spec loss: 0.0222
+Mean loss: 0.0349
+Total loss: 0.0570
+Eval_train ACCURACY: 0.9968 	Eval_train Loss: 0.0335 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.5250 	
+Id_test ACCURACY: 0.7854 	Id_test Loss: 3.4027 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 41:
+Evaluating...
+Clf loss: 0.0189
+Spec loss: 0.0223
+Mean loss: 0.0189
+Total loss: 0.0412
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0293 	
+Id_val ACCURACY: 0.9234 	Id_val Loss: 0.6267 	
+Id_test ACCURACY: 0.7950 	Id_test Loss: 3.6505 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 42:
+Evaluating...
+Clf loss: 0.0295
+Spec loss: 0.0222
+Mean loss: 0.0295
+Total loss: 0.0518
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0324 	
+Id_val ACCURACY: 0.9256 	Id_val Loss: 0.5124 	
+Id_test ACCURACY: 0.7959 	Id_test Loss: 3.0375 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 43:
+Evaluating...
+Clf loss: 0.0347
+Spec loss: 0.0222
+Mean loss: 0.0347
+Total loss: 0.0569
+Eval_train ACCURACY: 0.9950 	Eval_train Loss: 0.0384 	
+Id_val ACCURACY: 0.9247 	Id_val Loss: 0.5051 	
+Id_test ACCURACY: 0.8007 	Id_test Loss: 2.7629 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 44:
+Evaluating...
+Clf loss: 0.0177
+Spec loss: 0.0224
+Mean loss: 0.0177
+Total loss: 0.0401
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0296 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.6383 	
+Id_test ACCURACY: 0.8049 	Id_test Loss: 4.1475 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 45:
+Evaluating...
+Clf loss: 0.0196
+Spec loss: 0.0222
+Mean loss: 0.0196
+Total loss: 0.0418
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0309 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.5934 	
+Id_test ACCURACY: 0.7997 	Id_test Loss: 3.9225 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 46:
+Evaluating...
+Clf loss: 0.0174
+Spec loss: 0.0221
+Mean loss: 0.0174
+Total loss: 0.0395
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0298 	
+Id_val ACCURACY: 0.9320 	Id_val Loss: 0.6497 	
+Id_test ACCURACY: 0.8232 	Id_test Loss: 3.8299 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 47:
+Evaluating...
+Clf loss: 0.0192
+Spec loss: 0.0221
+Mean loss: 0.0192
+Total loss: 0.0413
+Eval_train ACCURACY: 0.9952 	Eval_train Loss: 0.0360 	
+Id_val ACCURACY: 0.9228 	Id_val Loss: 0.5326 	
+Id_test ACCURACY: 0.8139 	Id_test Loss: 3.4513 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 48:
+Evaluating...
+Clf loss: 0.0211
+Spec loss: 0.0220
+Mean loss: 0.0211
+Total loss: 0.0431
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0285 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.6856 	
+Id_test ACCURACY: 0.8018 	Id_test Loss: 3.2697 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 49:
+Evaluating...
+Clf loss: 0.0120
+Spec loss: 0.0220
+Mean loss: 0.0120
+Total loss: 0.0340
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.5906 	
+Id_test ACCURACY: 0.8018 	Id_test Loss: 3.0727 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 50:
+Evaluating...
+Clf loss: 0.0114
+Spec loss: 0.0220
+Mean loss: 0.0114
+Total loss: 0.0333
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.6960 	
+Id_test ACCURACY: 0.8010 	Id_test Loss: 3.8824 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 51:
+Evaluating...
+Clf loss: 0.0120
+Spec loss: 0.0219
+Mean loss: 0.0120
+Total loss: 0.0340
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0285 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.6573 	
+Id_test ACCURACY: 0.8201 	Id_test Loss: 3.8517 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 52:
+Evaluating...
+Clf loss: 0.0116
+Spec loss: 0.0218
+Mean loss: 0.0116
+Total loss: 0.0334
+Eval_train ACCURACY: 0.9971 	Eval_train Loss: 0.0307 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.5732 	
+Id_test ACCURACY: 0.8085 	Id_test Loss: 3.5915 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 53:
+Evaluating...
+Clf loss: 0.0227
+Spec loss: 0.0219
+Mean loss: 0.0227
+Total loss: 0.0446
+Eval_train ACCURACY: 0.9973 	Eval_train Loss: 0.0314 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.5036 	
+Id_test ACCURACY: 0.7998 	Id_test Loss: 2.4387 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 54:
+Evaluating...
+Clf loss: 0.0187
+Spec loss: 0.0219
+Mean loss: 0.0187
+Total loss: 0.0406
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0321 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.5080 	
+Id_test ACCURACY: 0.8000 	Id_test Loss: 3.3420 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 55:
+Evaluating...
+Clf loss: 0.0171
+Spec loss: 0.0218
+Mean loss: 0.0171
+Total loss: 0.0389
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0289 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.4913 	
+Id_test ACCURACY: 0.8106 	Id_test Loss: 2.5816 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 56:
+Evaluating...
+Clf loss: 0.0107
+Spec loss: 0.0217
+Mean loss: 0.0107
+Total loss: 0.0324
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0276 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.6582 	
+Id_test ACCURACY: 0.8097 	Id_test Loss: 3.3804 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 57:
+Evaluating...
+Clf loss: 0.0100
+Spec loss: 0.0217
+Mean loss: 0.0100
+Total loss: 0.0317
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0257 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.7190 	
+Id_test ACCURACY: 0.8084 	Id_test Loss: 4.4337 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 58:
+Evaluating...
+Clf loss: 0.0176
+Spec loss: 0.0218
+Mean loss: 0.0176
+Total loss: 0.0394
+Eval_train ACCURACY: 0.9956 	Eval_train Loss: 0.0371 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.5179 	
+Id_test ACCURACY: 0.8264 	Id_test Loss: 2.6638 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 59:
+Evaluating...
+Clf loss: 0.0190
+Spec loss: 0.0219
+Mean loss: 0.0190
+Total loss: 0.0410
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0298 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.5207 	
+Id_test ACCURACY: 0.8222 	Id_test Loss: 2.7673 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 60:
+Evaluating...
+Clf loss: 0.0179
+Spec loss: 0.0220
+Mean loss: 0.0179
+Total loss: 0.0399
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0273 	
+Id_val ACCURACY: 0.9326 	Id_val Loss: 0.5136 	
+Id_test ACCURACY: 0.8197 	Id_test Loss: 2.6097 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 61:
+Evaluating...
+Clf loss: 0.0133
+Spec loss: 0.0220
+Mean loss: 0.0133
+Total loss: 0.0353
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.7569 	
+Id_test ACCURACY: 0.8028 	Id_test Loss: 5.0927 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 62:
+Evaluating...
+Clf loss: 0.0135
+Spec loss: 0.0221
+Mean loss: 0.0135
+Total loss: 0.0356
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.6172 	
+Id_test ACCURACY: 0.8274 	Id_test Loss: 3.2352 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 63:
+Evaluating...
+Clf loss: 0.0107
+Spec loss: 0.0219
+Mean loss: 0.0107
+Total loss: 0.0326
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0305 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.5520 	
+Id_test ACCURACY: 0.8164 	Id_test Loss: 2.7255 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 64:
+Evaluating...
+Clf loss: 0.0114
+Spec loss: 0.0219
+Mean loss: 0.0114
+Total loss: 0.0333
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0283 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.6948 	
+Id_test ACCURACY: 0.8028 	Id_test Loss: 4.2134 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 65:
+Evaluating...
+Clf loss: 0.0133
+Spec loss: 0.0218
+Mean loss: 0.0133
+Total loss: 0.0350
+Eval_train ACCURACY: 0.9979 	Eval_train Loss: 0.0277 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.7106 	
+Id_test ACCURACY: 0.8130 	Id_test Loss: 4.1212 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 66:
+Evaluating...
+Clf loss: 0.0135
+Spec loss: 0.0218
+Mean loss: 0.0135
+Total loss: 0.0353
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.7725 	
+Id_test ACCURACY: 0.8210 	Id_test Loss: 4.0911 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 67:
+Evaluating...
+Clf loss: 0.0121
+Spec loss: 0.0218
+Mean loss: 0.0121
+Total loss: 0.0339
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0267 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.7802 	
+Id_test ACCURACY: 0.8036 	Id_test Loss: 4.1249 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 68:
+Evaluating...
+Clf loss: 0.0149
+Spec loss: 0.0217
+Mean loss: 0.0149
+Total loss: 0.0366
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.6170 	
+Id_test ACCURACY: 0.8128 	Id_test Loss: 3.9916 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 69:
+Evaluating...
+Clf loss: 0.0135
+Spec loss: 0.0218
+Mean loss: 0.0135
+Total loss: 0.0353
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0266 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.6421 	
+Id_test ACCURACY: 0.8031 	Id_test Loss: 4.3370 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 70:
+Evaluating...
+Clf loss: 0.0146
+Spec loss: 0.0219
+Mean loss: 0.0146
+Total loss: 0.0365
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.6221 	
+Id_test ACCURACY: 0.8158 	Id_test Loss: 3.6707 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 71:
+Evaluating...
+Clf loss: 0.0143
+Spec loss: 0.0215
+Mean loss: 0.0143
+Total loss: 0.0357
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.6638 	
+Id_test ACCURACY: 0.7996 	Id_test Loss: 3.2262 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 72:
+Evaluating...
+Clf loss: 0.0104
+Spec loss: 0.0217
+Mean loss: 0.0104
+Total loss: 0.0321
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0259 	
+Id_val ACCURACY: 0.9345 	Id_val Loss: 0.5683 	
+Id_test ACCURACY: 0.8068 	Id_test Loss: 3.4458 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 73:
+Evaluating...
+Clf loss: 0.0148
+Spec loss: 0.0217
+Mean loss: 0.0148
+Total loss: 0.0365
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0282 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.5673 	
+Id_test ACCURACY: 0.8178 	Id_test Loss: 2.6437 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 74:
+Evaluating...
+Clf loss: 0.0102
+Spec loss: 0.0221
+Mean loss: 0.0102
+Total loss: 0.0323
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0272 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.9094 	
+Id_test ACCURACY: 0.8228 	Id_test Loss: 4.8166 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 75:
+Evaluating...
+Clf loss: 0.0143
+Spec loss: 0.0219
+Mean loss: 0.0143
+Total loss: 0.0361
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.4725 	
+Id_test ACCURACY: 0.8117 	Id_test Loss: 2.5461 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 76:
+Evaluating...
+Clf loss: 0.0134
+Spec loss: 0.0216
+Mean loss: 0.0134
+Total loss: 0.0350
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0277 	
+Id_val ACCURACY: 0.9330 	Id_val Loss: 0.5950 	
+Id_test ACCURACY: 0.8133 	Id_test Loss: 2.7494 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 77:
+Evaluating...
+Clf loss: 0.0113
+Spec loss: 0.0217
+Mean loss: 0.0113
+Total loss: 0.0330
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0255 	
+Id_val ACCURACY: 0.9266 	Id_val Loss: 0.6828 	
+Id_test ACCURACY: 0.8188 	Id_test Loss: 4.4500 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 78:
+Evaluating...
+Clf loss: 0.0120
+Spec loss: 0.0218
+Mean loss: 0.0120
+Total loss: 0.0338
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0274 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.7222 	
+Id_test ACCURACY: 0.8143 	Id_test Loss: 4.3852 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 79:
+Evaluating...
+Clf loss: 0.0092
+Spec loss: 0.0216
+Mean loss: 0.0092
+Total loss: 0.0308
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0255 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.7379 	
+Id_test ACCURACY: 0.8245 	Id_test Loss: 4.3516 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 80:
+Evaluating...
+Clf loss: 0.0101
+Spec loss: 0.0215
+Mean loss: 0.0101
+Total loss: 0.0315
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0242 	
+Id_val ACCURACY: 0.9320 	Id_val Loss: 0.6684 	
+Id_test ACCURACY: 0.8154 	Id_test Loss: 4.1902 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 81:
+Evaluating...
+Clf loss: 0.0106
+Spec loss: 0.0215
+Mean loss: 0.0106
+Total loss: 0.0321
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.7226 	
+Id_test ACCURACY: 0.8116 	Id_test Loss: 3.8815 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 82:
+Evaluating...
+Clf loss: 0.0097
+Spec loss: 0.0216
+Mean loss: 0.0097
+Total loss: 0.0313
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0285 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.6708 	
+Id_test ACCURACY: 0.8219 	Id_test Loss: 3.3379 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 83:
+Evaluating...
+Clf loss: 0.0097
+Spec loss: 0.0220
+Mean loss: 0.0097
+Total loss: 0.0317
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.6927 	
+Id_test ACCURACY: 0.8176 	Id_test Loss: 3.7439 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 84:
+Evaluating...
+Clf loss: 0.0090
+Spec loss: 0.0217
+Mean loss: 0.0090
+Total loss: 0.0307
+Eval_train ACCURACY: 0.9958 	Eval_train Loss: 0.0317 	
+Id_val ACCURACY: 0.9241 	Id_val Loss: 0.7107 	
+Id_test ACCURACY: 0.8222 	Id_test Loss: 3.8329 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 85:
+Evaluating...
+Clf loss: 0.0092
+Spec loss: 0.0219
+Mean loss: 0.0092
+Total loss: 0.0311
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0271 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.8588 	
+Id_test ACCURACY: 0.8203 	Id_test Loss: 4.9751 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 86:
+Evaluating...
+Clf loss: 0.0119
+Spec loss: 0.0217
+Mean loss: 0.0119
+Total loss: 0.0337
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0287 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.5324 	
+Id_test ACCURACY: 0.8059 	Id_test Loss: 3.0675 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0541)
+
+Epoch 87:
+Evaluating...
+Clf loss: 0.0119
+Spec loss: 0.0220
+Mean loss: 0.0119
+Total loss: 0.0338
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0288 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.8673 	
+Id_test ACCURACY: 0.8160 	Id_test Loss: 4.1988 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 88:
+Evaluating...
+Clf loss: 0.0107
+Spec loss: 0.0218
+Mean loss: 0.0107
+Total loss: 0.0325
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0255 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.7381 	
+Id_test ACCURACY: 0.8259 	Id_test Loss: 3.9929 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 89:
+Evaluating...
+Clf loss: 0.0102
+Spec loss: 0.0217
+Mean loss: 0.0102
+Total loss: 0.0319
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9279 	Id_val Loss: 0.7577 	
+Id_test ACCURACY: 0.8262 	Id_test Loss: 3.4068 	
+edge_weight:  tensor(0.) tensor(0.9925) tensor(0.0541)
+
+Epoch 90:
+Evaluating...
+Clf loss: 0.0076
+Spec loss: 0.0217
+Mean loss: 0.0076
+Total loss: 0.0293
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0263 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.9722 	
+Id_test ACCURACY: 0.7957 	Id_test Loss: 5.9801 	
+edge_weight:  tensor(0.) tensor(0.7251) tensor(0.0540)
+
+Epoch 91:
+Evaluating...
+Clf loss: 0.0133
+Spec loss: 0.0216
+Mean loss: 0.0133
+Total loss: 0.0349
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0254 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.6453 	
+Id_test ACCURACY: 0.8252 	Id_test Loss: 3.3648 	
+edge_weight:  tensor(0.) tensor(0.9488) tensor(0.0541)
+
+Epoch 92:
+Evaluating...
+Clf loss: 0.0084
+Spec loss: 0.0215
+Mean loss: 0.0084
+Total loss: 0.0299
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0254 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.7188 	
+Id_test ACCURACY: 0.7976 	Id_test Loss: 4.0543 	
+edge_weight:  tensor(0.) tensor(0.8858) tensor(0.0541)
+
+Epoch 93:
+Evaluating...
+Clf loss: 0.0069
+Spec loss: 0.0217
+Mean loss: 0.0069
+Total loss: 0.0286
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9336 	Id_val Loss: 0.6968 	
+Id_test ACCURACY: 0.8143 	Id_test Loss: 3.9426 	
+edge_weight:  tensor(0.) tensor(0.9834) tensor(0.0541)
+
+Epoch 94:
+Evaluating...
+Clf loss: 0.0095
+Spec loss: 0.0217
+Mean loss: 0.0095
+Total loss: 0.0312
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0272 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.7750 	
+Id_test ACCURACY: 0.8199 	Id_test Loss: 4.5475 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 95:
+Evaluating...
+Clf loss: 0.0118
+Spec loss: 0.0215
+Mean loss: 0.0118
+Total loss: 0.0333
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0257 	
+Id_val ACCURACY: 0.9326 	Id_val Loss: 0.5982 	
+Id_test ACCURACY: 0.8128 	Id_test Loss: 3.4670 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 96:
+Evaluating...
+Clf loss: 0.0078
+Spec loss: 0.0217
+Mean loss: 0.0078
+Total loss: 0.0295
+Eval_train ACCURACY: 0.9995 	Eval_train Loss: 0.0237 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.8462 	
+Id_test ACCURACY: 0.8193 	Id_test Loss: 5.4342 	
+edge_weight:  tensor(0.) tensor(0.5600) tensor(0.0540)
+
+Epoch 97:
+Evaluating...
+Clf loss: 0.0089
+Spec loss: 0.0216
+Mean loss: 0.0089
+Total loss: 0.0305
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0269 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.5542 	
+Id_test ACCURACY: 0.8311 	Id_test Loss: 2.7591 	
+edge_weight:  tensor(0.) tensor(0.9949) tensor(0.0540)
+
+Epoch 98:
+Evaluating...
+Clf loss: 0.0087
+Spec loss: 0.0216
+Mean loss: 0.0087
+Total loss: 0.0303
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0294 	
+Id_val ACCURACY: 0.9272 	Id_val Loss: 0.6087 	
+Id_test ACCURACY: 0.8193 	Id_test Loss: 4.3205 	
+edge_weight:  tensor(0.) tensor(0.9287) tensor(0.0540)
+
+Epoch 99:
+Evaluating...
+Clf loss: 0.0074
+Spec loss: 0.0214
+Mean loss: 0.0074
+Total loss: 0.0288
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0244 	
+Id_val ACCURACY: 0.9336 	Id_val Loss: 0.8362 	
+Id_test ACCURACY: 0.8161 	Id_test Loss: 5.7445 	
+edge_weight:  tensor(0.) tensor(0.9178) tensor(0.0540)
+
+Training end (0:07:49.039266).
+
+[1;34mDEBUG[0m: 08/13/2025 06:30:31 PM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 4 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round4/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 4: 
+-----------------------------------
+Train ACCURACY: 0.9323
+Train Loss: 0.2050
+Spec Loss: 0.0218
+Mean Loss: 0.2294
+Total Loss: 0.2512
+ID Validation ACCURACY: 0.8980
+ID Validation Loss: 0.2852
+ID Test ACCURACY: 0.8098
+ID Test Loss: 0.6442
+OOD Validation ACCURACY: 0.8980
+OOD Validation Loss: 0.2852
+OOD Test ACCURACY: 0.8098
+OOD Test Loss: 0.6442
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 4...
+[0m[1;37mINFO[0m: [1mCheckpoint 4: 
+-----------------------------------
+Train ACCURACY: 0.9323
+Train Loss: 0.2050
+ID Validation ACCURACY: 0.8980
+ID Validation Loss: 0.2852
+ID Test ACCURACY: 0.8098
+ID Test Loss: 0.6442
+OOD Validation ACCURACY: 0.8980
+OOD Validation Loss: 0.2852
+OOD Test ACCURACY: 0.8098
+OOD Test Loss: 0.6442
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8098 0.8098 0.8098 0.8098 0.8980 0.8980[0mTrain ACCURACY: 0.9323 	Train Loss: 0.2040 	
+Id_val ACCURACY: 0.8980 	Id_val Loss: 0.2852 	
+Id_test ACCURACY: 0.8098 	Id_test Loss: 0.6442 	
+Val ACCURACY: 0.8980 	Val Loss: 0.2852 	
+Test ACCURACY: 0.8098 	Test Loss: 0.6442 	
+
+
+#D#Running with seed = 5
+model_dirname= softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted
+498 5
+{'acc_givenR': False,
+ 'argv': None,
+ 'average_edge_attn': None,
+ 'ckpt_dir': None,
+ 'ckpt_root': None,
+ 'clean_save': None,
+ 'config_path': '/home/azzolin/sedignn/expl_shortcut/configs/final_configs/SST2Planted/basis/no_shift/SMGNN.yaml',
+ 'dataset': DatasetArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'debias': False,
+ 'device': None,
+ 'exp_round': 5,
+ 'expval_budget': None,
+ 'global_side_channel': None,
+ 'gpu_idx': 1,
+ 'id_test_ckpt': None,
+ 'intervention_distrib': 'model_dependent',
+ 'log_file': None,
+ 'log_id': '',
+ 'log_path': None,
+ 'mask': False,
+ 'metric': None,
+ 'metrics': '',
+ 'mitigation_expl_scores': 'default',
+ 'mitigation_expl_scores_topk': -1,
+ 'mitigation_readout': None,
+ 'mitigation_sampling': None,
+ 'mitigation_virtual': None,
+ 'model': ModelArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'nec_budget': None,
+ 'nec_marg_alpha': True,
+ 'nec_number_samples': 'prop_G_dataset',
+ 'num_workers': None,
+ 'numsamples_budget': None,
+ 'ood': OODArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'other_saved': None,
+ 'pipeline': None,
+ 'process_args_manual': <bound method CommonArgs.process_args_manual of CommonArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True)>,
+ 'pytest': None,
+ 'random_expl': False,
+ 'random_seed': 5,
+ 'ratios': '',
+ 'rfid_alpha_1': None,
+ 'rfid_alpha_2': None,
+ 'samplingtype': 'deconfounded',
+ 'save_metrics': False,
+ 'save_tag': None,
+ 'seeds': '1/2/3/4/5',
+ 'splits': '',
+ 'task': 'train',
+ 'tensorboard_logdir': None,
+ 'test_ckpt': None,
+ 'train': TrainArgs(prog='goodtg', usage=None, description=None, formatter_class=<class 'argparse.HelpFormatter'>, conflict_handler='error', add_help=True),
+ 'use_norm': None,
+ 'use_readout_norm': None,
+ 'wandb': False}
+
+[1;37mINFO[0m: [1m-----------------------------------
+    Task: train
+Wed Aug 13 18:30:34 2025
+[0m[1;37mINFO[0m: [1mLoad Dataset GraphSST2Planted
+[0m[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mDataset: {'train': GraphSST2Planted(28327), 'id_val': GraphSST2Planted(3147), 'id_test': GraphSST2Planted(12305), 'val': GraphSST2Planted(3147), 'test': GraphSST2Planted(12305), 'task': 'Binary classification', 'metric': 'Accuracy'}
+[0m[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1m Data(x=[17, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[17], sentence_tokens=[17], num_nodes=17)
+[0mData(x=[14, 768], edge_index=[2, 22], y=[1, 1], idx=[1], node_type=[14], sentence_tokens=[14], num_nodes=14)
+[1;37mINFO[0m: [1mLoading model...
+[0m[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mAdopting node level scores
+[0mInit CLASSIFIER
+[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mInit FeatExtractor
+[0mUsing no_bn in BasicEncoder
+mitigation_readout =  weighted
+Num layers = 2
+[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+[1;34mDEBUG[0m: 08/13/2025 06:30:34 PM : [1mUsing the fixed _explain_ functionality
+[0mUsing ACRConv
+mitigation_readout =  weighted
+mitigation_readout =  weighted
+Using ACRConv2
+Using mitigation_sampling==raw with 2 layers
+Using non linear ClassifierS
+Using mitigation_expl_scores: default
+Config model
+Load training utils
+Before training:
+Eval_train ACCURACY: 0.5162 	Eval_train Loss: 0.7192 	
+Id_val ACCURACY: 0.5116 	Id_val Loss: 0.7194 	
+Id_test ACCURACY: 0.6116 	Id_test Loss: 0.7605 	
+
+Epoch 0:
+Evaluating...
+Clf loss: 0.5583
+Spec loss: 0.0080
+Mean loss: 0.5583
+Total loss: 0.5663
+Eval_train ACCURACY: 0.8069 	Eval_train Loss: 0.4320 	
+Id_val ACCURACY: 0.8027 	Id_val Loss: 0.4597 	
+Id_test ACCURACY: 0.8067 	Id_test Loss: 0.5132 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;33mWARNING[0m: utils.py - line 52 : [1mDirectory does not exists. Have built it automatically.
+/home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round5/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:30:43 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:30:43 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 1:
+Evaluating...
+Clf loss: 0.4058
+Spec loss: 0.0089
+Mean loss: 0.4058
+Total loss: 0.4147
+Eval_train ACCURACY: 0.8521 	Eval_train Loss: 0.3570 	
+Id_val ACCURACY: 0.8408 	Id_val Loss: 0.3917 	
+Id_test ACCURACY: 0.7855 	Id_test Loss: 0.7616 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:30:48 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:30:48 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 2:
+Evaluating...
+Clf loss: 0.3196
+Spec loss: 0.0171
+Mean loss: 0.3196
+Total loss: 0.3367
+Eval_train ACCURACY: 0.8843 	Eval_train Loss: 0.3005 	
+Id_val ACCURACY: 0.8729 	Id_val Loss: 0.3299 	
+Id_test ACCURACY: 0.8151 	Id_test Loss: 0.4941 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:30:52 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:30:52 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 3:
+Evaluating...
+Clf loss: 0.2739
+Spec loss: 0.0199
+Mean loss: 0.2739
+Total loss: 0.2938
+Eval_train ACCURACY: 0.9092 	Eval_train Loss: 0.2374 	
+Id_val ACCURACY: 0.8926 	Id_val Loss: 0.3003 	
+Id_test ACCURACY: 0.8119 	Id_test Loss: 0.5530 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:30:56 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:30:56 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 4:
+Evaluating...
+Clf loss: 0.2369
+Spec loss: 0.0212
+Mean loss: 0.2369
+Total loss: 0.2581
+Eval_train ACCURACY: 0.9187 	Eval_train Loss: 0.2183 	
+Id_val ACCURACY: 0.8926 	Id_val Loss: 0.2926 	
+Id_test ACCURACY: 0.8339 	Id_test Loss: 0.5962 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:31:01 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:31:01 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 5:
+Evaluating...
+Clf loss: 0.2050
+Spec loss: 0.0216
+Mean loss: 0.2050
+Total loss: 0.2266
+Eval_train ACCURACY: 0.9372 	Eval_train Loss: 0.1811 	
+Id_val ACCURACY: 0.8948 	Id_val Loss: 0.2888 	
+Id_test ACCURACY: 0.8327 	Id_test Loss: 0.5440 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+[1;36mIMPORTANT[0m: 08/13/2025 06:31:05 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:31:05 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 6:
+Evaluating...
+Clf loss: 0.1756
+Spec loss: 0.0216
+Mean loss: 0.1756
+Total loss: 0.1972
+Eval_train ACCURACY: 0.9535 	Eval_train Loss: 0.1457 	
+Id_val ACCURACY: 0.9088 	Id_val Loss: 0.2668 	
+Id_test ACCURACY: 0.8041 	Id_test Loss: 0.7454 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+[1;36mIMPORTANT[0m: 08/13/2025 06:31:09 PM : [1mSaved a new best In-Domain checkpoint.
+[0m[1;36mIMPORTANT[0m: 08/13/2025 06:31:09 PM : [1mSaved a new best checkpoint.
+[0m
+Epoch 7:
+Evaluating...
+Clf loss: 0.1437
+Spec loss: 0.0214
+Mean loss: 0.1437
+Total loss: 0.1651
+Eval_train ACCURACY: 0.9563 	Eval_train Loss: 0.1385 	
+Id_val ACCURACY: 0.9145 	Id_val Loss: 0.2787 	
+Id_test ACCURACY: 0.8071 	Id_test Loss: 0.7875 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 8:
+Evaluating...
+Clf loss: 0.1303
+Spec loss: 0.0214
+Mean loss: 0.1303
+Total loss: 0.1517
+Eval_train ACCURACY: 0.9675 	Eval_train Loss: 0.1136 	
+Id_val ACCURACY: 0.9117 	Id_val Loss: 0.2834 	
+Id_test ACCURACY: 0.8240 	Id_test Loss: 0.8308 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 9:
+Evaluating...
+Clf loss: 0.1106
+Spec loss: 0.0211
+Mean loss: 0.1106
+Total loss: 0.1318
+Eval_train ACCURACY: 0.9731 	Eval_train Loss: 0.0971 	
+Id_val ACCURACY: 0.9183 	Id_val Loss: 0.2878 	
+Id_test ACCURACY: 0.8124 	Id_test Loss: 1.0028 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 10:
+Evaluating...
+Clf loss: 0.0945
+Spec loss: 0.0215
+Mean loss: 0.0945
+Total loss: 0.1160
+Eval_train ACCURACY: 0.9763 	Eval_train Loss: 0.0913 	
+Id_val ACCURACY: 0.9187 	Id_val Loss: 0.3363 	
+Id_test ACCURACY: 0.8096 	Id_test Loss: 1.1554 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 11:
+Evaluating...
+Clf loss: 0.0844
+Spec loss: 0.0215
+Mean loss: 0.0844
+Total loss: 0.1059
+Eval_train ACCURACY: 0.9801 	Eval_train Loss: 0.0780 	
+Id_val ACCURACY: 0.9190 	Id_val Loss: 0.3385 	
+Id_test ACCURACY: 0.8224 	Id_test Loss: 1.5786 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 12:
+Evaluating...
+Clf loss: 0.0711
+Spec loss: 0.0213
+Mean loss: 0.0711
+Total loss: 0.0923
+Eval_train ACCURACY: 0.9807 	Eval_train Loss: 0.0742 	
+Id_val ACCURACY: 0.9237 	Id_val Loss: 0.4103 	
+Id_test ACCURACY: 0.8245 	Id_test Loss: 1.6169 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 13:
+Evaluating...
+Clf loss: 0.0671
+Spec loss: 0.0212
+Mean loss: 0.0671
+Total loss: 0.0883
+Eval_train ACCURACY: 0.9889 	Eval_train Loss: 0.0564 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.3605 	
+Id_test ACCURACY: 0.8110 	Id_test Loss: 1.6718 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 14:
+Evaluating...
+Clf loss: 0.0587
+Spec loss: 0.0214
+Mean loss: 0.0587
+Total loss: 0.0801
+Eval_train ACCURACY: 0.9862 	Eval_train Loss: 0.0623 	
+Id_val ACCURACY: 0.9209 	Id_val Loss: 0.3952 	
+Id_test ACCURACY: 0.7703 	Id_test Loss: 2.6334 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 15:
+Evaluating...
+Clf loss: 0.0567
+Spec loss: 0.0216
+Mean loss: 0.0567
+Total loss: 0.0783
+Eval_train ACCURACY: 0.9870 	Eval_train Loss: 0.0630 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.3314 	
+Id_test ACCURACY: 0.8190 	Id_test Loss: 1.3103 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 16:
+Evaluating...
+Clf loss: 0.0713
+Spec loss: 0.0215
+Mean loss: 0.0713
+Total loss: 0.0928
+Eval_train ACCURACY: 0.9855 	Eval_train Loss: 0.0639 	
+Id_val ACCURACY: 0.9231 	Id_val Loss: 0.3370 	
+Id_test ACCURACY: 0.8089 	Id_test Loss: 1.4111 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 17:
+Evaluating...
+Clf loss: 0.0525
+Spec loss: 0.0218
+Mean loss: 0.0525
+Total loss: 0.0743
+Eval_train ACCURACY: 0.9901 	Eval_train Loss: 0.0535 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.3669 	
+Id_test ACCURACY: 0.8245 	Id_test Loss: 1.6393 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 18:
+Evaluating...
+Clf loss: 0.0503
+Spec loss: 0.0221
+Mean loss: 0.0503
+Total loss: 0.0724
+Eval_train ACCURACY: 0.9884 	Eval_train Loss: 0.0568 	
+Id_val ACCURACY: 0.9269 	Id_val Loss: 0.3434 	
+Id_test ACCURACY: 0.8063 	Id_test Loss: 1.7434 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 19:
+Evaluating...
+Clf loss: 0.0462
+Spec loss: 0.0223
+Mean loss: 0.0462
+Total loss: 0.0685
+Eval_train ACCURACY: 0.9879 	Eval_train Loss: 0.0608 	
+Id_val ACCURACY: 0.9215 	Id_val Loss: 0.3816 	
+Id_test ACCURACY: 0.7965 	Id_test Loss: 1.8913 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 20:
+Evaluating...
+Clf loss: 0.0359
+Spec loss: 0.0220
+Mean loss: 0.0359
+Total loss: 0.0580
+Eval_train ACCURACY: 0.9952 	Eval_train Loss: 0.0393 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.4252 	
+Id_test ACCURACY: 0.8007 	Id_test Loss: 2.4724 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 21:
+Evaluating...
+Clf loss: 0.0328
+Spec loss: 0.0220
+Mean loss: 0.0328
+Total loss: 0.0548
+Eval_train ACCURACY: 0.9945 	Eval_train Loss: 0.0397 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.3905 	
+Id_test ACCURACY: 0.8204 	Id_test Loss: 1.7464 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 22:
+Evaluating...
+Clf loss: 0.0326
+Spec loss: 0.0220
+Mean loss: 0.0326
+Total loss: 0.0546
+Eval_train ACCURACY: 0.9959 	Eval_train Loss: 0.0351 	
+Id_val ACCURACY: 0.9333 	Id_val Loss: 0.4411 	
+Id_test ACCURACY: 0.8131 	Id_test Loss: 2.2300 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 23:
+Evaluating...
+Clf loss: 0.0268
+Spec loss: 0.0219
+Mean loss: 0.0268
+Total loss: 0.0488
+Eval_train ACCURACY: 0.9957 	Eval_train Loss: 0.0362 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.4986 	
+Id_test ACCURACY: 0.8089 	Id_test Loss: 3.3480 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 24:
+Evaluating...
+Clf loss: 0.0292
+Spec loss: 0.0221
+Mean loss: 0.0292
+Total loss: 0.0513
+Eval_train ACCURACY: 0.9954 	Eval_train Loss: 0.0393 	
+Id_val ACCURACY: 0.9276 	Id_val Loss: 0.4459 	
+Id_test ACCURACY: 0.8197 	Id_test Loss: 2.4111 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 25:
+Evaluating...
+Clf loss: 0.0289
+Spec loss: 0.0218
+Mean loss: 0.0289
+Total loss: 0.0508
+Eval_train ACCURACY: 0.9957 	Eval_train Loss: 0.0368 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.4216 	
+Id_test ACCURACY: 0.8242 	Id_test Loss: 2.2831 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 26:
+Evaluating...
+Clf loss: 0.0268
+Spec loss: 0.0219
+Mean loss: 0.0268
+Total loss: 0.0487
+Eval_train ACCURACY: 0.9960 	Eval_train Loss: 0.0364 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.4873 	
+Id_test ACCURACY: 0.8206 	Id_test Loss: 2.8707 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 27:
+Evaluating...
+Clf loss: 0.0258
+Spec loss: 0.0219
+Mean loss: 0.0258
+Total loss: 0.0477
+Eval_train ACCURACY: 0.9972 	Eval_train Loss: 0.0322 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.5201 	
+Id_test ACCURACY: 0.8115 	Id_test Loss: 3.2706 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 28:
+Evaluating...
+Clf loss: 0.0221
+Spec loss: 0.0221
+Mean loss: 0.0221
+Total loss: 0.0442
+Eval_train ACCURACY: 0.9967 	Eval_train Loss: 0.0334 	
+Id_val ACCURACY: 0.9253 	Id_val Loss: 0.5395 	
+Id_test ACCURACY: 0.8158 	Id_test Loss: 3.7267 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 29:
+Evaluating...
+Clf loss: 0.0211
+Spec loss: 0.0219
+Mean loss: 0.0211
+Total loss: 0.0430
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0333 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.4504 	
+Id_test ACCURACY: 0.8075 	Id_test Loss: 2.8231 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 30:
+Evaluating...
+Clf loss: 0.0268
+Spec loss: 0.0221
+Mean loss: 0.0268
+Total loss: 0.0489
+Eval_train ACCURACY: 0.9957 	Eval_train Loss: 0.0350 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.5052 	
+Id_test ACCURACY: 0.8205 	Id_test Loss: 3.3493 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 31:
+Evaluating...
+Clf loss: 0.0261
+Spec loss: 0.0223
+Mean loss: 0.0261
+Total loss: 0.0484
+Eval_train ACCURACY: 0.9966 	Eval_train Loss: 0.0346 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.5031 	
+Id_test ACCURACY: 0.8192 	Id_test Loss: 3.3961 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 32:
+Evaluating...
+Clf loss: 0.0251
+Spec loss: 0.0221
+Mean loss: 0.0251
+Total loss: 0.0471
+Eval_train ACCURACY: 0.9963 	Eval_train Loss: 0.0347 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.4852 	
+Id_test ACCURACY: 0.8098 	Id_test Loss: 3.6690 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 33:
+Evaluating...
+Clf loss: 0.0219
+Spec loss: 0.0220
+Mean loss: 0.0219
+Total loss: 0.0439
+Eval_train ACCURACY: 0.9974 	Eval_train Loss: 0.0314 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.4868 	
+Id_test ACCURACY: 0.8150 	Id_test Loss: 3.0499 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 34:
+Evaluating...
+Clf loss: 0.0204
+Spec loss: 0.0219
+Mean loss: 0.0204
+Total loss: 0.0423
+Eval_train ACCURACY: 0.9959 	Eval_train Loss: 0.0347 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.4552 	
+Id_test ACCURACY: 0.8225 	Id_test Loss: 3.2423 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 35:
+Evaluating...
+Clf loss: 0.0215
+Spec loss: 0.0221
+Mean loss: 0.0215
+Total loss: 0.0436
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0314 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.5104 	
+Id_test ACCURACY: 0.8286 	Id_test Loss: 3.3871 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 36:
+Evaluating...
+Clf loss: 0.0183
+Spec loss: 0.0220
+Mean loss: 0.0183
+Total loss: 0.0403
+Eval_train ACCURACY: 0.9959 	Eval_train Loss: 0.0389 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.3603 	
+Id_test ACCURACY: 0.8205 	Id_test Loss: 2.1261 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 37:
+Evaluating...
+Clf loss: 0.0218
+Spec loss: 0.0219
+Mean loss: 0.0218
+Total loss: 0.0436
+Eval_train ACCURACY: 0.9961 	Eval_train Loss: 0.0342 	
+Id_val ACCURACY: 0.9237 	Id_val Loss: 0.5418 	
+Id_test ACCURACY: 0.8158 	Id_test Loss: 3.0750 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 38:
+Evaluating...
+Clf loss: 0.0219
+Spec loss: 0.0220
+Mean loss: 0.0219
+Total loss: 0.0439
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0307 	
+Id_val ACCURACY: 0.9263 	Id_val Loss: 0.5734 	
+Id_test ACCURACY: 0.8120 	Id_test Loss: 3.8165 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 39:
+Evaluating...
+Clf loss: 0.0176
+Spec loss: 0.0221
+Mean loss: 0.0176
+Total loss: 0.0397
+Eval_train ACCURACY: 0.9965 	Eval_train Loss: 0.0338 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.4952 	
+Id_test ACCURACY: 0.8165 	Id_test Loss: 3.4894 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 40:
+Evaluating...
+Clf loss: 0.0175
+Spec loss: 0.0220
+Mean loss: 0.0175
+Total loss: 0.0395
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0309 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.4693 	
+Id_test ACCURACY: 0.8128 	Id_test Loss: 3.3504 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 41:
+Evaluating...
+Clf loss: 0.0167
+Spec loss: 0.0219
+Mean loss: 0.0167
+Total loss: 0.0386
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0297 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.4747 	
+Id_test ACCURACY: 0.8146 	Id_test Loss: 3.2269 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 42:
+Evaluating...
+Clf loss: 0.0196
+Spec loss: 0.0219
+Mean loss: 0.0196
+Total loss: 0.0415
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0295 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.5070 	
+Id_test ACCURACY: 0.8300 	Id_test Loss: 3.1906 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 43:
+Evaluating...
+Clf loss: 0.0175
+Spec loss: 0.0219
+Mean loss: 0.0175
+Total loss: 0.0394
+Eval_train ACCURACY: 0.9974 	Eval_train Loss: 0.0324 	
+Id_val ACCURACY: 0.9285 	Id_val Loss: 0.5337 	
+Id_test ACCURACY: 0.8063 	Id_test Loss: 3.5643 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 44:
+Evaluating...
+Clf loss: 0.0170
+Spec loss: 0.0220
+Mean loss: 0.0170
+Total loss: 0.0390
+Eval_train ACCURACY: 0.9974 	Eval_train Loss: 0.0295 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.4873 	
+Id_test ACCURACY: 0.8171 	Id_test Loss: 3.7663 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 45:
+Evaluating...
+Clf loss: 0.0158
+Spec loss: 0.0219
+Mean loss: 0.0158
+Total loss: 0.0377
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0302 	
+Id_val ACCURACY: 0.9282 	Id_val Loss: 0.4651 	
+Id_test ACCURACY: 0.8058 	Id_test Loss: 3.4507 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 46:
+Evaluating...
+Clf loss: 0.0161
+Spec loss: 0.0219
+Mean loss: 0.0161
+Total loss: 0.0379
+Eval_train ACCURACY: 0.9982 	Eval_train Loss: 0.0275 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.6030 	
+Id_test ACCURACY: 0.8218 	Id_test Loss: 4.2065 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 47:
+Evaluating...
+Clf loss: 0.0171
+Spec loss: 0.0218
+Mean loss: 0.0171
+Total loss: 0.0389
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0292 	
+Id_val ACCURACY: 0.9371 	Id_val Loss: 0.4879 	
+Id_test ACCURACY: 0.8200 	Id_test Loss: 3.8312 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 48:
+Evaluating...
+Clf loss: 0.0177
+Spec loss: 0.0220
+Mean loss: 0.0177
+Total loss: 0.0397
+Eval_train ACCURACY: 0.9984 	Eval_train Loss: 0.0303 	
+Id_val ACCURACY: 0.9333 	Id_val Loss: 0.4869 	
+Id_test ACCURACY: 0.8207 	Id_test Loss: 3.0824 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 49:
+Evaluating...
+Clf loss: 0.0148
+Spec loss: 0.0220
+Mean loss: 0.0148
+Total loss: 0.0368
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9333 	Id_val Loss: 0.6465 	
+Id_test ACCURACY: 0.8167 	Id_test Loss: 3.9087 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 50:
+Evaluating...
+Clf loss: 0.0275
+Spec loss: 0.0223
+Mean loss: 0.0275
+Total loss: 0.0498
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0282 	
+Id_val ACCURACY: 0.9291 	Id_val Loss: 0.5690 	
+Id_test ACCURACY: 0.8065 	Id_test Loss: 4.3278 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 51:
+Evaluating...
+Clf loss: 0.0164
+Spec loss: 0.0222
+Mean loss: 0.0164
+Total loss: 0.0386
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.6093 	
+Id_test ACCURACY: 0.8206 	Id_test Loss: 3.5157 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 52:
+Evaluating...
+Clf loss: 0.0180
+Spec loss: 0.0222
+Mean loss: 0.0180
+Total loss: 0.0402
+Eval_train ACCURACY: 0.9976 	Eval_train Loss: 0.0315 	
+Id_val ACCURACY: 0.9339 	Id_val Loss: 0.4465 	
+Id_test ACCURACY: 0.8103 	Id_test Loss: 2.6142 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 53:
+Evaluating...
+Clf loss: 0.0118
+Spec loss: 0.0220
+Mean loss: 0.0118
+Total loss: 0.0338
+Eval_train ACCURACY: 0.9979 	Eval_train Loss: 0.0285 	
+Id_val ACCURACY: 0.9310 	Id_val Loss: 0.6153 	
+Id_test ACCURACY: 0.8028 	Id_test Loss: 4.3594 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 54:
+Evaluating...
+Clf loss: 0.0124
+Spec loss: 0.0221
+Mean loss: 0.0124
+Total loss: 0.0344
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0271 	
+Id_val ACCURACY: 0.9345 	Id_val Loss: 0.5229 	
+Id_test ACCURACY: 0.8141 	Id_test Loss: 3.0812 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 55:
+Evaluating...
+Clf loss: 0.0126
+Spec loss: 0.0221
+Mean loss: 0.0126
+Total loss: 0.0347
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0295 	
+Id_val ACCURACY: 0.9320 	Id_val Loss: 0.5137 	
+Id_test ACCURACY: 0.8130 	Id_test Loss: 3.5596 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 56:
+Evaluating...
+Clf loss: 0.0132
+Spec loss: 0.0220
+Mean loss: 0.0132
+Total loss: 0.0352
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9355 	Id_val Loss: 0.6761 	
+Id_test ACCURACY: 0.8160 	Id_test Loss: 5.2295 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 57:
+Evaluating...
+Clf loss: 0.0155
+Spec loss: 0.0220
+Mean loss: 0.0155
+Total loss: 0.0375
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0299 	
+Id_val ACCURACY: 0.9326 	Id_val Loss: 0.4738 	
+Id_test ACCURACY: 0.8150 	Id_test Loss: 3.4746 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 58:
+Evaluating...
+Clf loss: 0.0148
+Spec loss: 0.0220
+Mean loss: 0.0148
+Total loss: 0.0368
+Eval_train ACCURACY: 0.9978 	Eval_train Loss: 0.0302 	
+Id_val ACCURACY: 0.9298 	Id_val Loss: 0.5217 	
+Id_test ACCURACY: 0.8257 	Id_test Loss: 2.8813 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 59:
+Evaluating...
+Clf loss: 0.0140
+Spec loss: 0.0219
+Mean loss: 0.0140
+Total loss: 0.0359
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0289 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.5996 	
+Id_test ACCURACY: 0.8139 	Id_test Loss: 4.1589 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 60:
+Evaluating...
+Clf loss: 0.0159
+Spec loss: 0.0218
+Mean loss: 0.0159
+Total loss: 0.0377
+Eval_train ACCURACY: 0.9974 	Eval_train Loss: 0.0314 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.5026 	
+Id_test ACCURACY: 0.8231 	Id_test Loss: 3.3256 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 61:
+Evaluating...
+Clf loss: 0.0154
+Spec loss: 0.0220
+Mean loss: 0.0154
+Total loss: 0.0373
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0302 	
+Id_val ACCURACY: 0.9364 	Id_val Loss: 0.4528 	
+Id_test ACCURACY: 0.7951 	Id_test Loss: 3.9047 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 62:
+Evaluating...
+Clf loss: 0.0134
+Spec loss: 0.0219
+Mean loss: 0.0134
+Total loss: 0.0353
+Eval_train ACCURACY: 0.9979 	Eval_train Loss: 0.0293 	
+Id_val ACCURACY: 0.9295 	Id_val Loss: 0.5609 	
+Id_test ACCURACY: 0.8141 	Id_test Loss: 3.8684 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 63:
+Evaluating...
+Clf loss: 0.0147
+Spec loss: 0.0219
+Mean loss: 0.0147
+Total loss: 0.0366
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0314 	
+Id_val ACCURACY: 0.9288 	Id_val Loss: 0.4514 	
+Id_test ACCURACY: 0.8293 	Id_test Loss: 2.5893 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 64:
+Evaluating...
+Clf loss: 0.0181
+Spec loss: 0.0223
+Mean loss: 0.0181
+Total loss: 0.0404
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.5821 	
+Id_test ACCURACY: 0.8188 	Id_test Loss: 3.9445 	
+edge_weight:  tensor(0.) tensor(0.9989) tensor(0.0541)
+
+Epoch 65:
+Evaluating...
+Clf loss: 0.0105
+Spec loss: 0.0221
+Mean loss: 0.0105
+Total loss: 0.0326
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0279 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.5404 	
+Id_test ACCURACY: 0.8310 	Id_test Loss: 3.3290 	
+edge_weight:  tensor(0.) tensor(0.9993) tensor(0.0541)
+
+Epoch 66:
+Evaluating...
+Clf loss: 0.0122
+Spec loss: 0.0219
+Mean loss: 0.0122
+Total loss: 0.0341
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0273 	
+Id_val ACCURACY: 0.9377 	Id_val Loss: 0.5144 	
+Id_test ACCURACY: 0.8258 	Id_test Loss: 3.5374 	
+edge_weight:  tensor(0.) tensor(0.9998) tensor(0.0540)
+
+Epoch 67:
+Evaluating...
+Clf loss: 0.0103
+Spec loss: 0.0219
+Mean loss: 0.0103
+Total loss: 0.0322
+Eval_train ACCURACY: 0.9980 	Eval_train Loss: 0.0303 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.4990 	
+Id_test ACCURACY: 0.8249 	Id_test Loss: 3.4410 	
+edge_weight:  tensor(0.) tensor(0.9996) tensor(0.0541)
+
+Epoch 68:
+Evaluating...
+Clf loss: 0.0114
+Spec loss: 0.0219
+Mean loss: 0.0114
+Total loss: 0.0333
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0242 	
+Id_val ACCURACY: 0.9374 	Id_val Loss: 0.7298 	
+Id_test ACCURACY: 0.8321 	Id_test Loss: 4.3098 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 69:
+Evaluating...
+Clf loss: 0.0089
+Spec loss: 0.0218
+Mean loss: 0.0089
+Total loss: 0.0307
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0267 	
+Id_val ACCURACY: 0.9342 	Id_val Loss: 0.6244 	
+Id_test ACCURACY: 0.8278 	Id_test Loss: 3.6773 	
+edge_weight:  tensor(0.) tensor(0.9997) tensor(0.0541)
+
+Epoch 70:
+Evaluating...
+Clf loss: 0.0086
+Spec loss: 0.0219
+Mean loss: 0.0086
+Total loss: 0.0305
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0253 	
+Id_val ACCURACY: 0.9371 	Id_val Loss: 0.6735 	
+Id_test ACCURACY: 0.8278 	Id_test Loss: 4.2692 	
+edge_weight:  tensor(0.) tensor(0.9998) tensor(0.0540)
+
+Epoch 71:
+Evaluating...
+Clf loss: 0.0102
+Spec loss: 0.0221
+Mean loss: 0.0102
+Total loss: 0.0323
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0252 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.5996 	
+Id_test ACCURACY: 0.8258 	Id_test Loss: 3.4584 	
+edge_weight:  tensor(0.) tensor(0.9971) tensor(0.0540)
+
+Epoch 72:
+Evaluating...
+Clf loss: 0.0080
+Spec loss: 0.0219
+Mean loss: 0.0080
+Total loss: 0.0298
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0250 	
+Id_val ACCURACY: 0.9371 	Id_val Loss: 0.6406 	
+Id_test ACCURACY: 0.8241 	Id_test Loss: 3.9099 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 73:
+Evaluating...
+Clf loss: 0.0087
+Spec loss: 0.0217
+Mean loss: 0.0087
+Total loss: 0.0305
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0255 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.6305 	
+Id_test ACCURACY: 0.8235 	Id_test Loss: 3.8725 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 74:
+Evaluating...
+Clf loss: 0.0094
+Spec loss: 0.0215
+Mean loss: 0.0094
+Total loss: 0.0309
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0242 	
+Id_val ACCURACY: 0.9380 	Id_val Loss: 0.7122 	
+Id_test ACCURACY: 0.8286 	Id_test Loss: 4.3260 	
+edge_weight:  tensor(0.) tensor(0.9996) tensor(0.0540)
+
+Epoch 75:
+Evaluating...
+Clf loss: 0.0104
+Spec loss: 0.0218
+Mean loss: 0.0104
+Total loss: 0.0322
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0271 	
+Id_val ACCURACY: 0.9399 	Id_val Loss: 0.6704 	
+Id_test ACCURACY: 0.8340 	Id_test Loss: 4.1934 	
+edge_weight:  tensor(0.) tensor(0.9971) tensor(0.0540)
+
+Epoch 76:
+Evaluating...
+Clf loss: 0.0110
+Spec loss: 0.0215
+Mean loss: 0.0110
+Total loss: 0.0325
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0248 	
+Id_val ACCURACY: 0.9342 	Id_val Loss: 0.5765 	
+Id_test ACCURACY: 0.8293 	Id_test Loss: 3.6105 	
+edge_weight:  tensor(0.) tensor(0.9997) tensor(0.0541)
+
+Epoch 77:
+Evaluating...
+Clf loss: 0.0172
+Spec loss: 0.0216
+Mean loss: 0.0172
+Total loss: 0.0388
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0304 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.4644 	
+Id_test ACCURACY: 0.8141 	Id_test Loss: 2.7119 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0541)
+
+Epoch 78:
+Evaluating...
+Clf loss: 0.0127
+Spec loss: 0.0217
+Mean loss: 0.0127
+Total loss: 0.0344
+Eval_train ACCURACY: 0.9988 	Eval_train Loss: 0.0270 	
+Id_val ACCURACY: 0.9301 	Id_val Loss: 0.5446 	
+Id_test ACCURACY: 0.8148 	Id_test Loss: 3.1929 	
+edge_weight:  tensor(0.) tensor(0.9993) tensor(0.0541)
+
+Epoch 79:
+Evaluating...
+Clf loss: 0.0103
+Spec loss: 0.0214
+Mean loss: 0.0103
+Total loss: 0.0316
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0253 	
+Id_val ACCURACY: 0.9307 	Id_val Loss: 0.5678 	
+Id_test ACCURACY: 0.8137 	Id_test Loss: 3.7552 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 80:
+Evaluating...
+Clf loss: 0.0089
+Spec loss: 0.0214
+Mean loss: 0.0089
+Total loss: 0.0303
+Eval_train ACCURACY: 0.9981 	Eval_train Loss: 0.0288 	
+Id_val ACCURACY: 0.9244 	Id_val Loss: 0.6012 	
+Id_test ACCURACY: 0.7960 	Id_test Loss: 4.2763 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 81:
+Evaluating...
+Clf loss: 0.0112
+Spec loss: 0.0220
+Mean loss: 0.0112
+Total loss: 0.0332
+Eval_train ACCURACY: 0.9991 	Eval_train Loss: 0.0257 	
+Id_val ACCURACY: 0.9349 	Id_val Loss: 0.5049 	
+Id_test ACCURACY: 0.8201 	Id_test Loss: 3.1718 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 82:
+Evaluating...
+Clf loss: 0.0133
+Spec loss: 0.0217
+Mean loss: 0.0133
+Total loss: 0.0350
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0271 	
+Id_val ACCURACY: 0.9352 	Id_val Loss: 0.5223 	
+Id_test ACCURACY: 0.7926 	Id_test Loss: 3.7347 	
+edge_weight:  tensor(0.) tensor(0.9998) tensor(0.0540)
+
+Epoch 83:
+Evaluating...
+Clf loss: 0.0137
+Spec loss: 0.0218
+Mean loss: 0.0137
+Total loss: 0.0354
+Eval_train ACCURACY: 0.9974 	Eval_train Loss: 0.0298 	
+Id_val ACCURACY: 0.9304 	Id_val Loss: 0.5130 	
+Id_test ACCURACY: 0.8090 	Id_test Loss: 2.6147 	
+edge_weight:  tensor(0.) tensor(0.9997) tensor(0.0541)
+
+Epoch 84:
+Evaluating...
+Clf loss: 0.0131
+Spec loss: 0.0217
+Mean loss: 0.0131
+Total loss: 0.0347
+Eval_train ACCURACY: 0.9977 	Eval_train Loss: 0.0327 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.4092 	
+Id_test ACCURACY: 0.7810 	Id_test Loss: 1.6888 	
+edge_weight:  tensor(0.) tensor(0.9998) tensor(0.0541)
+
+Epoch 85:
+Evaluating...
+Clf loss: 0.0124
+Spec loss: 0.0217
+Mean loss: 0.0124
+Total loss: 0.0341
+Eval_train ACCURACY: 0.9989 	Eval_train Loss: 0.0268 	
+Id_val ACCURACY: 0.9345 	Id_val Loss: 0.5709 	
+Id_test ACCURACY: 0.8184 	Id_test Loss: 3.4227 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 86:
+Evaluating...
+Clf loss: 0.0125
+Spec loss: 0.0216
+Mean loss: 0.0125
+Total loss: 0.0341
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0269 	
+Id_val ACCURACY: 0.9333 	Id_val Loss: 0.4739 	
+Id_test ACCURACY: 0.8170 	Id_test Loss: 2.6523 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 87:
+Evaluating...
+Clf loss: 0.0114
+Spec loss: 0.0218
+Mean loss: 0.0114
+Total loss: 0.0332
+Eval_train ACCURACY: 0.9994 	Eval_train Loss: 0.0256 	
+Id_val ACCURACY: 0.9349 	Id_val Loss: 0.6158 	
+Id_test ACCURACY: 0.8036 	Id_test Loss: 4.2235 	
+edge_weight:  tensor(0.) tensor(0.9995) tensor(0.0541)
+
+Epoch 88:
+Evaluating...
+Clf loss: 0.0085
+Spec loss: 0.0216
+Mean loss: 0.0085
+Total loss: 0.0301
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0259 	
+Id_val ACCURACY: 0.9314 	Id_val Loss: 0.6159 	
+Id_test ACCURACY: 0.8119 	Id_test Loss: 3.7679 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0541)
+
+Epoch 89:
+Evaluating...
+Clf loss: 0.0094
+Spec loss: 0.0218
+Mean loss: 0.0094
+Total loss: 0.0312
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0256 	
+Id_val ACCURACY: 0.9371 	Id_val Loss: 0.6455 	
+Id_test ACCURACY: 0.8013 	Id_test Loss: 4.6741 	
+edge_weight:  tensor(0.) tensor(1.) tensor(0.0540)
+
+Epoch 90:
+Evaluating...
+Clf loss: 0.0070
+Spec loss: 0.0214
+Mean loss: 0.0070
+Total loss: 0.0284
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0258 	
+Id_val ACCURACY: 0.9393 	Id_val Loss: 0.6227 	
+Id_test ACCURACY: 0.8106 	Id_test Loss: 3.8035 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 91:
+Evaluating...
+Clf loss: 0.0062
+Spec loss: 0.0214
+Mean loss: 0.0062
+Total loss: 0.0275
+Eval_train ACCURACY: 0.9995 	Eval_train Loss: 0.0240 	
+Id_val ACCURACY: 0.9339 	Id_val Loss: 0.6454 	
+Id_test ACCURACY: 0.8124 	Id_test Loss: 4.8036 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 92:
+Evaluating...
+Clf loss: 0.0127
+Spec loss: 0.0215
+Mean loss: 0.0127
+Total loss: 0.0342
+Eval_train ACCURACY: 0.9983 	Eval_train Loss: 0.0265 	
+Id_val ACCURACY: 0.9330 	Id_val Loss: 0.5856 	
+Id_test ACCURACY: 0.8003 	Id_test Loss: 3.6863 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0540)
+
+Epoch 93:
+Evaluating...
+Clf loss: 0.0116
+Spec loss: 0.0217
+Mean loss: 0.0116
+Total loss: 0.0333
+Eval_train ACCURACY: 0.9986 	Eval_train Loss: 0.0260 	
+Id_val ACCURACY: 0.9358 	Id_val Loss: 0.6307 	
+Id_test ACCURACY: 0.8098 	Id_test Loss: 4.1466 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 94:
+Evaluating...
+Clf loss: 0.0109
+Spec loss: 0.0216
+Mean loss: 0.0109
+Total loss: 0.0325
+Eval_train ACCURACY: 0.9993 	Eval_train Loss: 0.0239 	
+Id_val ACCURACY: 0.9323 	Id_val Loss: 0.6516 	
+Id_test ACCURACY: 0.8290 	Id_test Loss: 3.6903 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 95:
+Evaluating...
+Clf loss: 0.0069
+Spec loss: 0.0216
+Mean loss: 0.0069
+Total loss: 0.0285
+Eval_train ACCURACY: 0.9972 	Eval_train Loss: 0.0324 	
+Id_val ACCURACY: 0.9250 	Id_val Loss: 0.6807 	
+Id_test ACCURACY: 0.7976 	Id_test Loss: 5.4825 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Epoch 96:
+Evaluating...
+Clf loss: 0.0145
+Spec loss: 0.0214
+Mean loss: 0.0145
+Total loss: 0.0359
+Eval_train ACCURACY: 0.9985 	Eval_train Loss: 0.0289 	
+Id_val ACCURACY: 0.9352 	Id_val Loss: 0.5640 	
+Id_test ACCURACY: 0.8269 	Id_test Loss: 3.9553 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0540)
+
+Epoch 97:
+Evaluating...
+Clf loss: 0.0113
+Spec loss: 0.0217
+Mean loss: 0.0113
+Total loss: 0.0330
+Eval_train ACCURACY: 0.9992 	Eval_train Loss: 0.0253 	
+Id_val ACCURACY: 0.9345 	Id_val Loss: 0.5681 	
+Id_test ACCURACY: 0.8274 	Id_test Loss: 3.7107 	
+edge_weight:  tensor(0.) tensor(0.9993) tensor(0.0541)
+
+Epoch 98:
+Evaluating...
+Clf loss: 0.0077
+Spec loss: 0.0213
+Mean loss: 0.0077
+Total loss: 0.0290
+Eval_train ACCURACY: 0.9987 	Eval_train Loss: 0.0266 	
+Id_val ACCURACY: 0.9342 	Id_val Loss: 0.5400 	
+Id_test ACCURACY: 0.8158 	Id_test Loss: 3.9780 	
+edge_weight:  tensor(0.) tensor(0.9999) tensor(0.0541)
+
+Epoch 99:
+Evaluating...
+Clf loss: 0.0050
+Spec loss: 0.0213
+Mean loss: 0.0050
+Total loss: 0.0263
+Eval_train ACCURACY: 0.9990 	Eval_train Loss: 0.0250 	
+Id_val ACCURACY: 0.9317 	Id_val Loss: 0.9659 	
+Id_test ACCURACY: 0.8081 	Id_test Loss: 7.5412 	
+edge_weight:  tensor(0.) tensor(1.0000) tensor(0.0541)
+
+Training end (0:07:34.058031).
+
+[1;34mDEBUG[0m: 08/13/2025 06:38:09 PM : [1mConfig model and output the best checkpoint info...
+[0m[1;37mINFO[0m: [1mLoading best In-Domain Checkpoint 6 in /home/azzolin/sedignn/expl_shortcut/storage/checkpoints/round5/GraphSST2Planted_basis_no_shift/softmaxattn_SMGNN_ACR2_2l_2clf_meanpool_0.3dp_normnone_readnormbnavgedgeattnNonemitig_readoutweighted/0.001lr_0.0wd/SMGNN_0.1_False_10_0.01_spar1_entr1/id_best.ckpt
+[0m[1;37mINFO[0m: [1mCheckpoint 6: 
+-----------------------------------
+Train ACCURACY: 0.9535
+Train Loss: 0.1457
+Spec Loss: 0.0216
+Mean Loss: 0.1756
+Total Loss: 0.1972
+ID Validation ACCURACY: 0.9088
+ID Validation Loss: 0.2668
+ID Test ACCURACY: 0.8041
+ID Test Loss: 0.7454
+OOD Validation ACCURACY: 0.9088
+OOD Validation Loss: 0.2668
+OOD Test ACCURACY: 0.8041
+OOD Test Loss: 0.7454
+
+[0m[1;37mINFO[0m: [1mLoading best Out-of-Domain Checkpoint 6...
+[0m[1;37mINFO[0m: [1mCheckpoint 6: 
+-----------------------------------
+Train ACCURACY: 0.9535
+Train Loss: 0.1457
+ID Validation ACCURACY: 0.9088
+ID Validation Loss: 0.2668
+ID Test ACCURACY: 0.8041
+ID Test Loss: 0.7454
+OOD Validation ACCURACY: 0.9088
+OOD Validation Loss: 0.2668
+OOD Test ACCURACY: 0.8041
+OOD Test Loss: 0.7454
+
+[0m[1;37mINFO[0m: [1mChartInfo 0.8041 0.8041 0.8041 0.8041 0.9088 0.9088[0mTrain ACCURACY: 0.9535 	Train Loss: 0.1446 	
+Id_val ACCURACY: 0.9088 	Id_val Loss: 0.2668 	
+Id_test ACCURACY: 0.8041 	Id_test Loss: 0.7454 	
+Val ACCURACY: 0.9088 	Val Loss: 0.2668 	
+Test ACCURACY: 0.8041 	Test Loss: 0.7454 	
+
+
+Final accuracies: 
+SAVED_SCORE = 0.818 +- 0.010
+TRAIN      = 0.949 +- 0.014
+ID_VAL     = 0.905 +- 0.007
+ID_TEST    = 0.818 +- 0.010
+VAL        = 0.905 +- 0.007
+TEST       = 0.818 +- 0.010
+
+
+Final losses: 
+TRAIN       total_loss 0.1579 +- 0.0345  spec_loss 0.0229 +- 0.0009  entr_loss 0.1745 +- 0.0094  l_norm_loss 0.0541 +- 0.0000  clf_loss 0.1350 +- 0.0341
+ID_VAL      total_loss 0.2807 +- 0.0088  spec_loss 0.0231 +- 0.0010  entr_loss 0.1763 +- 0.0096  l_norm_loss 0.0547 +- 0.0000  clf_loss 0.2576 +- 0.0082
+ID_TEST     total_loss 0.7637 +- 0.0998  spec_loss 0.0581 +- 0.0038  entr_loss 0.3919 +- 0.0376  l_norm_loss 0.1894 +- 0.0000  clf_loss 0.7056 +- 0.1017
+VAL         total_loss 0.2807 +- 0.0088  spec_loss 0.0231 +- 0.0010  entr_loss 0.1763 +- 0.0096  l_norm_loss 0.0547 +- 0.0000  clf_loss 0.2576 +- 0.0082
+TEST        total_loss 0.7637 +- 0.0998  spec_loss 0.0581 +- 0.0038  entr_loss 0.3919 +- 0.0376  l_norm_loss 0.1894 +- 0.0000  clf_loss 0.7056 +- 0.1017
+
+
+Ckpt losses for TRAIN: 

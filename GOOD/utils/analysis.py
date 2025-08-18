@@ -1157,7 +1157,7 @@ def plot_explanations(args):
                 normalize = True
 
             # GET EXPLANATIONS
-            N = 40
+            N = 20
             ret = pipeline.get_node_explanations(num_samples=N)
 
             # PLOT GRAPHS
