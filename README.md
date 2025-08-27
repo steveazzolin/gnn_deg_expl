@@ -1,48 +1,6 @@
 # [WIP] Explanation Shortcuts
 
 
-## Relevant Commands (OLD)
-
-```shell
-
-# BAColorGVIsolated (SMGNN - ACR)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test
-# BAColorGVIsolated (SMGNN - ACR w less reg)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --l_norm_coeff 0.1
-# BAColorGVIsolated (SMGNN - ACR w 1-layer CLF)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --gnn_clf_layer 1 --entr_coeff 1.0 --l_norm_coeff 0.4
-# BAColorGVIsolated (SMGNN - ACR w 2-layer CLF)
-# BAColorGVIsolated (SMGNN - GIN)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --backbone GIN --l_norm_coeff 0.2
-
-
-# BAColorGVIsolated (GSAT - ACR)
- goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --gnn_clf_layer 0 --entr_coeff 0.1 --l_norm_coeff 0.4
- # BAColorGVIsolated (GSAT - ACR w 1-layer CLF)
- goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --gnn_clf_layer 1 --entr_coeff 0.1 --l_norm_coeff 0.4
- # BAColorGVIsolated (GSAT - ACR w 1-layer CLF - Pretrain Degenrate)
- goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "2/3/4/5" --task hist --gnn_clf_layer 1 --pretrain_degenerate --entr_coeff 0.1 --l_norm_coeff 0.4
-
-
-# BAColorGVIsolated (DIR - ACR k=0.1)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.1
-# BAColorGVIsolated (DIR - ACR k=0.5)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.5
-# BAColorGVIsolated (DIR - ACR k=0.1 w 1-layer CLF)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.1 --gnn_clf_layer 1
-# BAColorGVIsolated (DIR - ACR k=0.5 w 1-layer CLF)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.1 --gnn_clf_layer 1
-# BAColorGVIsolated (DIR - ACR k=0.1 w 1-layer CLF - Pretrain Degenerate)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.1 --gnn_clf_layer 1 --pretrain_degenerate
-# BAColorGVIsolated (DIR - ACR k=0.5 w 1-layer CLF - Pretrain Degenerate)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5/6/7/8/9/10" --task test --ood_param 0.5 --gnn_clf_layer 1 --pretrain_degenerate
-
-
-
-
-
-
-
 
 ## Relevant Commands (NEW)
 
@@ -59,6 +17,8 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --see
 # BAColorGVIsolated (GSAT - ACR)
 # BAColorGVIsolated (GSAT - ACR w 1-layer CLF)
 # BAColorGVIsolated (GSAT - ACR - As per paper with lin. clf. - Pretrain Degenerate/Suff)
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --extra_param False 10 0.8
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --extra_param False 10 0.3
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain suff
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2
@@ -202,20 +162,25 @@ goodtg --config_path final_configs/SST2Planted/basis/no_shift/GSAT.yaml --seeds 
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
 
+# DIR trained with alpha fixed at the initial value
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
 
 
 # natural degeneracy (trying with stronger sparsity loss)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task train --gpu_idx 1 --l_norm_coeff 2 # (nope)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task train --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 # (nope)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task train --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 --ood_param 1 # (no deg)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task train --gpu_idx 1 --ood_param 1 # (no deg; acc=82)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task train --gpu_idx 1 --ood_param 10 # (no deg; acc=81)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task train --gpu_idx 1 --ood_param 100 # (no deg; acc=60 +- 17; seed 1 has acc 0.81 but all scores equal and ~0)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 # (nope)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 # (nope)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 --ood_param 1 # (no deg)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 1 # seed 1 squashed (no deg; acc=82)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --gpu_idx 1 --ood_param 10 # (no deg; acc=81)
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --gpu_idx 1 --ood_param 100 # (no deg; acc=60 +- 17; seed 1 has acc 0.81 but all scores equal and ~0)
+
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --extra_param False 10 0.3
+
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.1 # seed 1/2/4 very much deg. Seed 3 poor accuracy
 
 # natural degeneracy using softmax attention (config.prefix)
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 # some deg
 goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 # (acc 0.82; flatten scores; no deg)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --ood_param 1 # (idx 0 something; idx 3 out; idx 6 make, idx 21 find; idx 28 is; idx 36 clear) -- check idx 30 'fun'/idx 34 'tosses' whose count is {1.0: 242, 0.0: 78}/{1.0: 5, 0.0: 14} but it was picked for a prediction of class 0 with GT 1
+goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --gpu_idx 1 --ood_param 1 # for seed 1-> (idx 0 something; idx 3 out; idx 6 make, idx 21 find; idx 28 is; idx 36 clear) -- check idx 30 'fun'/idx 34 'tosses' whose count is {1.0: 242, 0.0: 78}/{1.0: 5, 0.0: 14} but it was picked for a prediction of class 0 with GT 1
 ```
