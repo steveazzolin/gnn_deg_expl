@@ -1121,6 +1121,7 @@ def print_hist(args):
             if not os.path.exists(path):
                 os.makedirs(path)
             path += f"{config.load_split}_{config.dataset.dataset_name}_{config.dataset.domain}_{config.util_model_dirname}_{config.random_seed}"
+            print("Saving at ", path)
             plt.savefig(path + ".png")
             plt.close()
 
@@ -1160,8 +1161,13 @@ def plot_explanations(args):
             N = 20
             ret = pipeline.get_node_explanations(num_samples=N)
 
+            # DEFINE IMPORTANCE THRESHOLD
+            if "DIR" in config.model.model_name:
+                thr = 0.0 # just filter based on topK
+            else:
+                thr = 0.5
+
             # PLOT GRAPHS
-            thr = 0.5
             compute_fid = False
             topK_nodes_kept = None
             for i in range(len(ret[split]["samples"])):
