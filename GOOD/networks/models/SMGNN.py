@@ -121,6 +121,10 @@ class SMGNN(GNNBasic):
                 min=0.00001,
                 max=0.99999
             )
+
+        ##
+        # BELOW IS SOFTMAX ATTENTION VARIANT
+        ## 
         # if training:
         #     random_noise = torch.empty_like(att_log_logit).uniform_(1e-10, 1 - 1e-10)
         #     random_noise = torch.log(random_noise) - torch.log(1.0 - random_noise)
