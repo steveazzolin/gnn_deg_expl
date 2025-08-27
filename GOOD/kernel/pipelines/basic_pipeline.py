@@ -1495,6 +1495,10 @@ class Pipeline:
 
                 for j, g in enumerate(data.to_data_list()):
                     node_expl = node_scores[data.batch == j].detach().cpu().numpy().squeeze(1)
+
+                    # normalize scores when squashed to zero
+                    # node_expl = (node_expl - node_expl.min()) / (node_expl.max() - node_expl.min())
+
                     ret[split]["scores"].append(node_expl.tolist())
                     ret[split]["samples"].append(g)
                     ret[split]["pred"].append(logits[j])
