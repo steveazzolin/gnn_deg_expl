@@ -314,7 +314,7 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
             assert False, "Not implemented"
             edge_color = list(nx.get_edge_attributes(G, "attn_weight").values())
             edge_color = ["red" if e >= thrs else "black" for e in edge_color]
-    if config.dataset.dataset_name == "GraphSST2Planted":
+    elif config.dataset.dataset_name == "GraphSST2Planted":
         sentence_tokens = list(nx.get_node_attributes(G, "sentence_tokens").values())
         node_labels = {i: sentence_tokens[i] for i in range(len(node_attr))}
     else:
@@ -343,9 +343,9 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     # Annotate with node scores
     if node_expl is not None and pos is not None:
         if isinstance(pos, dict):
-            label_pos = {n: (x, y + 0.03) for n, (x, y) in pos.items()}  # vertical offset
+            label_pos = {n: (x, y + 0.04) for n, (x, y) in pos.items()}  # vertical offset
         else:
-            label_pos = {n: (x, y + 0.03) for n, (x, y) in enumerate(pos)}  # vertical offset
+            label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,
