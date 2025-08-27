@@ -186,6 +186,25 @@ class MNIST(InMemoryDataset):
         id_val_dataset = train_val[-n_val_data:]
         id_test_dataset = test_set
 
+        # from torch_geometric.utils import k_hop_subgraph
+        # ratios = []
+        # larger = 0
+        # for d in id_val_dataset:
+        #     subset, _, _, _ = k_hop_subgraph(
+        #         node_idx=torch.nonzero(d.x[:, :3].min(1).values > 0.3).view(-1),
+        #         num_hops=1,
+        #         edge_index=d.edge_index,
+        #         num_nodes=d.x.shape[0]
+        #     )
+        #     if len(subset) == 0:
+        #         continue
+        #     if len(subset) / d.x.shape[0] >= 0.8:
+        #         larger += 1
+        #     ratios.append(len(subset) / d.x.shape[0])
+        # print(np.mean(ratios), np.std(ratios), np.max(ratios))
+        # print(larger / len(id_val_dataset))
+        # exit("HOW BIG SUFF EXPL ARE? GREATER THAN DIR'S TOPK?")
+
         # index_train, index_val_test = train_test_split(
         #     torch.arange(len(dataset)), 
         #     train_size=0.8,
