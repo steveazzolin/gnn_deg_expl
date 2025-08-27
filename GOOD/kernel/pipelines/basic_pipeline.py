@@ -1494,7 +1494,16 @@ class Pipeline:
                 )
 
                 for j, g in enumerate(data.to_data_list()):
-                    node_expl = node_scores[data.batch == j].detach().cpu().numpy().squeeze(1)
+                    node_expl = node_scores[data.batch == j].detach()#.cpu().numpy().squeeze(1)
+
+                    if self.config.model.model_name == "DIR":
+                        # remove nodes not in the TopK
+                        (_),(_), \
+                            (topK_nodes_kept, topK_nodes_removed) = split_graph_node(g, node_expl, self.config.ood.ood_param, embed=None, use_input_feat=True)
+                        assert topK_nodes_kept.shape[0] + topK_nodes_removed.shape[0] == g.x.shape[0]
+                        node_expl[topK_nodes_removed] = -1.0
+
+                    node_expl = node_expl.cpu().numpy().squeeze(1)
 
                     # normalize scores when squashed to zero
                     # node_expl = (node_expl - node_expl.min()) / (node_expl.max() - node_expl.min())
