@@ -33,6 +33,10 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --see
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain suff --backbone ACR2
 
 # DIR pretrain experiments are run with both optimizing DIR loss and without
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --ood_param 0.6 # Trained with fixed alpha.
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --ood_param 0.1 # Trained with fixed alpha. Acc ~ 0.5
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --ood_param 0.01 # Trained with fixed alpha. Acc ~ 0.5
+
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2 --ood_param 0.5
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain suff --backbone ACR2  --ood_param 0.5
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2 --ood_param 0.3
@@ -150,6 +154,12 @@ goodtg --config_path final_configs/MUTAG/basis/no_shift/DIR.yaml --seeds "1/2/3/
 goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
 goodtg --config_path final_configs/MUTAG/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
 goodtg --config_path final_configs/MUTAG/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.5 --pretrain degenerate
+
+# ablation analysis
+goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.01 # visually not very clear deg
+goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.1 # visually not very clear deg, but rejection rations quite high
+
+goodtg --config_path final_configs/MUTAG/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --extra_param False 10 0.3 # some deg
 
 
 ##
