@@ -343,9 +343,9 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     # Annotate with node scores
     if node_expl is not None and pos is not None:
         if isinstance(pos, dict):
-            label_pos = {n: (x, y + 0.04) for n, (x, y) in pos.items()}  # vertical offset
+            label_pos = {n: (x, y + 0.05) for n, (x, y) in pos.items()}  # vertical offset
         else:
-            label_pos = {n: (x, y + 0.04) for n, (x, y) in enumerate(pos)}  # vertical offset
+            label_pos = {n: (x, y + 0.05) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,
@@ -355,12 +355,22 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
             alpha=0.8
         )
 
-    if topk is not None:
-        ax = plt.gca()
-        for node in topk:
-            x, y = pos[node]
-            circle = Circle((x, y), radius=0.05, edgecolor='grey', facecolor='none', linewidth=1)
-            ax.add_patch(circle)
+    highlight_nodes = [u for u, is_relev in enumerate(list(nx.get_node_attributes(G, "node_mask").values())) if is_relev]
+    nx.draw_networkx_nodes(
+        G, 
+        pos,
+        nodelist=highlight_nodes,
+        node_color="yellow",
+        node_size=1000,   # larger than the actual node
+        alpha=0.3         # transparent halo
+    )
+
+    # if topk is not None:
+    #     ax = plt.gca()
+    #     for node in topk:
+    #         x, y = pos[node]
+    #         circle = Circle((x, y), radius=0.05, edgecolor='grey', facecolor='none', linewidth=1)
+    #         ax.add_patch(circle)
     
     plt.suptitle(title)
 
