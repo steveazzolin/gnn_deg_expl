@@ -45,7 +45,7 @@ class MUTAG(InMemoryDataset):
 
     Label mapping:
         0: mutagen
-        0: non-mutagen
+        1: non-mutagen
     """
 
     def __init__(self, root: str, domain: str, shift: str = 'no_shift', subset: str = 'train', transform=None,
@@ -118,7 +118,6 @@ class MUTAG(InMemoryDataset):
         # for g in dataset:
         #     # if g.y.item() == 1:
         #         # continue
-
         #     # if sum(g.node_type == 3) >= 1:
         #     #     continue
 
@@ -126,16 +125,15 @@ class MUTAG(InMemoryDataset):
         #         if n in g.node_type:
         #             count[n] += 1
 
-        #     H_count_per_label[g.y.item()].append(sum(g.node_type == 0).item())
-
+        #     H_count_per_label[g.y.item()].append(sum(g.node_type == 1).item())
         # plt.hist(H_count_per_label[0], label="y=0", alpha=0.5)
         # plt.hist(H_count_per_label[1], label="y=1", alpha=0.5)
+        # plt.xlim((0,20))
         # plt.ylabel("frequency")
-        # plt.xlabel("count of C present in the graph")
+        # plt.xlabel("count of O present in the graph")
         # plt.legend()
-        # plt.savefig("GOOD/kernel/pipelines/plots/mutag_distrib_of_C_per_class.png")
+        # plt.savefig("GOOD/kernel/pipelines/plots/mutag_distrib_of_O_per_class.png")
         # plt.close()
-
         # print()
         # print(count)
         # exit("AIO")
