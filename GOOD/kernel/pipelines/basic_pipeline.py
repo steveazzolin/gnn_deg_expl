@@ -23,7 +23,7 @@ from tqdm import tqdm
 import networkx as nx
 import matplotlib.pyplot as plt
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import roc_auc_score as sk_roc_auc, f1_score, accuracy_score
+from sklearn.metrics import roc_auc_score as sk_roc_auc, f1_score, accuracy_score, precision_recall_fscore_support
 from imblearn.under_sampling import RandomUnderSampler
 
 from GOOD.ood_algorithms.algorithms.BaseOOD import BaseOODAlg
@@ -134,8 +134,8 @@ class Pipeline:
                 targets += carbon_nodes_for_nonmutag + hydrogen_nodes_for_mutag
             elif self.config.dataset.dataset_name == "GraphSST2Planted":
                 period_for_class0 = torch.logical_and(data.node_type == 1, graph_label_per_node == 0).float()
-                comma_for_class0 = torch.logical_and(data.node_type == 2, graph_label_per_node == 1).float()
-                targets += period_for_class0 + comma_for_class0
+                comma_for_class1 = torch.logical_and(data.node_type == 2, graph_label_per_node == 1).float()
+                targets += period_for_class0 + comma_for_class1
             else:
                 raise ValueError(f"{self.config.dataset.dataset_name} not supported for pretrain")
         elif self.config.train.pretrain == "suff":
@@ -1076,7 +1076,7 @@ class Pipeline:
         return dataset
 
     @torch.no_grad()
-    def evaluate(self, split: str, epoch:int, compute_plaus=False, compute_clf_only_pred=False):
+    def evaluate(self, split: str, epoch:int, compute_plaus=False, compute_mcc=False, compute_clf_only_pred=False):
         r"""
         This function is design to collect data results and calculate scores and loss given a dataset subset.
         (For project use only)
@@ -1089,6 +1089,8 @@ class Pipeline:
             A score and a loss.
 
         """
+        assert not (compute_plaus and compute_mcc)
+        
         stat = {'score': None, 'loss': None, 'wiou': None}
         if self.loader.get(split) is None:
             return stat
@@ -1102,7 +1104,8 @@ class Pipeline:
         pred_clf_only_all = []
         target_all = []
         likelihoods_all = []
-        wious_all, aucroc_all = [], []
+        wious_all, aucroc_all, f1_pos_all, f1_neg_all = [], [], [], []
+        recall_pos_all, prec_pos_all, recall_neg_all, prec_neg_all = [], [], [], []
         pbar = tqdm(self.loader[split], desc=f'Eval {split.capitalize()}', total=len(self.loader[split]),
                     **pbar_setting)
         for data in pbar:
@@ -1167,7 +1170,7 @@ class Pipeline:
             pred_all.append(pred)
             target_all.append(target)
 
-            # ------------- WIOU ------------------
+            # ------------- PLAUSIBILITY ------------------
             if compute_plaus:
                 # wious_mask = torch.ones(data.batch.max() + 1, dtype=torch.bool)
                 # if self.config.dataset.dataset_name == "TopoFeature" or self.config.dataset.dataset_name == "SimpleMotif":
@@ -1192,6 +1195,55 @@ class Pipeline:
                         sk_roc_auc(gt, node_expl, average="macro")
                     )
 
+            # ------------- PLAUSIBILITY WRT INDUCED-DEGENERATE EXPLANATIONS ------------------
+            if compute_mcc: 
+                if raw_preds.shape[-1] > 1:
+                    preds = raw_preds.argmax(dim=1)
+                else:
+                    preds = (raw_preds > 0.5).long().view(-1)
+
+                # extract for each node the label of the graph it belongs to
+                if len(data.y.shape) > 1:
+                    graph_label_per_node = data.y.view(-1)[data.batch]
+                else:
+                    graph_label_per_node = data.y[data.batch]
+
+                correct_nodes = graph_label_per_node == preds[data.batch]
+
+                node_att = self.ood_algorithm.att.sigmoid()[correct_nodes] # take att_log_logit of each model
+                targets = self.get_pretrain_targets(data)[correct_nodes]                 
+
+                # f1_pos = f1_score(
+                #     (targets > 0).cpu().numpy(),
+                #     (node_att.squeeze(1) > 0.9).cpu().numpy(),
+                #     average='binary',
+                #     pos_label=1
+                # )
+                # f1_neg = f1_score(
+                #     (targets > 0).cpu().numpy(),
+                #     (node_att.squeeze(1) > 0.1).cpu().numpy(),
+                #     average='binary',
+                #     pos_label=0
+                # )   
+                prec_pos, recall_pos, f1_pos, _ = precision_recall_fscore_support(
+                    (targets > 0).cpu().numpy(),
+                    (node_att.squeeze(1) > 0.9).cpu().numpy(),
+                    average='binary',
+                    pos_label=1,
+                )                 
+                prec_neg, recall_neg, f1_neg, _ = precision_recall_fscore_support(
+                    (targets > 0).cpu().numpy(),
+                    (node_att.squeeze(1) > 0.1).cpu().numpy(),
+                    average='binary',
+                    pos_label=0,
+                )
+                f1_pos_all.append(f1_pos)
+                f1_neg_all.append(f1_neg)
+                prec_neg_all.append(prec_neg)
+                recall_neg_all.append(recall_neg)
+                prec_pos_all.append(prec_pos)
+                recall_pos_all.append(recall_pos)
+
                 
 
         # ------- Loss calculate -------
@@ -1208,6 +1260,12 @@ class Pipeline:
         stat['likelihood_logprod'] = torch.sum(likelihoods_all.log())
         stat['wiou'] = np.mean(wious_all) if len(wious_all) > 0 else np.nan
         stat['aucroc'] = np.mean(aucroc_all) if len(aucroc_all) > 0 else np.nan
+        stat['f1_pos'] = np.mean(f1_pos_all) if len(f1_pos_all) > 0 else np.nan
+        stat['f1_neg'] = np.mean(f1_neg_all) if len(f1_neg_all) > 0 else np.nan        
+        stat['prec_neg'] = np.mean(prec_neg_all) if len(prec_neg_all) > 0 else np.nan        
+        stat['recall_neg'] = np.mean(recall_neg_all) if len(recall_neg_all) > 0 else np.nan        
+        stat['prec_pos'] = np.mean(prec_pos_all) if len(prec_pos_all) > 0 else np.nan        
+        stat['recall_pos'] = np.mean(recall_pos_all) if len(recall_pos_all) > 0 else np.nan        
 
         # --------------- Metric calculation including ROC_AUC, Accuracy, AP.  --------------------
         stat['score'] = eval_score(pred_all, target_all, self.config, self.loader[split].dataset.minority_class)
@@ -1216,7 +1274,9 @@ class Pipeline:
             f'{split.capitalize()} {self.config.metric.score_name}: {stat["score"]:.4f} \t' + 
             f'{split.capitalize()} Loss: {loss_per_batch_dict["total_loss"]:.4f} \t' + 
             (f'{split.capitalize()} WIoU: {stat["wiou"]:.3f} \t' if compute_plaus else '') +
-            (f'{split.capitalize()} AUCROC: {stat["aucroc"]:.3f} \t' if compute_plaus else '')
+            (f'{split.capitalize()} AUCROC: {stat["aucroc"]:.3f} \t' if compute_plaus else '') +
+            (f'{split.capitalize()} F1_pos: {stat["f1_pos"]:.3f} \t' if compute_mcc else '') +
+            (f'{split.capitalize()} F1_neg: {stat["f1_neg"]:.3f} \t' if compute_mcc else '')
         )
 
         if was_training:
@@ -1231,6 +1291,12 @@ class Pipeline:
             'likelihood_logprod': stat['likelihood_logprod'],
             'wiou': stat['wiou'],
             'aucroc': stat['aucroc'],
+            'f1_pos': stat['f1_pos'],
+            'f1_neg': stat['f1_neg'],
+            'prec_neg': stat['prec_neg'],
+            'recall_neg': stat['recall_neg'],
+            'prec_pos': stat['prec_pos'],
+            'recall_pos': stat['recall_pos'],
             'pred': pred_all,
             'pred_clf_only': pred_clf_only_all
         }

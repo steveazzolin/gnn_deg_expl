@@ -69,6 +69,8 @@ def main():
     run = None
     test_scores, test_losses, ckpt_losses = defaultdict(list), defaultdict(lambda: defaultdict(list)), defaultdict(list)
     test_likelihoods_avg, test_likelihoods_prod, test_likelihoods_logprod, test_auroc = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
+    test_f1_pos, test_f1_neg = defaultdict(list), defaultdict(list)
+    test_prec_pos, test_prec_neg, test_recall_pos, test_recall_neg = defaultdict(list), defaultdict(list), defaultdict(list), defaultdict(list)
     for i, seed in enumerate(args.seeds.split("/")):
         seed = int(seed)
         print(f"\n\n#D#Running with seed = {seed}")
@@ -120,12 +122,19 @@ def main():
                 sa = pipeline.evaluate(
                     s,
                     compute_plaus=False,
+                    compute_mcc=config.train.pretrain == "degenerate",
                     compute_clf_only_pred=compute_clf_only_pred, 
                     epoch=ckpt["epoch"]
                 )
                 test_scores[s].append(sa['score'])
                 # test_losses[s].append(sa['loss'].item())
                 test_auroc[s].append(sa['aucroc'])
+                test_f1_pos[s].append(sa['f1_pos'])
+                test_f1_neg[s].append(sa['f1_neg'])
+                test_prec_pos[s].append(sa['prec_pos'])
+                test_recall_pos[s].append(sa['recall_pos'])
+                test_prec_neg[s].append(sa['prec_neg'])
+                test_recall_neg[s].append(sa['recall_neg'])
                 test_likelihoods_avg[s].append(sa['likelihood_avg'].item())
                 test_likelihoods_prod[s].append(sa['likelihood_prod'].item())
                 test_likelihoods_logprod[s].append(sa['likelihood_logprod'].item())
@@ -152,6 +161,30 @@ def main():
         print("\n\nFinal AUCROC: ")
         for s in test_auroc.keys():
             print(f"{s.upper():<10} = {np.mean(test_auroc[s]):.3f} +- {np.std(test_auroc[s]):.3f}")
+
+    if not np.isnan(test_f1_pos["train"][0]):
+        print("\n\nFinal F1_pos: ")
+        for s in test_f1_pos.keys():
+            print(f"{s.upper():<10} = {np.mean(test_f1_pos[s]):.3f} +- {np.std(test_f1_pos[s]):.3f}")
+        print("\n\nFinal F1_neg: ")
+        for s in test_f1_neg.keys():
+            print(f"{s.upper():<10} = {np.mean(test_f1_neg[s]):.3f} +- {np.std(test_f1_neg[s]):.3f}")
+        print("\n\nMacro F1: ")        
+        for s in test_f1_neg.keys():
+            macros = np.mean(np.concatenate(([test_f1_pos[s]], [test_f1_neg[s]]), axis=0), axis=0)
+            print(f"{s.upper():<10} = {np.mean(macros):.3f} +- {np.std(macros):.3f}")
+        # print("\n\nFinal Prec_pos: ")
+        # for s in test_prec_pos.keys():
+        #     print(f"{s.upper():<10} = {np.mean(test_prec_pos[s]):.3f} +- {np.std(test_prec_pos[s]):.3f}")
+        # print("\n\nFinal Recall_pos: ")
+        # for s in test_prec_pos.keys():
+        #     print(f"{s.upper():<10} = {np.mean(test_recall_pos[s]):.3f} +- {np.std(test_recall_pos[s]):.3f}")
+        # print("\n\nFinal Prec_neg: ")
+        # for s in test_prec_pos.keys():
+        #     print(f"{s.upper():<10} = {np.mean(test_prec_neg[s]):.3f} +- {np.std(test_prec_neg[s]):.3f}")
+        # print("\n\nFinal Recall_neg: ")
+        # for s in test_prec_pos.keys():
+        #     print(f"{s.upper():<10} = {np.mean(test_recall_neg[s]):.3f} +- {np.std(test_recall_neg[s]):.3f}")
 
 
     print("\n\nFinal losses: ")
