@@ -1195,7 +1195,8 @@ def plot_explanations(args):
                     else:
                         pred = round(ret[split]["pred"][i].sigmoid().item(), 3)
 
-                title = f"Idx: {i:<3} Class={int(data.y.item())} Pred={pred:<5}"
+                # title = f"Idx: {i:<3} Class={int(data.y.item())} Pred={pred:<5}"
+                title = f"Class={int(data.y.item())} Prediction={pred:<5}"
 
                 if "DIR" in config.model.model_name:
                     if i == 0:
