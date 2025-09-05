@@ -278,6 +278,9 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     
     if pos is None and config.dataset.dataset_name not in ["MNIST", "CPatchMNIST", "CPatchMNIST2", "GraphSST2Planted"]:
         pos = nx.kamada_kawai_layout(G)
+        # pos[len(G.nodes)-2] = np.array([0.8, 0.8]) # useful for BAColorGV
+        # pos[len(G.nodes)-1] = np.array([-0.8, -0.8]) # useful for BAColorGV
+
     elif config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"]:
         pos = [ (x[4], -x[3])  for x in node_attr]
     elif "SST2" in config.dataset.dataset_name:
@@ -299,7 +302,7 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
         ax=ax,
         node_size=nodesize,
         node_color=node_colors,
-        # edge_color=edge_color,
+        edge_color=(0.55, 0.55, 0.55),
         alpha=0.9 if config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"] else 0.5
     )
 
@@ -321,14 +324,15 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
         index_to_symbol = {0: 'C', 1: 'O', 2: 'Cl', 3: "H", 4: "N", 5: "F", 6: "Br", 7: "S", 8: "P", 9: "I", 10: "Na", 11: "K", 12: "Li", 13: "Ca"}
         node_labels = {i: index_to_symbol[np.argmax(node_attr[i])] for i in range(len(node_attr))}
 
-    nx.draw_networkx_labels(
-        G,
-        pos,
-        node_labels,
-        font_size=12,
-        font_color="red" if config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"] else "black",
-        alpha=0.6
-    )
+    # Annotate nodes with 'E' or other labels
+    # nx.draw_networkx_labels(
+    #     G,
+    #     pos,
+    #     node_labels,
+    #     font_size=12,
+    #     font_color="red" if config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"] else "black",
+    #     alpha=0.6
+    # )
 
     # Annotate with edge scores
     # if nx.get_edge_attributes(G, 'attn_weight') != {}:
@@ -343,9 +347,9 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
     # Annotate with node scores
     if node_expl is not None and pos is not None:
         if isinstance(pos, dict):
-            label_pos = {n: (x, y + 0.05) for n, (x, y) in pos.items()}  # vertical offset
+            label_pos = {n: (x, y + 0.03) for n, (x, y) in pos.items()}  # vertical offset
         else:
-            label_pos = {n: (x, y + 0.05) for n, (x, y) in enumerate(pos)}  # vertical offset
+            label_pos = {n: (x, y + 0.03) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,
@@ -418,7 +422,7 @@ def plot_sentence_graph(G, name, subfolder, config, title):
     for i, token in enumerate(tokens):
         if G.node_mask[i]:
             ax.add_patch(plt.Rectangle((x_coords[i] - 0.4, -0.2), 0.8, 0.4,
-                                       color='cyan', alpha=0.4, zorder=0))
+                                       color='yellow', alpha=0.3, zorder=0))
         ax.text(x_coords[i], 0, token, ha='center', va='center', fontsize=10)
         ax.text(x_coords[i], -1, round(node_importance[i].item(), 2), ha='center', va='center', fontsize=6)
 
@@ -616,6 +620,10 @@ def robust_fidelity(graph, type, p, expval_budget, inplace=False):
         Generate the perturbed sample according to Robust Fidelity+ and Robust Fidelity-.
         I.e., remove random edges in a IID fashion.
         Partially inspired from https://pytorch-geometric.readthedocs.io/en/latest/_modules/torch_geometric/utils/dropout.html#dropout_edge
+
+        For Necessity metrics: note that this function considers every edge outside of the complement node-induced subgraph as candidate edge 
+        to be removed. Thus, not only the ones strictly inside the explanation node-induced subgraph. 
+        For Sufficiency metrics: Specular
     """
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
@@ -657,7 +665,7 @@ def robust_fidelity(graph, type, p, expval_budget, inplace=False):
         ]
 
     edge_masks = torch.rand((expval_budget, row.size(0)), device=graph.edge_index.device) >= p
-    edge_masks[:, force_to_keep] = True # force to keep edges inside R
+    edge_masks[:, force_to_keep] = True # force to keep edges inside R or C, based on the metric
     edge_masks[:, row > col] = False  # force undirected
     all_nonzero = edge_masks.nonzero()
     for j in range(expval_budget):
@@ -682,6 +690,9 @@ def nec_budget(graph, avg_graph_size, p, expval_budget):
         Modification of RFID+ to account for irrelevant edges in the explanation.
         From 'https://openreview.net/pdf?id=kiOxNsrpQy'
         Instead of sampling edges IID, sample a fixed budget proportional to the average size of graphs.
+        
+        Note that this function considers every edge outside of the complement node-induced subgraph as candidate edge 
+        to be removed. Thus, not only the ones strictly inside the explanation node-induced subgraph.
     """
     if graph.node_mask.sum() == 0: # discard empty explanations
         return None
@@ -691,7 +702,7 @@ def nec_budget(graph, avg_graph_size, p, expval_budget):
 
     row, col = graph.edge_index
     complement_edge_index, _, force_to_keep_complement = subgraph(
-        torch.logical_not(graph.node_mask), # perturb the complement
+        torch.logical_not(graph.node_mask),
         graph.edge_index,
         return_edge_mask=True,
         relabel_nodes=True,
