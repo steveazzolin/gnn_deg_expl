@@ -153,7 +153,11 @@ class GraphSST2Planted(InMemoryDataset):
         # Idxs: 19, 24, 33, 36
         # count = defaultdict(int)
         # for d in train_dataset:            
-        #     if "is" in d.sentence_tokens:
+        #     found = True
+        #     for s in ["in"]:
+        #         if s not in d.sentence_tokens:
+        #             found = False
+        #     if found:
         #         print(d.y.item(), " ".join(d.sentence_tokens))
         #         count[d.y.item()] += 1
         # print("\n", count)

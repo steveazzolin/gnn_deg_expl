@@ -62,8 +62,8 @@ def main():
         analysis.print_faith(args)
         exit(0)
     if args.task == 'hist':
-        analysis.print_r_ge_b_hist(args)
-        # analysis.print_hist(args)
+        # analysis.print_r_ge_b_hist(args)
+        analysis.print_hist(args)
         exit(0)
 
     run = None
@@ -122,7 +122,7 @@ def main():
                 sa = pipeline.evaluate(
                     s,
                     compute_plaus=False,
-                    compute_mcc=config.train.pretrain == "degenerate",
+                    compute_mcc=config.train.pretrain == "degenerate" or config.train.pretrain == "suff",
                     compute_clf_only_pred=compute_clf_only_pred, 
                     epoch=ckpt["epoch"]
                 )

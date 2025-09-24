@@ -325,14 +325,14 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
         node_labels = {i: index_to_symbol[np.argmax(node_attr[i])] for i in range(len(node_attr))}
 
     # Annotate nodes with 'E' or other labels
-    # nx.draw_networkx_labels(
-    #     G,
-    #     pos,
-    #     node_labels,
-    #     font_size=12,
-    #     font_color="red" if config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"] else "black",
-    #     alpha=0.6
-    # )
+    nx.draw_networkx_labels(
+        G,
+        pos,
+        node_labels,
+        font_size=12,
+        font_color="red" if config.dataset.dataset_name in ["MNIST", "CPatchMNIST", "CPatchMNIST2"] else "black",
+        alpha=0.6
+    )
 
     # Annotate with edge scores
     # if nx.get_edge_attributes(G, 'attn_weight') != {}:
@@ -346,10 +346,11 @@ def draw_colored(config, G, name, thrs=None, node_expl=None, edge_expl="", subfo
 
     # Annotate with node scores
     if node_expl is not None and pos is not None:
+        offset = 0.05
         if isinstance(pos, dict):
-            label_pos = {n: (x, y + 0.03) for n, (x, y) in pos.items()}  # vertical offset
+            label_pos = {n: (x, y + offset) for n, (x, y) in pos.items()}  # vertical offset
         else:
-            label_pos = {n: (x, y + 0.03) for n, (x, y) in enumerate(pos)}  # vertical offset
+            label_pos = {n: (x, y + offset) for n, (x, y) in enumerate(pos)}  # vertical offset
 
         nx.draw_networkx_labels(
             G,

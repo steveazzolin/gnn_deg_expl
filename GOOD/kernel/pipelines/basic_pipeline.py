@@ -297,7 +297,7 @@ class Pipeline:
                 # Weighted Cross-Entropy Loss
                 loss_weight = targets.clone()
                 loss_weight[targets == 0] = 1
-                loss_weight[targets == 1] = 100 # TODO: 10 for BAColor; 100 for MNIST
+                loss_weight[targets == 1] = 100 # TODO: 10 for BAColor; 100 for others
                 detector_loss = F.binary_cross_entropy(node_att.squeeze(1), targets, weight=loss_weight)
 
                 self.ood_algorithm.backward(detector_loss + clf_loss)
@@ -849,12 +849,11 @@ class Pipeline:
         if len(eval_samples) <= 1:
             print(f"\nToo few intervened samples, skipping this")
             exit()
-            for c in labels_ori_ori.unique():
-                scores[c.item()].append(1.0)
             scores["all_KL"].append(1.0)
             scores["all_L1"].append(1.0)
+            scores["rejection"].append(np.nan)
             acc_ints.append(-1.0)
-            return None
+            return scores, None
         
         ##
         # Compute new predictions
@@ -973,6 +972,7 @@ class Pipeline:
                     scores[f"{c.item()}_{m}"].append(np.nan)
                 else:    
                     scores[f"{c.item()}_{m}"].append(round(aggr[m][idx_class].mean().item(), 3))
+                # print(f"Class {c} rej={aggr['rejection'][idx_class].float().mean()}")
             scores[f"all_{m}"].append(round(aggr[m].mean().item(), 3))
         scores[f"rejection"].append(round(aggr["rejection"].float().mean().item(), 3))
 
@@ -1533,7 +1533,7 @@ class Pipeline:
             if num_samples:
                 dataset = dataset[:num_samples]
 
-            loader = DataLoader(dataset, batch_size=512, shuffle=False, num_workers=2)
+            loader = DataLoader(dataset, batch_size=256, shuffle=False, num_workers=2)
             for data in loader:
                 data: Batch = data.to(self.config.device)
 
@@ -1575,8 +1575,8 @@ class Pipeline:
                     # node_expl = (node_expl - node_expl.min()) / (node_expl.max() - node_expl.min())
 
                     ret[split]["scores"].append(node_expl.tolist())
-                    ret[split]["samples"].append(g)
-                    ret[split]["pred"].append(logits[j])
+                    ret[split]["samples"].append(g.cpu())
+                    ret[split]["pred"].append(logits[j].cpu())
         return ret
 
     def generate_panel(self):
