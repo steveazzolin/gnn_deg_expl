@@ -1,0 +1,17 @@
+includes:
+  - base.yaml
+model:
+  model_name: SMGNN
+ood:
+  ood_alg: SMGNN
+  ood_param: 0.01
+  extra_param:
+    - false
+    - 10
+    - 0.01
+train:
+    l_norm_coeff: 1
+    entr_coeff: 1.5
+log_file: exp_0
+clean_save: true
+use_readout_norm: bn
