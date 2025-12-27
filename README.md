@@ -55,9 +55,13 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --see
 # same as above, but by changing only ood_param similar to the analysis for MNIST
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 # (default) --ood_param 1 # 3 over 5 are deg
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 --ood_param 0.1
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 --ood_param 0.01 #TODO
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 --ood_param 0.01
 
 goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2
+
+# Experiment run to test the IB hypotheses. Other experiments are run in the redundancy_undermines codebase.
+# WARNING: I manually removed BatchNorm from ExtractorMLP!!
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 --ood_param 0.0
 
 
 

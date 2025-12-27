@@ -495,6 +495,26 @@ class Pipeline:
         r"""
         Training pipeline.
         """
+
+        ## 
+        # TEMPORARY ONLY FOR IB
+        ##
+        from torch.utils.tensorboard import SummaryWriter
+        from datetime import datetime
+        run_name = f"bacolorgvisol_" \
+               f"att_modular_" \
+               f"seed{self.config.exp_round}_" \
+               f"acr2" \
+               f"{self.config.model.model_layer}l_" \
+               f"{self.config.model.dim_hidden}h_" \
+               f"{self.config.model.dropout_rate}dp_" \
+               f"{self.config.model.dropout_rate}edp_" \
+               f"{self.config.train.max_epoch}epoch_" \
+               f"lr{self.config.train.lr}_" \
+               f"wd{self.config.train.weight_decay}"
+        self.writer = SummaryWriter(f"/home/azzolin/sedignn/redundancy_undermines/outputs/logs/{run_name}")        
+        self.timestamp = datetime.timestamp(datetime.now())
+
         if self.config.wandb:
             wandb.login()
 
@@ -578,6 +598,35 @@ class Pipeline:
             )
             id_val_stat = self.evaluate('id_val', epoch=epoch)
             id_test_stat = self.evaluate('id_test', epoch=epoch)
+
+
+            ## 
+            # TEMPORARY ONLY FOR IB
+            ##
+            for stat, split in zip([epoch_train_stat, id_val_stat], ["train", "valid"]):
+                all_att = torch.cat(stat["node_expl"]).view(-1)
+                node_gt = torch.cat(stat["node_gt"])
+                bkg_att_weights = all_att[node_gt == 0]
+                signal_att_weights = all_att[node_gt == 1]
+                bkg_att_weights = torch.cat((bkg_att_weights, torch.zeros((1))), dim=0)
+                signal_att_weights = torch.cat((signal_att_weights, torch.zeros((1))), dim=0)
+                def histogram_entropy(v, n_bins=10, base=2):
+                    counts, _ = np.histogram(v, bins=n_bins, range=(0,1))
+                    p = counts / counts.sum()
+                    p = p[p > 0]
+                    return -np.sum(p * np.log(p)) / np.log(base)  # convert log to desired base
+                self.writer.add_scalar(f'{split}_loss/{self.timestamp}', loss_per_batch_dict['total_loss'], epoch)
+                self.writer.add_histogram(f'{split}_histogram/{self.timestamp}/bkg_att_weights',
+                                        bkg_att_weights, epoch, bins=100)
+                self.writer.add_histogram(f'{split}_histogram/{self.timestamp}/signal_att_weights',
+                                        signal_att_weights, epoch, bins=100)
+                entropy_att_distrib = histogram_entropy(all_att, n_bins=100, base=2)
+                self.writer.add_scalar(f'{split}_H_E/{self.timestamp}', entropy_att_distrib, epoch)
+            ## 
+            # END OF 'TEMPORARY ONLY FOR IB'
+            ##
+
+
             
             if self.config.dataset.shift_type == "no_shift":
                 val_stat = id_val_stat
@@ -1104,6 +1153,7 @@ class Pipeline:
         pred_clf_only_all = []
         target_all = []
         likelihoods_all = []
+        node_expl_all, node_gt_all = [], []
         wious_all, aucroc_all, f1_pos_all, f1_neg_all = [], [], [], []
         recall_pos_all, prec_pos_all, recall_neg_all, prec_neg_all = [], [], [], []
         pbar = tqdm(self.loader[split], desc=f'Eval {split.capitalize()}', total=len(self.loader[split]),
@@ -1147,10 +1197,9 @@ class Pipeline:
             loss = self.ood_algorithm.loss_calculate(raw_preds, targets, mask, node_norm, self.config, batch=data.batch)
             loss = self.ood_algorithm.loss_postprocess(loss, data, mask, self.config, epoch)
 
-            # print(epoch, loss)
-            # print(raw_preds[:15].sigmoid())
-            # exit()
-            # print(loss, self.ood_algorithm.spec_loss, self.ood_algorithm.mean_loss)
+            # --------------- TEMPORARY ONLY FOR THE IB ANALYSIS ------------------
+            node_expl_all.append(model_output[2].cpu())
+            node_gt_all.append(data.node_is_spurious.cpu())
 
             mask_all.append(mask)
             # loss_all.append(loss.item())
@@ -1298,7 +1347,9 @@ class Pipeline:
             'prec_pos': stat['prec_pos'],
             'recall_pos': stat['recall_pos'],
             'pred': pred_all,
-            'pred_clf_only': pred_clf_only_all
+            'pred_clf_only': pred_clf_only_all,
+            'node_expl': node_expl_all,
+            "node_gt": node_gt_all
         }
 
     def load_task(self, load_param=False, load_split="ood"):
@@ -1598,16 +1649,19 @@ class Pipeline:
 
             loader = DataLoader(dataset, batch_size=512, shuffle=False, num_workers=2)
             edge_scores, effective_ratios = [], []
+            node_scores = []
             for data in loader:
                 data: Batch = data.to(self.config.device)   
-                edge_score = self.model.get_subgraph(
+                node_score = self.model.get_subgraph(
                                 data=data,
                                 edge_weight=None,
                                 ood_algorithm=self.ood_algorithm,
                                 do_relabel=False
-                        )
+                        )[1]
                 for j, g in enumerate(data.to_data_list()):
-                    edge_scores.append(edge_score[data.batch[data.edge_index[0]] == j].detach().cpu().numpy().tolist())
+                    # edge_scores.append(edge_score[data.batch[data.edge_index[0]] == j].detach().cpu().numpy().tolist())
+                    node_scores.append(node_score[data.batch == j].detach().cpu().numpy().tolist())
+                    
                     if g.edge_index.shape[1] > 0:
                         effective_ratios.append(float((g.edge_gt.sum() if hasattr(g, "edge_gt") and not g.edge_gt is None else 0.) / (g.edge_index.shape[1])))
             
@@ -1615,7 +1669,7 @@ class Pipeline:
                 edge_scores = [np.abs(np.array(e)) for e in edge_scores]
                 edge_scores = [(e - e.min()) / (e.max() - e.min() + 1e-7) for e in edge_scores if len(e) > 0]
 
-            return edge_scores
+            return node_scores
 
             print(min(np.concatenate(edge_scores)), max(np.concatenate(edge_scores)), np.mean(np.concatenate(edge_scores)), np.std(np.concatenate(edge_scores)))
             axs[int(i/n_row)].hist(np.concatenate(edge_scores) + np.random.normal(0, 0.001, np.concatenate(edge_scores).shape), density=True, log=False, bins=100) #100 or np.linspace(-1, 1, 100)
@@ -1653,12 +1707,15 @@ class Pipeline:
         return edge_scores
     
     def generate_panel_all_seeds(self, edge_scores_seed):
+        from scipy.ndimage import gaussian_filter1d
+
         n_row, n_col = 5, 2
         fig, axs = plt.subplots(n_row, n_col, figsize=(20,16))
         for j in range(len(edge_scores_seed)):   
             ax = axs[j // n_col, j % n_col]
 
-            ax.hist(np.concatenate(edge_scores_seed[j]), density=True, log=False, bins=100)
+            tmp = np.concatenate(edge_scores_seed[j])
+            ax.hist(tmp + np.random.normal(0, 0.005, (len(tmp),1)), density=True, log=False, bins=100)
             ax.set_title(f"seed {j+1}", fontsize=15)
             ax.set_yticks([])
             ax.tick_params(axis='y', labelsize=12)
