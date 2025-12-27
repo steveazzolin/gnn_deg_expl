@@ -61,7 +61,7 @@ goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seed
 
 # Experiment run to test the IB hypotheses. Other experiments are run in the redundancy_undermines codebase.
 # WARNING: I manually removed BatchNorm from ExtractorMLP!!
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 --ood_param 0.0
+goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 0.0 --l_norm_coeff 0.0 --backbone ACR2 --use_readout_norm none --gnn_clf_layer 2 --ood_param 0.0
 
 
 
