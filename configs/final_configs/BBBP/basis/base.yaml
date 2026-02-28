@@ -1,4 +1,0 @@
-includes:
-  - ../base.yaml
-dataset:
-  domain: basis

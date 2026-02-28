@@ -1,205 +1,49 @@
-# [WIP] Explanation Shortcuts
+# GNN Explanations that do not Explain and How to find Them
 
+Official repo for the ICLR 2026 paper *GNN Explanations that do not Explain and How to find Them*.
 
+This repo is still under maintainance. Do not esistate to write to the corresponding author for any inquiry.
 
-## Relevant Commands (NEW)
+## Installation
 
-```shell
+Regarding the installation of the library -- which is required in order to run the code with the `goodtg` functionality -- please refer to [GOOD](https://github.com/divelab/GOOD) or to our previous [project](https://github.com/steveazzolin/beyond-topo-segnns/).
 
-# BAColorGVIsolated (SMGNN - ACR) (1/2 no deg; 3 deg)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --l_norm_coeff 0.4
-# BAColorGVIsolated (SMGNN - ACR w less reg)
-# BAColorGVIsolated (SMGNN - ACR w 1-layer CLF)
-# BAColorGVIsolated (SMGNN - ACR w 2-layer CLF)
-# BAColorGVIsolated (SMGNN - GIN)
+## Model Implementations
 
+Models implementation can be found here `GOOD\networks\models`.
+Basic implementations of classifiers and shared modules are available in `GOOD\networks\models\Classifiers.py`.
 
-# BAColorGVIsolated (GSAT - ACR)
-# BAColorGVIsolated (GSAT - ACR w 1-layer CLF)
-# BAColorGVIsolated (GSAT - ACR - As per paper with lin. clf. - Pretrain Degenerate/Suff)
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --extra_param False 10 0.8
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --extra_param False 10 0.3
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain suff
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --pretrain suff --backbone ACR2
-goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task train --pretrain sub
-goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task train --pretrain sub --backbone ACR2
+## Training Details
 
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain suff
-goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain sub
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 # Reported in attack table. Acc 100
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --pretrain suff --backbone ACR2
+The file `GOOD\ood_algorithms\algorithms\BaseOOD.py` contains the basic training logic for each model. Then, for specific training protocols of each architecture, please refer to the corresponding file in the same folder. Note that configurations of additional models not tested in this work may be present, as they are inhereted from the original GOOD implementation.
 
-# DIR pretrain experiments are run with both optimizing DIR loss and without
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --ood_param 0.5 # Trained with fixed alpha. Reported in Table attacks
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --ood_param 0.6 # Trained with fixed alpha.
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --ood_param 0.1 # Trained with fixed alpha. 
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2 --ood_param 0.01 # Trained with fixed alpha. 
+In this work, the following models are considered:
+ - GIN (ERM - Empirical Risk Minimization)
+ - GSAT
+ - DIR
+ - SMGNN
 
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2 --ood_param 0.5
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain suff --backbone ACR2  --ood_param 0.5
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain degenerate --backbone ACR2 --ood_param 0.3
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain suff --backbone ACR2  --ood_param 0.3
-goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain sub --backbone ACR2 --ood_param 0.5
-goodtg --config_path final_configs/BAColorRBIsol/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --pretrain sub --backbone ACR2 --ood_param 0.3
+## Configurations files
 
+Configuration files and hyper-parameter details for each experiment are available in `configs/final_configs/`.
 
-# Config to measure how often SEGNNs yield poor unfaithful explanations
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 0.1 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm none --gnn_clf_layer 2 # squashed expls
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 # 3/5 deg
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 1
+## Datasets
 
-# same as above, but by changing only ood_param similar to the analysis for MNIST
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 # (default) --ood_param 1 # 3 over 5 are deg
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 --ood_param 0.1
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 1.0 --l_norm_coeff 0.4 --backbone ACR2 --use_readout_norm bn --gnn_clf_layer 2 --ood_param 0.01
+Dataset implementations are provided in `GOOD\data\good_datasets`.
 
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --backbone ACR2
+For generating MNIST75sp the MNIST dataset, please refer to the [original paper](https://github.com/bknyaz/graph_attention_pool/tree/master/scripts). We included in our codebase the file `scripts\extract_mnist_superpixels.py` for ease of reproduction.
 
-# Experiment run to test the IB hypotheses. Other experiments are run in the redundancy_undermines codebase.
-# WARNING: I manually removed BatchNorm from ExtractorMLP!!
-goodtg --config_path final_configs/BAColorGVIsol/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --entr_coeff 0.0 --l_norm_coeff 0.0 --backbone ACR2 --use_readout_norm none --gnn_clf_layer 2 --ood_param 0.0
+## Checkpoints
 
+Checkpoints will be made available soon.
 
+## Experiments
 
-##
-# MNIST
-##
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1" --task test --gpu_idx 1 --ood_param 0.5 #(r=0.5)
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff  --backbone ACR2
+Please refer to `scripts\eval.sh` for examples of how to run the code for each model and dataset.
 
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff  --backbone ACR2
+The `--task` argument regulates the behaviour of the code, and can be set as follows:
 
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 --ood_param 0.8 --use_readout_norm bn #(Acc0.5)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 --ood_param 0.1 --use_readout_norm bn #(Acc0.2)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 --ood_param 0.8  #(Acc0.42)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 --ood_param 0.1  #(Acc0.2)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "10" --task test --gpu_idx 1 --backbone ACR2 --ood_param 0.1 --extra_param False 1e-5 # trained with fixed alpha 
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2 --ood_param 0.8 --use_readout_norm bn # (Acc 0.95)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2 --ood_param 0.1 --use_readout_norm bn # (Acc 89)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate --backbone ACR2 --ood_param 0.8 --use_readout_norm none # (f1_pos does not reach ~1)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR2 --ood_param 0.8 --use_readout_norm bn #(Acc 0.5)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR2 --ood_param 0.8 --use_readout_norm none #(Acc 0.89)
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR2 --ood_param 0.1 --use_readout_norm none #(Acc 0.47)
- 
-
-
-# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 5   (deg)   Test ACC=  (4 layers both DET and CLF)
-# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 5   (deg)   Test ACC=0.89
-# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 5   (deg)   Test ACC=0.87/0.91/0.84
-# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 1.5 (plaus) Test ACC=0.91
-# --ood_param 0.1  --l_norm_coeff 1   --entr_coeff 1   (plaus) Test ACC=0.93
-# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 1   (plaus) Test ACC=0.93
-# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 10  (plaus) Test ACC=0.88
-# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 4   (plaus) Test ACC=0.91
-# --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 0.1 (plaus) 0.93
-# --ood_param 0.1  --l_norm_coeff 0.0 --entr_coeff 5   (plaus) Test ACC=0.89
-# TRAIN WITH 4 LAYERS AND STRONG REG.
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 0
-
-
-# MNIST with natural degenerate explanations
-#goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2" --task test --gpu_idx 0 --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 5 --model_layer 3 --gnn_clf_layer 3 # seed 1 deg. seed 2 all 1.0
-# goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2" --task test --gpu_idx 1 --ood_param 0.1  --l_norm_coeff 0.1 --entr_coeff 5 --model_layer 3 --gnn_clf_layer 3 --backbone ACR2 # seed 1 very large explanation. seed 2 all 1.0
-# goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2" --task test --gpu_idx 1 --ood_param 0.1  --l_norm_coeff 1 --entr_coeff 5 --backbone ACR2 # seed 1 very large explanation. seed 2 all 1.0
-
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 # checkme
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.1 --backbone ACR2 # seed 1 some traces of deg. seed 2 not deg. seed 3/4 not deg. seed 5 some signs of deg
-goodtg --config_path final_configs/MNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 1 --backbone ACR2 # seed 1/2/3 deg.
-
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 # all seed no deg
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 --extra_param False 10 0.3 # no deg
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --backbone ACR2 --mitigation_sampling raw # (NOTE: filename saved with tmp=no_r_annealing) no param sharing + no r annealing -> no deg
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3" --task test --gpu_idx 1 --backbone ACR2 --mitigation_sampling raw --ood_param 1 --extra_param False 10 0.5 # (NOTE: filename saved with tmp=no_r_annealing) no param sharing + no r annealing -> no deg
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3" --task test --gpu_idx 1 --backbone ACR2 --mitigation_sampling raw --ood_param 10 --extra_param False 10 0.5 # (NOTE: filename saved with tmp=no_r_annealing) no param sharing + no r annealing -> no deg
-goodtg --config_path final_configs/MNIST/basis/no_shift/GSAT.yaml --seeds "1" --task test --gpu_idx 1 --backbone ACR2 --mitigation_sampling raw --ood_param 1 --extra_param False 10 0.5 --gnn_clf_layer 1 # (NOTE: filename saved with tmp=no_r_annealing) no param sharing + no r annealing -> no deg
-
-# Trying to train a good performing DIR with k=0.1. If we manage, it would probably be a deg. explanation
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 0 --backbone ACR2 --ood_param 0.1 --use_readout_norm bn # 0.2
-goodtg --config_path final_configs/MNIST/basis/no_shift/DIR.yaml --seeds "1" --task test --gpu_idx 0 --backbone ACR2 --ood_param 0.1 --use_readout_norm bn --model_layer 3 --gnn_clf_layer 3 # running
-
-
-
-##
-# CPatchMNIST
-##
-goodtg --config_path final_configs/CPatchMNIST/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR2
-goodtg --config_path final_configs/CPatchMNIST/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain suff --backbone ACR2
-
-
-
-##
-# CPatchMNIST2
-##
-goodtg --config_path final_configs/CPatchMNIST2/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --pretrain suff --backbone ACR2
-goodtg --config_path final_configs/CPatchMNIST2/basis/no_shift/GSAT.yaml --seeds "1" --task test --gpu_idx 1 --pretrain suff --backbone ACR2
-
-
-
-
-
-
-
-##
-# Mutagenicity (--backbone ACR2 by default)
-##
-goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
-goodtg --config_path final_configs/MUTAG/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
-goodtg --config_path final_configs/MUTAG/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.5
-goodtg --config_path final_configs/MUTAG/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.1 # Acc ~ 0.5
-goodtg --config_path final_configs/MUTAG/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.01 # Acc ~ 0.5
-
-goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
-goodtg --config_path final_configs/MUTAG/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
-goodtg --config_path final_configs/MUTAG/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.5 --pretrain degenerate
-
-# ablation analysis
-goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.01 # visually not very clear deg
-goodtg --config_path final_configs/MUTAG/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.1 # visually not very clear deg, but rejection rations quite high
-
-goodtg --config_path final_configs/MUTAG/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --extra_param False 10 0.3 # some deg
-
-
-##
-# GraphSST2Planted (--backbone ACR2 by default)
-##
-
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
-
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
-
-# DIR trained with alpha fixed at the initial value
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --pretrain degenerate
-
-
-# natural degeneracy (trying with stronger sparsity loss)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 # (nope)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 # (nope)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 --ood_param 1 # (no deg)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 1 # seed 1 squashed (no deg; acc=82)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --gpu_idx 1 --ood_param 10 # (no deg; acc=81)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --gpu_idx 1 --ood_param 100 # (no deg; acc=60 +- 17; seed 1 has acc 0.81 but all scores equal and ~0)
-
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/GSAT.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --extra_param False 10 0.3
-
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.1 # seed 1/2/4 very much deg. Seed 3 poor accuracy
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/DIR.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 --ood_param 0.01 # little lower acc. inspect deg expl.
-
-# natural degeneracy using softmax attention (config.prefix)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1" --task test --gpu_idx 1 --l_norm_coeff 2 --entr_coeff 2 # some deg
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3/4/5" --task test --gpu_idx 1 # (acc 0.82; flatten scores; no deg)
-goodtg --config_path final_configs/SST2Planted/basis/no_shift/SMGNN.yaml --seeds "1/2/3" --task test --gpu_idx 1 --ood_param 1 # for seed 1-> (idx 0 something; idx 3 out; idx 6 make, idx 21 find; idx 28 is; idx 36 clear) -- check idx 30 'fun'/idx 34 'tosses' whose count is {1.0: 242, 0.0: 78}/{1.0: 5, 0.0: 14} but it was picked for a prediction of class 0 with GT 1
-```
+- `test`: Evaluate the model
+- `train`: Train the model
+- `plot_explanations`: Plot examples of explanations
+- `eval_metric`: Evaluate a faithfulness metric. The metric to test has to be specified in the `metrics` argument (e.g. `--metrics rfidm/rfidp/suff_cause/suff/nec/counter_fid`). See `scripts\faithfulness_ablation_expval_budget.sh` for an example.
