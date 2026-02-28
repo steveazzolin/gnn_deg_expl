@@ -1,6 +1,6 @@
 # GNN Explanations that do not Explain and How to find Them
 
-Official repo for the ICLR 2026 paper *GNN Explanations that do not Explain and How to find Them*.
+Official repo for the ICLR 2026 paper [*GNN Explanations that do not Explain and How to find Them*](https://arxiv.org/pdf/2601.20815).
 
 This repo is still under maintainance. Do not esistate to write to the corresponding author for any inquiry.
 
